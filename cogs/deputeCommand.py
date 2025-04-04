@@ -19,10 +19,10 @@ class DeputeCommand(commands.Cog, name="depute"):
         self.bot = bot
 
     @commands.hybrid_command(
-        name="debug",
+        name="debugd",
         description="Debug command.",
     )
-    async def debug(self, context: Context, name: str) -> None:
+    async def debugd(self, context: Context, name: str) -> None:
         """
         This is a debug command that displays all debug information regarding a member of parliament.
 
@@ -40,7 +40,7 @@ class DeputeCommand(commands.Cog, name="depute"):
                 if depute := Depute.from_json_by_name(data, name):
                     embed = discord.Embed(
                         title="Député",
-                        description=depute.to_string_debug(),
+                        description=depute,
                         color=0x367588,
                     )
                     await context.send(embed=embed)
@@ -49,6 +49,41 @@ class DeputeCommand(commands.Cog, name="depute"):
         embed = discord.Embed(
             title="Député",
             description=f"J'ai pas trouvé le député {name}.",
+            color=0x367588,
+        )
+        await context.send(embed=embed)
+
+    @commands.hybrid_command(
+        name="debugs",
+        description="Debug command.",
+    )
+    async def debugs(self, context: Context, code_ref: str) -> None:
+        """
+        TODO
+
+        ----------
+        context: Context
+            The application command context.
+        code_ref: str
+            Code of a ballot
+        """
+
+        for file in os.listdir(SCRUTINS_FOLDER):
+            with open(os.path.join(SCRUTINS_FOLDER, file), "r") as f:
+                data = json.load(f)
+
+                if scrutin := Scrutin.from_json_by_ref(data, code_ref):
+                    embed = discord.Embed(
+                        title="Scrutin",
+                        description=scrutin,
+                        color=0x367588,
+                    )
+                    await context.send(embed=embed)
+                    return
+        
+        embed = discord.Embed(
+            title="Scrutin",
+            description=f"J'ai pas trouvé le scrutin {code_ref}.",
             color=0x367588,
         )
         await context.send(embed=embed)

@@ -106,8 +106,5 @@ class Depute:
     def to_string(self) -> str:
         return f"Ton député est {self.to_string_less()}."
 
-    def to_string_debug(self) -> str:
-        return f"{self.first_name} {self.last_name} | {self.ref} in {self.dep}-{self.circo} group {self.gp} | {self.gp_ref}."
-    
     def to_string_less(self) -> str:
         return f"{self.first_name} {self.last_name} élu dans le {self.dep}-{self.circo} dans le groupe {self.gp}"

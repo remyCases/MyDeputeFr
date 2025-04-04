@@ -16,11 +16,12 @@ class Scrutin:
     dateScrutin: str
     sort: str
     nombreVotants: str
-    nonVotants: str
+    nonVotant: str
     pour: str
     contre: str
-    abstentions: str
-    nonVotantsVolontaires: str
+    abstention: str
+    nonVotantsVolontaire: str
+    groupes: dict
 
     @classmethod
     def from_json(cls, data: dict) -> Self:
@@ -29,11 +30,63 @@ class Scrutin:
         dateScrutin: str = data["scrutin"]["dateScrutin"]
         sort: str = data["scrutin"]["sort"]["code"]
         nombreVotants: str = data["scrutin"]["syntheseVote"]["nombreVotants"]
-        nonVotants: str = data["scrutin"]["syntheseVote"]["decompte"]["nonVotants"]
+        nonVotant: str = data["scrutin"]["syntheseVote"]["decompte"]["nonVotants"]
         pour: str = data["scrutin"]["syntheseVote"]["decompte"]["pour"]
         contre: str = data["scrutin"]["syntheseVote"]["decompte"]["contre"]
-        abstentions: str = data["scrutin"]["syntheseVote"]["decompte"]["abstentions"]
-        nonVotantsVolontaires: str = data["scrutin"]["syntheseVote"]["decompte"]["nonVotantsVolontaires"]
+        abstention: str = data["scrutin"]["syntheseVote"]["decompte"]["abstentions"]
+        nonVotantsVolontaire: str = data["scrutin"]["syntheseVote"]["decompte"]["nonVotantsVolontaires"]
+
+        groupes: dict = data["scrutin"]["ventilationVotes"]["organe"]["groupes"]["groupe"]
+        groupes_scrutin: dict = {}
+        for groupe in groupes:
+            organe_ref: str = groupe["organeRef"]
+            nv_list: list = []
+            p_list: list = []
+            c_list: list = []
+            a_list: list = []
+
+            nonVotants = groupe["vote"]["decompteNominatif"]["nonVotants"]
+            if nonVotants:
+                nonVotants = nonVotants["votant"]
+                if isinstance(nonVotants, list):
+                    for nv in nonVotants:
+                        nv_list.append(nv["acteurRef"])
+                else:
+                    nv_list.append(nonVotants["acteurRef"])
+
+            pours = groupe["vote"]["decompteNominatif"]["pours"]
+            if pours:
+                pours = pours["votant"]
+                if isinstance(pours, list):
+                    for p in pours:
+                        p_list.append(p["acteurRef"])
+                else:
+                    p_list.append(pours["acteurRef"])
+
+            contres = groupe["vote"]["decompteNominatif"]["contres"]
+            if contres:
+                contres = contres["votant"]
+                if isinstance(contres, list):
+                    for c in contres:
+                        c_list.append(c["acteurRef"])
+                else:
+                    c_list.append(contres["acteurRef"])
+
+            abstentions = groupe["vote"]["decompteNominatif"]["abstentions"]
+            if abstentions:
+                abstentions = abstentions["votant"]
+                if isinstance(abstentions, list):
+                    for a in abstentions:
+                        a_list.append(a["acteurRef"])
+                else:
+                    a_list.append(abstentions["acteurRef"])
+
+            groupes_scrutin[organe_ref] = {
+                "nonVotant": nv_list,
+                "pour": p_list,
+                "contre": c_list,
+                "abstention": a_list,
+            }
 
         return cls(
             ref=ref,
@@ -41,11 +94,12 @@ class Scrutin:
             dateScrutin=dateScrutin,
             sort=sort,
             nombreVotants=nombreVotants,
-            nonVotants=nonVotants,
+            nonVotant=nonVotant,
             pour=pour,
             contre=contre,
-            abstentions=abstentions,
-            nonVotantsVolontaires=nonVotantsVolontaires,
+            abstention=abstention,
+            nonVotantsVolontaire=nonVotantsVolontaire,
+            groupes=groupes_scrutin,
         )
     
     @classmethod
@@ -58,10 +112,11 @@ class Scrutin:
     def to_string(self) -> str:
         return f"Le {self.dateScrutin}, {self.sort}:\n{self.titre}\n\n  \
             Nombre de votants: {self.nombreVotants}.\n                  \
-            Non votants: {self.nonVotants}.\n                           \
-            Pour: {self.pour}.\nContre: {self.contre}.\n                \
-            Abstentions: {self.abstentions}.\n                          \
-            Non votants volontaires: {self.nonVotantsVolontaires}."
+            Non votants: {self.nonVotant}.\n                            \
+            Pour: {self.pour}.\n                                        \
+            Contre: {self.contre}.\n                                    \
+            Abstentions: {self.abstention}.\n                           \
+            Non votants volontaires: {self.nonVotantsVolontaire}."
     
     def to_string_depute(self, depute: Depute, res: str) -> str:
         return f"{depute.to_string_less()}\na voté **{res}** lors du \n{self.dateScrutin}, {self.sort}:\n{self.titre}"
