@@ -173,6 +173,4 @@ cython_debug/
 # PyPI configuration file
 .pypirc
 
-organe/*
-Scrutins/*
-acteur/*
+data/*

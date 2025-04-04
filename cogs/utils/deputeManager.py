@@ -6,9 +6,12 @@ import os
 import json
 from typing import Self
 from attrs import define
+from dotenv import load_dotenv
 
-ACTEUR_FOLDER = "acteur"
-ORGANE_FOLDER = "organe"
+load_dotenv()
+
+ACTEUR_FOLDER = os.getenv("ACTEUR_FOLDER")
+ORGANE_FOLDER = os.getenv("ORGANE_FOLDER")
 
 @define(kw_only=True)
 class Depute:

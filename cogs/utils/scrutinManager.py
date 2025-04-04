@@ -2,12 +2,16 @@
 # See LICENSE file for extended copyright information.
 # This file is part of MyDeputeFr project from https://github.com/remyCases/MyDeputeFr.
 
+import os
 from typing import Self
 from attrs import define
+from dotenv import load_dotenv
 
 from .deputeManager import Depute
 
-SCRUTINS_FOLDER = "Scrutins\\json"
+load_dotenv()
+
+SCRUTINS_FOLDER = os.getenv("SCRUTINS_FOLDER")
 
 @define(kw_only=True)
 class Scrutin:

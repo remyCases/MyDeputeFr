@@ -7,12 +7,15 @@ import json
 import discord
 from discord.ext import commands
 from discord.ext.commands import Context
+from dotenv import load_dotenv
 
 from cogs.utils.deputeManager import Depute
 from cogs.utils.scrutinManager import Scrutin
 
-ACTEUR_FOLDER = "acteur"
-SCRUTINS_FOLDER = "Scrutins\\json"
+load_dotenv()
+
+ACTEUR_FOLDER = os.getenv("ACTEUR_FOLDER")
+SCRUTINS_FOLDER = os.getenv("SCRUTINS_FOLDER")
 
 class DeputeCommand(commands.Cog, name="depute"):
     def __init__(self, bot) -> None:
