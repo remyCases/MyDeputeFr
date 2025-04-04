@@ -140,5 +140,6 @@ class Scrutin:
             if depute.ref in groupe["abstention"]:
                 res = "abstention"
                 break
+            break
 
         return f"{depute.to_string_less()}\na voté **{res}** lors du \n{self.dateScrutin}, {self.sort}:\n{self.titre}"
