@@ -7,7 +7,7 @@ from typing import Self
 from attrs import define
 from dotenv import load_dotenv
 
-from .deputeManager import Depute
+from utils.deputeManager import Depute
 
 load_dotenv()
 

@@ -9,8 +9,8 @@ from discord.ext import commands
 from discord.ext.commands import Context
 from dotenv import load_dotenv
 
-from cogs.utils.deputeManager import Depute
-from cogs.utils.scrutinManager import Scrutin
+from utils.deputeManager import Depute
+from utils.scrutinManager import Scrutin
 
 load_dotenv()
 
