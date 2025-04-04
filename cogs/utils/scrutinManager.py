@@ -118,5 +118,27 @@ class Scrutin:
             Abstentions: {self.abstention}.\n                           \
             Non votants volontaires: {self.nonVotantsVolontaire}."
     
-    def to_string_depute(self, depute: Depute, res: str) -> str:
+    def to_string_depute(self, depute: Depute) -> str:
+        res = "absent"
+
+        for gp_ref, groupe in self.groupes.items():
+            if depute.gp_ref != gp_ref:
+                continue
+
+            if depute.ref in groupe["nonVotant"]:
+                res = "non votant"
+                break
+
+            if depute.ref in groupe["pour"]:
+                res = "pour"
+                break
+
+            if depute.ref in groupe["contre"]:
+                res = "contre"
+                break
+
+            if depute.ref in groupe["abstention"]:
+                res = "abstention"
+                break
+
         return f"{depute.to_string_less()}\na voté **{res}** lors du \n{self.dateScrutin}, {self.sort}:\n{self.titre}"

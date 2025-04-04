@@ -213,86 +213,15 @@ class DeputeCommand(commands.Cog, name="depute"):
                     for file_scrutin in os.listdir(SCRUTINS_FOLDER):
                         with open(os.path.join(SCRUTINS_FOLDER, file_scrutin), "r") as g:
                             data_scrutin = json.load(g)
-                            ref: str = data_scrutin["scrutin"]["numero"]
-                            if ref != code_ref:
-                                continue
-
-                            scrutin = Scrutin.from_json(data_scrutin)
-                            groupes = data_scrutin["scrutin"]["ventilationVotes"]["organe"]["groupes"]["groupe"]
-                            res = ""
-                            for groupe in groupes:
-                                organe_ref = groupe["organeRef"]
-                                if organe_ref != depute.gp_ref:
-                                    continue
-
-                                nonVotants = groupe["vote"]["decompteNominatif"]["nonVotants"]
-                                if nonVotants:
-                                    nonVotants = nonVotants["votant"]
-                                    if isinstance(nonVotants, list):
-                                        for nonVotant in nonVotants:
-                                            if nonVotant["acteurRef"] != depute.ref:
-                                                continue
-                                            res = "non votant"
-                                            break
-                                    else:
-                                        if nonVotants["acteurRef"] == depute.ref:
-                                            res = "non votant"
-
-                                if res: break
-
-                                pours = groupe["vote"]["decompteNominatif"]["pours"]
-                                if pours:
-                                    pours = pours["votant"]
-                                    if isinstance(pours, list):
-                                        for pour in pours:
-                                            if pour["acteurRef"] != depute.ref:
-                                                continue
-                                            res = "pour"
-                                            break
-                                    else:
-                                        if pours["acteurRef"] == depute.ref:
-                                            res = "pour"
-
-                                if res: break
-
-                                contres = groupe["vote"]["decompteNominatif"]["contres"]
-                                if contres:
-                                    contres = contres["votant"]
-                                    if isinstance(contres, list):
-                                        for contre in contres:
-                                            if contre["acteurRef"] != depute.ref:
-                                                continue
-                                            res = "contre"
-                                            break
-                                    else:
-                                        if contres["acteurRef"] == depute.ref:
-                                            res = "contre"
-
-                                if res: break
-
-                                abstentions = groupe["vote"]["decompteNominatif"]["abstentions"]
-                                if abstentions:
-                                    abstentions = abstentions["votant"]
-                                    if isinstance(abstentions, list):
-                                        for abstention in abstentions:
-                                            if abstention["acteurRef"] != depute.ref:
-                                                continue
-                                            res = "abstention"
-                                            break
-                                    else:
-                                        if abstentions["acteurRef"] == depute.ref:
-                                            res = "abstention"
-                                break
-
-                            if not res: res = "absent"
-
-                            embed = discord.Embed(
-                                title="Députés",
-                                description=scrutin.to_string_depute(depute, res),
-                                color=0x367588,
-                            )
-                            await context.send(embed=embed)
-                            return
+                            if scrutin := Scrutin.from_json_by_ref(data_scrutin, code_ref):
+                            
+                                embed = discord.Embed(
+                                    title="Députés",
+                                    description=scrutin.to_string_depute(depute),
+                                    color=0x367588,
+                                )
+                                await context.send(embed=embed)
+                                return
             
         embed = discord.Embed(
             title="Députés",
