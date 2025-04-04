@@ -134,7 +134,7 @@ def update() -> bool:
         return False
     
     success = moving_folder(folder, DATA_FOLDER)
-    clean(zip_file)
+    clean(zip_file, folder)
     
     if success:
         logging.info("=== Update success ===")
