@@ -4,6 +4,7 @@
 
 import os
 from typing import Self
+from enum import Enum
 from attrs import define
 from dotenv import load_dotenv
 
@@ -12,6 +13,15 @@ from utils.deputeManager import Depute
 load_dotenv()
 
 SCRUTINS_FOLDER = os.getenv("SCRUTINS_FOLDER")
+
+# class syntax
+
+class ResultBallot(Enum):
+    ABSENT = 0
+    NONVOTANT = 1
+    POUR = 2
+    CONTRE = 3
+    ABSTENTION = 4
 
 @define(kw_only=True)
 class Scrutin:
@@ -122,28 +132,37 @@ class Scrutin:
             Abstentions: {self.abstention}.\n                           \
             Non votants volontaires: {self.nonVotantsVolontaire}."
     
-    def to_string_depute(self, depute: Depute) -> str:
-        res = "absent"
+    def result(self, depute: Depute) -> ResultBallot:
 
         for gp_ref, groupe in self.groupes.items():
             if depute.gp_ref != gp_ref:
                 continue
 
             if depute.ref in groupe["nonVotant"]:
-                res = "non votant"
-                break
+                return ResultBallot.NONVOTANT
 
             if depute.ref in groupe["pour"]:
-                res = "pour"
-                break
+                return ResultBallot.POUR
 
             if depute.ref in groupe["contre"]:
-                res = "contre"
-                break
+                return ResultBallot.CONTRE
 
             if depute.ref in groupe["abstention"]:
+                return ResultBallot.ABSTENTION
+
+            return ResultBallot.ABSENT
+
+    def to_string_depute(self, depute: Depute) -> str:
+        match self.result(depute):
+            case ResultBallot.ABSENT:
+                res = "absent"
+            case ResultBallot.NONVOTANT:
+                res = "non votant"
+            case ResultBallot.POUR:
+                res = "pour"
+            case ResultBallot.CONTRE:
+                res = "contre"
+            case ResultBallot.ABSTENTION:
                 res = "abstention"
-                break
-            break
 
         return f"{depute.to_string_less()}\na voté **{res}** lors du \n{self.dateScrutin}, {self.sort}:\n{self.titre}"

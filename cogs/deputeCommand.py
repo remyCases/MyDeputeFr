@@ -10,7 +10,7 @@ from discord.ext.commands import Context
 from dotenv import load_dotenv
 
 from utils.deputeManager import Depute
-from utils.scrutinManager import Scrutin
+from utils.scrutinManager import ResultBallot, Scrutin
 
 load_dotenv()
 
@@ -229,6 +229,59 @@ class DeputeCommand(commands.Cog, name="depute"):
         embed = discord.Embed(
             title="Députés",
             description=f"J'ai pas trouvé le député {name} ou le scrutin {code_ref}.",
+            color=0x367588,
+        )
+        await context.send(embed=embed)
+
+    @commands.hybrid_command(
+        name="stat",
+        description="TODO",
+    )
+    async def vote(self, context: Context, name: str) -> None:
+        """
+        TODO
+        """
+        stat = {
+            "absent": 0,
+            "nonvotant": 0,
+            "pour": 0,
+            "contre": 0,
+            "abstention": 0,
+        }
+
+        for file_depute in os.listdir(ACTEUR_FOLDER):
+            with open(os.path.join(ACTEUR_FOLDER, file_depute), "r") as f:
+                data_depute = json.load(f)
+                if depute := Depute.from_json_by_name(data_depute, name):
+
+                    for file_scrutin in os.listdir(SCRUTINS_FOLDER):
+                        with open(os.path.join(SCRUTINS_FOLDER, file_scrutin), "r") as g:
+                            data_scrutin = json.load(g)
+                            scrutin = Scrutin.from_json(data_scrutin)
+
+                            match scrutin.result(depute):
+                                case ResultBallot.ABSENT:
+                                    stat["absent"] += 1
+                                case ResultBallot.NONVOTANT:
+                                    stat["nonvotant"] += 1
+                                case ResultBallot.POUR:
+                                    stat["pour"] += 1
+                                case ResultBallot.CONTRE:
+                                    stat["contre"] += 1
+                                case ResultBallot.ABSTENTION:
+                                    stat["abstention"] += 1
+
+        embed = discord.Embed(
+            title="Députés",
+            description=f"{depute.to_string_less()}\n{stat}",
+            color=0x367588,
+        )
+        await context.send(embed=embed)
+        return
+            
+        embed = discord.Embed(
+            title="Députés",
+            description=f"J'ai pas trouvé le député {name}.",
             color=0x367588,
         )
         await context.send(embed=embed)
