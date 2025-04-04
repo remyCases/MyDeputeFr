@@ -8,20 +8,21 @@ Version: 6.3.0
 
 import os
 import platform
+import threading
 
 import discord
 from discord.ext import commands
 from discord.ext.commands import Context
 from dotenv import load_dotenv
 
-from logger import logger
-from download import download
+from logger.logger import init_logger
+from download.download import start_planning
 
 load_dotenv()
 intents = discord.Intents.default()
 intents.message_content = True
 
-logger = logger.init_logger("discord.log")
+logger = init_logger("discord_bot", "discord.log")
 
 class DiscordBot(commands.Bot):
     def __init__(self) -> None:
@@ -155,6 +156,10 @@ class DiscordBot(commands.Bot):
         else:
             raise error
 
-download.start_planning(log=logger)
+def planning():
+    start_planning(log=logger)
+
+update_thread = threading.Thread(target=planning, daemon=True)
+update_thread.start()
 bot = DiscordBot()
 bot.run(os.getenv("TOKEN"))

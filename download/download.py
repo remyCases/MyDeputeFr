@@ -138,7 +138,7 @@ def update(log: Logger) -> bool:
     
     return success
 
-def start_planning(log: Logger):
+def start_planning(log: Logger) -> None:
     """TODO"""
     schedule.every().day.at(UPDATE_HOUR).do(update)
     log.info(f"Update planed at {UPDATE_HOUR}")
