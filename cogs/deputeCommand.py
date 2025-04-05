@@ -237,7 +237,7 @@ class DeputeCommand(commands.Cog, name="depute"):
         name="stat",
         description="TODO",
     )
-    async def vote(self, context: Context, name: str) -> None:
+    async def stat(self, context: Context, name: str) -> None:
         """
         TODO
         """
@@ -271,14 +271,14 @@ class DeputeCommand(commands.Cog, name="depute"):
                                 case ResultBallot.ABSTENTION:
                                     stat["abstention"] += 1
 
-        embed = discord.Embed(
-            title="Députés",
-            description=f"{depute.to_string_less()}\n{stat}",
-            color=0x367588,
-        )
-        await context.send(embed=embed)
-        return
-            
+                    embed = discord.Embed(
+                        title="Députés",
+                        description=f"{depute.to_string_less()}\n{stat}",
+                        color=0x367588,
+                    )
+                    await context.send(embed=embed)
+                    return
+ 
         embed = discord.Embed(
             title="Députés",
             description=f"J'ai pas trouvé le député {name}.",

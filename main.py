@@ -156,8 +156,9 @@ class DiscordBot(commands.Bot):
         else:
             raise error
 
+UPLOAD_AT_LAUNCH = False
 def planning():
-    start_planning(log=logger)
+    start_planning(log=logger, upload_at_launch=UPLOAD_AT_LAUNCH)
 
 update_thread = threading.Thread(target=planning, daemon=True)
 update_thread.start()

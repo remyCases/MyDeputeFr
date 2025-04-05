@@ -138,13 +138,14 @@ def update(log: Logger) -> bool:
     
     return success
 
-def start_planning(log: Logger) -> None:
+def start_planning(log: Logger, upload_at_launch: bool) -> None:
     """TODO"""
     schedule.every().day.at(UPDATE_HOUR).do(update)
     log.info(f"Update planed at {UPDATE_HOUR}")
-    
-    log.info("First update...")
-    update(log)
+
+    if upload_at_launch:
+        log.info("First update...")
+        update(log)
 
     while True:
         schedule.run_pending()
