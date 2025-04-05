@@ -35,11 +35,19 @@ class Depute:
         gp: str = ""
         dep: str = ""
         circo: str = ""
+        elec_found = False
+        gp_found = False
         for mandat in mandats:
-            if "election" in mandat:
+            if not elec_found and "election" in mandat:
                 elec = mandat["election"]
-            if "typeOrgane" in mandat and "GP" == mandat["typeOrgane"]:
+                if elec["causeMandat"]:
+                    if isinstance(elec["causeMandat"], list) and "\u00e9lections g\u00e9n\u00e9rales" in elec["causeMandat"]:
+                        elec_found = True
+                    elif "\u00e9lections g\u00e9n\u00e9rales" == elec["causeMandat"].lower():
+                        elec_found = True
+            if not gp_found and "typeOrgane" in mandat and "GP" == mandat["typeOrgane"]:
                 gp_ref = mandat["organes"]["organeRef"]
+                gp_found = True
 
         if elec:
             dep = elec["lieu"]["numDepartement"]
@@ -51,10 +59,10 @@ class Depute:
                 gp: str = group["organe"]["libelle"]
 
         return cls(
-            ref=ref, 
-            last_name=last_name, 
-            first_name=first_name, 
-            dep=dep, 
+            ref=ref,
+            last_name=last_name,
+            first_name=first_name,
+            dep=dep,
             circo=circo,
             gp_ref=gp_ref,
             gp=gp,
@@ -62,7 +70,7 @@ class Depute:
 
     @classmethod
     def from_json_by_name(cls, data: dict, name: str) -> Self | None:
-        last_name: str = data["acteur"]["etatCivil"]["ident"]["nom"]
+        last_name: str = data["acteur"]["etatCivil"]["ident"]["nom"].replace(" ", "")
         if name.lower() != last_name.lower():
             return None
         return Depute.from_json(data)
@@ -76,7 +84,11 @@ class Depute:
         for mandat in mandats:
             if "election" in mandat:
                 elec = mandat["election"]
-                break
+                if elec["causeMandat"]:
+                    if isinstance(elec["causeMandat"], list) and "\u00e9lections g\u00e9n\u00e9rales" in elec["causeMandat"]:
+                        break
+                    elif "\u00e9lections g\u00e9n\u00e9rales" == elec["causeMandat"].lower():
+                        break
         
         if elec:
             dep = elec["lieu"]["numDepartement"]
@@ -96,7 +108,11 @@ class Depute:
         for mandat in mandats:
             if "election" in mandat:
                 elec = mandat["election"]
-                break
+                if elec["causeMandat"]:
+                    if isinstance(elec["causeMandat"], list) and "\u00e9lections g\u00e9n\u00e9rales" in elec["causeMandat"]:
+                        break
+                    elif "\u00e9lections g\u00e9n\u00e9rales" == elec["causeMandat"].lower():
+                        break
         if elec:
             dep = elec["lieu"]["numDepartement"]
             circo = elec["lieu"]["numCirco"]
