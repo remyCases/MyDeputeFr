@@ -1,14 +1,13 @@
 # Copyright (C) 2025 Rémy Cases
 # See LICENSE file for extended copyright information.
-# This file is part of the MyDeputeFr project from https://github.com/remyCases/MyDeputeFr.
+# This file is part of MyDeputeFr project from https://github.com/remyCases/MyDeputeFr.
 
 import os
-import tempfile
 from collections.abc import Callable
-from types import ModuleType
 from logging import Logger
-from dotenv import load_dotenv
+from types import ModuleType
 
+from dotenv import load_dotenv
 
 load_dotenv()
 
@@ -45,13 +44,17 @@ DISCORD_TOKEN = __load_env_required("DISCORD_TOKEN")  # Discord bot token
 DISCORD_CMD_PREFIX = __load_env("DISCORD_CMD_PREFIX", lambda: "!")  # Bot command prefix
 
 # Updates
-UPDATE_URL_DOWNLOAD = __load_env(
-    "UPDATE_URL_DOWNLOAD",
+UPDATE_URL_DOWNLOAD_SCRUTINS = __load_env(
+    "UPDATE_URL_DOWNLOAD_SCRUTINS",
     lambda: "https://data.assemblee-nationale.fr/static/openData/repository/17/loi/scrutins/Scrutins.json.zip"
-)  # URL for downloading updates
+) # URL to update Scrutins
+UPDATE_URL_DOWNLOAD_ACTEUR_ORGANE = __load_env(
+    "UPDATE_URL_DOWNLOAD_ACTEUR_ORGANE", lambda:
+    "https://data.assemblee-nationale.fr/static/openData/repository/17/amo/deputes_actifs_mandats_actifs_organes/"
+    "AMO10_deputes_actifs_mandats_actifs_organes.json.zip") # URL to update acteur et organe
 UPDATE_HOUR = __load_env("UPDATE_HOUR", lambda: "08:00:00")  # Default update time
-UPDATE_AT_LAUNCH = __load_env("UPDATE_AT_LAUNCH", lambda: "TRUE").upper() in ('TRUE', '1', 'T')  # Enable updates at launch
-UPDATE_TEMP_FOLDER = __load_env("UPDATE_TEMP_FOLDER", tempfile.mkdtemp)
+UPDATE_AT_LAUNCH = __load_env("UPDATE_AT.LAUNCH", lambda: "TRUE").upper() in ('TRUE', '1', 'T')  # Enable updates at launch
+UPDATE_PROGRESS_SECOND = int(__load_env("UPDATE_DOWNLOAD_PROGRESS_SECOND", lambda: "2")) # Download progress update in second, if 0 is disabled
 
 # Folders
 ACTEUR_FOLDER = __load_env("ACTEUR_FOLDER", lambda: "data/acteur")  # Path to "acteur" folder
