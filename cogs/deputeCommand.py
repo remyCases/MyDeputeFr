@@ -19,7 +19,7 @@ class DeputeCommand(commands.Cog, name="depute"):
 
     @commands.hybrid_command(
         name="debugd",
-        description="Debug command.",
+        description="Commande de débogage pour afficher toutes les informations de débogage concernant un député.",
     )
     async def debugd(self, context: Context, name: str) -> None:
         """
@@ -47,14 +47,14 @@ class DeputeCommand(commands.Cog, name="depute"):
         
         embed = discord.Embed(
             title="Député",
-            description=f"J'ai pas trouvé le député {name}.",
+            description=f"Je n'ai pas trouvé le député {name}.",
             color=0x367588,
         )
         await context.send(embed=embed)
 
     @commands.hybrid_command(
         name="debugs",
-        description="Debug command.",
+        description="Commande de débogage pour afficher toutes les informations de débogage concernant un scrutin.",
     )
     async def debugs(self, context: Context, code_ref: str) -> None:
         """
@@ -82,14 +82,14 @@ class DeputeCommand(commands.Cog, name="depute"):
         
         embed = discord.Embed(
             title="Scrutin",
-            description=f"J'ai pas trouvé le scrutin {code_ref}.",
+            description=f"Je n'ai pas trouvé le scrutin {code_ref}.",
             color=0x367588,
         )
         await context.send(embed=embed)
 
     @commands.hybrid_command(
         name="nom",
-        description="Affiche un député.",
+        description="Affiche les informations d'un député en fonction de son nom.",
     )
     async def nom(self, context: Context, name: str) -> None:
         """
@@ -117,14 +117,14 @@ class DeputeCommand(commands.Cog, name="depute"):
         
         embed = discord.Embed(
             title="Député",
-            description=f"J'ai pas trouvé le député {name}.",
+            description=f"Je n'ai pas trouvé le député {name}.",
             color=0x367588,
         )
         await context.send(embed=embed)
 
     @commands.hybrid_command(
         name="circo",
-        description="Affiche le député associé à une circonscription.",
+        description="Affiche les informations du député associé à une circonscription.",
     )
     async def circo(self, context: Context, code_dep: str, code_circo: str) -> None:
         """
@@ -153,7 +153,7 @@ class DeputeCommand(commands.Cog, name="depute"):
         
         embed = discord.Embed(
             title="Député",
-            description=f"J'ai pas trouvé de député dans le {code_dep}-{code_circo}.",
+            description=f"Je n'ai pas trouvé de député dans le {code_dep}-{code_circo}.",
             color=0x367588,
         )
         await context.send(embed=embed)
@@ -190,14 +190,14 @@ class DeputeCommand(commands.Cog, name="depute"):
         else:
             embed = discord.Embed(
                 title="Députés",
-                description=f"J'ai pas trouvé de députés dans le département {code_dep}.",
+                description=f"Je n'ai pas trouvé de députés dans le département {code_dep}.",
                 color=0x367588,
             )
             await context.send(embed=embed)
 
     @commands.hybrid_command(
         name="vote",
-        description="TODO",
+        description="Affiche le vote d'un député pour un scrutin donné.",
     )
     async def vote(self, context: Context, name: str, code_ref: str) -> None:
         """
@@ -224,14 +224,14 @@ class DeputeCommand(commands.Cog, name="depute"):
             
         embed = discord.Embed(
             title="Députés",
-            description=f"J'ai pas trouvé le député {name} ou le scrutin {code_ref}.",
+            description=f"Je n'ai pas trouvé le député {name} ou le scrutin {code_ref}.",
             color=0x367588,
         )
         await context.send(embed=embed)
 
     @commands.hybrid_command(
         name="stat",
-        description="TODO",
+        description="Affiche les statistiques de vote d'un député.",
     )
     async def stat(self, context: Context, name: str) -> None:
         """
@@ -277,14 +277,14 @@ class DeputeCommand(commands.Cog, name="depute"):
  
         embed = discord.Embed(
             title="Députés",
-            description=f"J'ai pas trouvé le député {name}.",
+            description=f"Je n'ai pas trouvé le député {name}.",
             color=0x367588,
         )
         await context.send(embed=embed)
 
     @commands.hybrid_command(
     name="scr",
-    description="TODO",
+    description="Affiche les informations d'un scrutin en fonction de son code de référence.",
     )
     async def scr(self, context: Context, code_ref: str) -> None:
         """
@@ -305,7 +305,7 @@ class DeputeCommand(commands.Cog, name="depute"):
 
         embed = discord.Embed(
             title="Scrutin",
-            description=f"J'ai pas trouvé le scrutin {code_ref}.",
+            description=f"Je n'ai pas trouvé le scrutin {code_ref}.",
             color=0x367588,
         )
         await context.send(embed=embed)
