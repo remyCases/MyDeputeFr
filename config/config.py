@@ -22,7 +22,7 @@ def show_config(module: ModuleType, logger: Logger):
     for name, val in module.__dict__.items():
         if not callable(val) and not isinstance(val, ModuleType) and not name.startswith("_"):
             # Hides secret entries in the log
-            msg = f"{name} : {val if name not in __HIDE_VAL_IN_LOG else "***secret***"}"
+            msg = f"{name} : {val if name not in __HIDE_VAL_IN_LOG else '***secret***'}"
             logger.debug(msg)
 
 
