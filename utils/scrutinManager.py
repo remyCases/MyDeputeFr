@@ -10,10 +10,6 @@ from dotenv import load_dotenv
 
 from utils.deputeManager import Depute
 
-load_dotenv()
-
-SCRUTINS_FOLDER = os.getenv("SCRUTINS_FOLDER")
-
 # class syntax
 
 class ResultBallot(Enum):
