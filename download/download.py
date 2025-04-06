@@ -3,135 +3,150 @@
 # This file is part of MyDeputeFr project from https://github.com/remyCases/MyDeputeFr.
 
 import os
-import requests
-import zipfile
 import shutil
-from logging import Logger
+import tempfile
 import time
+import zipfile
+from datetime import datetime
+from logging import Logger
+
+import requests
 import schedule
-from config.config import UPDATE_URL_DOWNLOAD, UPDATE_TEMP_FOLDER, SCRUTINS_FOLDER, UPDATE_HOUR
 
-def download_file(log: Logger, url: str, des_folder: str) -> str | None:
-    """TODO"""
-    try:
-        if not os.path.exists(des_folder):
-            os.makedirs(des_folder)
-            
-        file_name = os.path.join(des_folder, "data.zip")
-        log.info(f"Download from {url}")
-        
-        response = requests.get(url, stream=True)
-        response.raise_for_status()
-        
-        with open(file_name, "wb") as f:
-            for chunk in response.iter_content(chunk_size=8192):
-                f.write(chunk)
-                
-        log.info(f"Download done {file_name}")
-        return file_name
-        
-    except Exception as e:
-        log.error(f"Error during download: {str(e)}")
-        return None
+from config.config import UPDATE_URL_DOWNLOAD_SCRUTINS, UPDATE_URL_DOWNLOAD_ACTEUR_ORGANE, UPDATE_HOUR, SCRUTINS_FOLDER, \
+    ACTEUR_FOLDER, ORGANE_FOLDER, UPDATE_PROGRESS_SECOND
 
-def unzip_file(log: Logger, path: str, des_folder: str) -> str | None:
-    """TODO"""
-    try:
-        if not os.path.exists(des_folder):
-            os.makedirs(des_folder)
-            
-        temp = f"{des_folder}_temp"
-        if os.path.exists(temp):
-            shutil.rmtree(temp)
-        os.makedirs(temp)
-        
-        log.info(f"Unzipping file {path}")
-        with zipfile.ZipFile(path, "r") as zip_ref:
-            zip_ref.extractall(temp)
-            
-        log.info(f"Unzipping done {temp}")
-        return temp
-        
-    except Exception as e:
-        log.error(f"Error during unzipping: {str(e)}")
-        return None
 
-def moving_folder(log: Logger, src_folder: str, des_folder: str):
-    """TODO"""
-    try:
-        log.info(f"Moving all files from {src_folder}")
-        all_file = []
-        
-        # Find all files to be moved
-        for root, _, files in os.walk(src_folder):
-            for f in files:
-                path = os.path.join(root, f)
-                all_file.append(path)
-        
-        log.info(f"Moving in {des_folder}")
-        if not os.path.exists(des_folder):
-            os.makedirs(des_folder)
+def download_file(log: Logger, url: str, file_path: str) -> None :
+    """
+    Download a file from url to file path.
+    Progress will show every DOWNLOAD_UPDATE_SECOND seconds (default 2).
+    To hide progress set DOWNLOAD_UPDATE_SECOND to 0.
 
-        for src_path in all_file:
-            # destination path
-            name_file = os.path.basename(src_path)
-            des_path = os.path.join(des_folder, name_file)
-            
-            # removing already existing file
-            if os.path.exists(des_path):
-                os.remove(des_path)
-            
-            # copy new file
-            shutil.copy2(src_path, des_path)
-                
-        log.info(f"Moving done in {des_folder}")
-        return True
-        
-    except Exception as e:
-        log.error(f"Erorr during renaming : {str(e)}")
-        return False
+    Parameters:
+        log (Logger) : The logger use by the function.
+        url (str) : The url of file to download.
+        file_path (str) : The path where the file must write. Path must be writable and the parents folder must exist.
+    """
+    def show_progress(
+            p_log: Logger,
+            p_url: str,
+            p_content_length: int | None,
+            p_chunk_size: int,
+            p_nb_chunks_wrote: int,
+            p_last_show: datetime | None) -> datetime:
+        now = datetime.now()
+        update_second = UPDATE_PROGRESS_SECOND
+        if not last_show or (update_second != 0 and (now - p_last_show).seconds > update_second):
+            size_wrote_chunks_mb = ((p_chunk_size * p_nb_chunks_wrote) / 1024) / 1024
+            ct_length_mb = (int(p_content_length) / 1024) / 1024 if p_content_length else "???"
+            p_log.info(f"Download {os.path.basename(p_url)} : {size_wrote_chunks_mb:.2f} MB / {ct_length_mb:.2f} MB")
+            return now
+        return p_last_show
 
-def clean(log: Logger, zip_file: str, temp: str | None=None) -> None:
-    """TODO"""
-    try:
-        if os.path.exists(zip_file):
-            os.remove(zip_file)
-            log.info(f"Deleted file: {zip_file}")
-            
-        if temp and os.path.exists(temp):
-            shutil.rmtree(temp)
-            log.info(f"Deleted folder: {temp}")
-            
-    except Exception as e:
-        log.error(f"Error during cleaning: {str(e)}")
+    log.info(f"Downloading {url} to {file_path}")
+
+    content_length = requests.head(url).headers.get("content-length")
+    response = requests.get(url, stream=True, timeout=10)
+    response.raise_for_status()
+
+    with open(file_path, "wb") as f:
+        chunk_size = 8192
+        nb_chunks_wrote = 0
+        last_show = None
+        for chunk in response.iter_content(chunk_size=chunk_size):
+            f.write(chunk)
+            nb_chunks_wrote += 1
+            last_show = show_progress(log, url, content_length, chunk_size, nb_chunks_wrote, last_show)
+
+    log.info(f"Download done")
+
+
+def unzip_file(log: Logger, path: str, dst_folder: str) -> None :
+    """
+    Unzip a zip file to destination folder.
+
+    Parameters:
+        log (Logger) : The logger use by the function.
+        path (str): The path of the zip file.
+        dst_folder (str) : The path of the destination folder.
+    """
+    log.info(f"Unzipping file {path} to {dst_folder}")
+    with zipfile.ZipFile(path, "r") as zip_ref:
+        zip_ref.extractall(dst_folder)
+    log.info("Unzip done")
+
+def moving_folder(log: Logger, src_folder: str, dst_folder: str) -> None:
+    """
+    Move the content source folder to destination folder.
+
+    Parameters:
+        log (Logger) : The logger use by the function.
+        src_folder (str) : The path of source folder to be moved.
+        dst_folder (str) : The path of destination folder where the folder must be moved
+    """
+    log.info(f"Moving file from {src_folder} to {dst_folder}")
+
+    shutil.rmtree(dst_folder, ignore_errors=True)
+    shutil.move(src_folder, dst_folder)
+
+    log.info("Move file done")
 
 def update(log: Logger) -> bool:
-    """TODO"""
+    """
+    Update the data folder with fresh data from UPDATE_URL_DOWNLOAD.
+
+    Parameters:
+        log (Logger) : The logger use by the function.
+    """
+    def show_error_on_exception(msg:str, exception: Exception) -> None:
+        log.error(f"Update failed : {msg}")
+        log.error(f"Error : {str(exception)}")
+        log.error("=== Update failed ===")
+
     log.info("=== Update starting ===")
     
-    zip_file = download_file(log, UPDATE_URL_DOWNLOAD, UPDATE_TEMP_FOLDER)
-    if not zip_file:
-        log.error("Update failed: download failed")
-        return False
-    
-    folder = unzip_file(log, zip_file, UPDATE_TEMP_FOLDER)
-    if not folder:
-        clean(log, zip_file)
-        log.error("Update failed : unzipping failed")
-        return False
-    
-    success = moving_folder(log, folder, SCRUTINS_FOLDER)
-    clean(log, zip_file, folder)
-    
-    if success:
-        log.info("=== Update success ===")
-    else:
-        log.error("=== Update failed ===")
-    
-    return success
+    with tempfile.TemporaryDirectory() as download_temp, tempfile.TemporaryDirectory() as zip_temp:
+        # Download File to zip download folder
+        zip_file_scrutins = os.path.join(download_temp, "data_scrutins.zip")
+        zip_file_acteur_organe = os.path.join(download_temp, "data_acteur_organe.zip")
+        try:
+            download_file(log, UPDATE_URL_DOWNLOAD_SCRUTINS, zip_file_scrutins)
+            download_file(log, UPDATE_URL_DOWNLOAD_ACTEUR_ORGANE, zip_file_acteur_organe)
+        except Exception as e:
+            show_error_on_exception("download failed", e)
+            return False
+
+        # Unzip File to zip temp folder
+        zip_temp_scrutins = os.path.join(zip_temp, "scrutins")
+        zip_temp_acteur_organe = os.path.join(zip_temp, "acteur_organe")
+        try:
+            unzip_file(log, zip_file_scrutins, zip_temp_scrutins)
+            unzip_file(log, zip_file_acteur_organe, zip_temp_acteur_organe)
+        except Exception as e:
+            show_error_on_exception("unzipping failed", e)
+            return False
+
+        # Move folder to data folder
+        try:
+            moving_folder(log, os.path.join(zip_temp_scrutins, "json"), SCRUTINS_FOLDER)
+            moving_folder(log, os.path.join(zip_temp_acteur_organe, "json", "acteur"), ACTEUR_FOLDER)
+            moving_folder(log, os.path.join(zip_temp_acteur_organe, "json", "organe"), ORGANE_FOLDER)
+        except Exception as e:
+            show_error_on_exception("moving folder failed", e)
+            return False
+
+    log.info("=== Update success ===")
+    return True
 
 def start_planning(log: Logger, upload_at_launch: bool) -> None:
-    """TODO"""
+    """
+    Start update scheduler to update data every UPDATE_HOUR.
+
+    Parameters:
+        log (Logger) : The logger use by the function.
+        upload_at_launch (bool): If True run an update at launch.
+    """
     schedule.every().day.at(UPDATE_HOUR).do(update)
     log.info(f"Update planed at {UPDATE_HOUR}")
 
