@@ -9,15 +9,7 @@ import shutil
 from logging import Logger
 import time
 import schedule
-from dotenv import load_dotenv
-
-load_dotenv()
-
-# Configuration
-URL_DOWNLOAD = os.getenv("URL_DOWNLOAD")
-TEMP_FOLDER = os.getenv("TEMP_FOLDER")
-DATA_FOLDER = os.getenv("SCRUTINS_FOLDER")
-UPDATE_HOUR = os.getenv("UPDATE_HOUR")
+from config.config import UPDATE_URL_DOWNLOAD, UPDATE_TEMP_FOLDER, SCRUTINS_FOLDER, UPDATE_HOUR
 
 def download_file(log: Logger, url: str, des_folder: str) -> str | None:
     """TODO"""
@@ -117,18 +109,18 @@ def update(log: Logger) -> bool:
     """TODO"""
     log.info("=== Update starting ===")
     
-    zip_file = download_file(log, URL_DOWNLOAD, TEMP_FOLDER)
+    zip_file = download_file(log, UPDATE_URL_DOWNLOAD, UPDATE_TEMP_FOLDER)
     if not zip_file:
         log.error("Update failed: download failed")
         return False
     
-    folder = unzip_file(log, zip_file, TEMP_FOLDER)
+    folder = unzip_file(log, zip_file, UPDATE_TEMP_FOLDER)
     if not folder:
         clean(log, zip_file)
         log.error("Update failed : unzipping failed")
         return False
     
-    success = moving_folder(log, folder, DATA_FOLDER)
+    success = moving_folder(log, folder, SCRUTINS_FOLDER)
     clean(log, zip_file, folder)
     
     if success:

@@ -13,21 +13,22 @@ import threading
 import discord
 from discord.ext import commands
 from discord.ext.commands import Context
-from dotenv import load_dotenv
 
+from config.config import DISCORD_TOKEN, DISCORD_CMD_PREFIX, LOG_PATH, UPDATE_AT_LAUNCH, LOG_LEVEL, show_config
+import config.config
 from logger.logger import init_logger
 from download.download import start_planning
 
-load_dotenv()
+
 intents = discord.Intents.default()
 intents.message_content = True
 
-logger = init_logger("discord_bot", "discord.log")
+logger = init_logger("discord_bot", LOG_PATH, LOG_LEVEL)
 
 class DiscordBot(commands.Bot):
     def __init__(self) -> None:
         super().__init__(
-            command_prefix=commands.when_mentioned_or(os.getenv("PREFIX")),
+            command_prefix=commands.when_mentioned_or(DISCORD_CMD_PREFIX),
             intents=intents,
             help_command=None,
         )
@@ -156,11 +157,12 @@ class DiscordBot(commands.Bot):
         else:
             raise error
 
-UPLOAD_AT_LAUNCH = False
 def planning():
-    start_planning(log=logger, upload_at_launch=UPLOAD_AT_LAUNCH)
+    start_planning(log=logger, upload_at_launch=UPDATE_AT_LAUNCH)
 
+
+show_config(config.config, logger)
 update_thread = threading.Thread(target=planning, daemon=True)
 update_thread.start()
 bot = DiscordBot()
-bot.run(os.getenv("TOKEN"))
+bot.run(DISCORD_TOKEN)

@@ -31,9 +31,9 @@ class LoggingFormatter(logging.Formatter):
         formatter = logging.Formatter(format, "%Y-%m-%d %H:%M:%S", style="{")
         return formatter.format(record)
 
-def init_logger(log_name: str, file_name: str) -> logging.Logger:
-    logger = logging.getLogger(file_name)
-    logger.setLevel(logging.INFO)
+def init_logger(log_name: str, file_name: str, log_level: str) -> logging.Logger:
+    logger = logging.getLogger(log_name)
+    logger.setLevel(log_level)
 
     # Console handler
     console_handler = logging.StreamHandler()
