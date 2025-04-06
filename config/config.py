@@ -45,15 +45,15 @@ DISCORD_TOKEN = __load_env_required("DISCORD_TOKEN")  # Discord bot token
 DISCORD_CMD_PREFIX = __load_env("DISCORD_CMD_PREFIX", lambda: "!")  # Bot command prefix
 
 # Updates
-# TODO : Set default UPDATE_URL_DOWNLOAD
-UPDATE_URL_DOWNLOAD = __load_env("UPDATE_URL_DOWNLOAD", lambda: "")  # URL for downloading updates
+UPDATE_URL_DOWNLOAD = __load_env(
+    "UPDATE_URL_DOWNLOAD",
+    lambda: "https://data.assemblee-nationale.fr/static/openData/repository/17/loi/scrutins/Scrutins.json.zip"
+)  # URL for downloading updates
 UPDATE_HOUR = __load_env("UPDATE_HOUR", lambda: "08:00:00")  # Default update time
 UPDATE_AT_LAUNCH = __load_env("UPDATE_AT_LAUNCH", lambda: "TRUE").upper() in ('TRUE', '1', 'T')  # Enable updates at launch
 UPDATE_TEMP_FOLDER = __load_env("UPDATE_TEMP_FOLDER", tempfile.mkdtemp)
 
 # Folders
-# TODO : As I had to guess the directory structure, confirm that the default path are valid
-DATA_FOLDER = __load_env("DATA_FOLDER", lambda: "data")
 ACTEUR_FOLDER = __load_env("ACTEUR_FOLDER", lambda: "data/acteur")  # Path to "acteur" folder
 ORGANE_FOLDER = __load_env("ORGANE_FOLDER", lambda: "data/organe")  # Path to "organe" folder
 SCRUTINS_FOLDER = __load_env("SCRUTINS_FOLDER", lambda: "data/scrutins")  # Path to "scrutins" folder

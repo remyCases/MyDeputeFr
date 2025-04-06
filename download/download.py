@@ -9,7 +9,7 @@ import shutil
 from logging import Logger
 import time
 import schedule
-from config.config import UPDATE_URL_DOWNLOAD, UPDATE_TEMP_FOLDER, DATA_FOLDER, UPDATE_HOUR
+from config.config import UPDATE_URL_DOWNLOAD, UPDATE_TEMP_FOLDER, SCRUTINS_FOLDER, UPDATE_HOUR
 
 def download_file(log: Logger, url: str, des_folder: str) -> str | None:
     """TODO"""
@@ -120,7 +120,7 @@ def update(log: Logger) -> bool:
         log.error("Update failed : unzipping failed")
         return False
     
-    success = moving_folder(log, folder, DATA_FOLDER)
+    success = moving_folder(log, folder, SCRUTINS_FOLDER)
     clean(log, zip_file, folder)
     
     if success:
