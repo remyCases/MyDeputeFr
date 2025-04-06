@@ -48,7 +48,7 @@ DISCORD_CMD_PREFIX = __load_env("DISCORD_CMD_PREFIX", lambda: "!")  # Bot comman
 # TODO : Set default UPDATE_URL_DOWNLOAD
 UPDATE_URL_DOWNLOAD = __load_env("UPDATE_URL_DOWNLOAD", lambda: "")  # URL for downloading updates
 UPDATE_HOUR = __load_env("UPDATE_HOUR", lambda: "08:00:00")  # Default update time
-UPDATE_AT_LAUNCH = __load_env("UPDATE_AT.LAUNCH", lambda: "TRUE").upper() in ('TRUE', '1', 'T')  # Enable updates at launch
+UPDATE_AT_LAUNCH = __load_env("UPDATE_AT_LAUNCH", lambda: "TRUE").upper() in ('TRUE', '1', 'T')  # Enable updates at launch
 UPDATE_TEMP_FOLDER = __load_env("UPDATE_TEMP_FOLDER", tempfile.mkdtemp)
 
 # Folders
