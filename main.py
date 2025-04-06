@@ -42,7 +42,7 @@ class DiscordBot(commands.Bot):
         """
         self.logger = logger
         self.database = None
-        self.bot_prefix = os.getenv("PREFIX")
+        self.bot_prefix = DISCORD_CMD_PREFIX
 
     async def load_cogs(self) -> None:
         """
