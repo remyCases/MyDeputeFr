@@ -79,6 +79,11 @@ class DiscordBot(commands.Bot):
         self.logger.info("-------------------")
         await self.load_cogs()
 
+    async def on_ready(self):
+        self.loop.create_task(
+            start_planning(log=logger, upload_at_launch=UPDATE_AT_LAUNCH)
+        )
+
     async def on_message(self, message: discord.Message) -> None:
         """
         The code in this event is executed every time someone sends a message, with or without the prefix
@@ -163,12 +168,6 @@ class DiscordBot(commands.Bot):
         else:
             raise error
 
-def planning():
-    start_planning(log=logger, upload_at_launch=UPDATE_AT_LAUNCH)
-
-
 show_config(config.config, logger)
-update_thread = threading.Thread(target=planning, daemon=True)
-update_thread.start()
 bot = DiscordBot()
 bot.run(DISCORD_TOKEN)

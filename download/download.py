@@ -2,16 +2,14 @@
 # See LICENSE file for extended copyright information.
 # This file is part of MyDeputeFr project from https://github.com/remyCases/MyDeputeFr.
 
+import asyncio
 import os
 import shutil
 import tempfile
-import time
 import zipfile
 from datetime import datetime
 from logging import Logger
-
 import requests
-import schedule
 
 from config.config import UPDATE_URL_DOWNLOAD_SCRUTINS, UPDATE_URL_DOWNLOAD_ACTEUR_ORGANE, UPDATE_HOUR, SCRUTINS_FOLDER, \
     ACTEUR_FOLDER, ORGANE_FOLDER, UPDATE_PROGRESS_SECOND
@@ -139,7 +137,7 @@ def update(log: Logger) -> bool:
     log.info("=== Update success ===")
     return True
 
-def start_planning(log: Logger, upload_at_launch: bool) -> None:
+async def start_planning(log: Logger, upload_at_launch: bool) -> None:
     """
     Start update scheduler to update data every UPDATE_HOUR.
 
@@ -147,13 +145,28 @@ def start_planning(log: Logger, upload_at_launch: bool) -> None:
         log (Logger) : The logger use by the function.
         upload_at_launch (bool): If True run an update at launch.
     """
-    schedule.every().day.at(UPDATE_HOUR).do(update)
-    log.info(f"Update planed at {UPDATE_HOUR}")
-
     if upload_at_launch:
         log.info("First update...")
         update(log)
 
     while True:
-        schedule.run_pending()
-        time.sleep(900)  # Check every 15min
+        try:
+            update_hour = datetime.strptime(UPDATE_HOUR, "%H:%M:%S")
+        except ValueError as e:
+            log.error("Invalid hour format given for updates. Expected '%H:%M:%S' format.")
+            raise e
+
+        now = datetime.now()
+        target_time = now.replace(
+            hour=update_hour.hour,
+            minute=update_hour.minute,
+            second=update_hour.second,
+            microsecond=0
+        )
+        if now >= target_time:
+            target_time = target_time + datetime.timedelta(days=1)
+
+        seconds_until_target = (target_time - now).total_seconds()
+        log.info(f"Update planed at {target_time} in {seconds_until_target} seconds.")
+        await asyncio.sleep(seconds_until_target)
+        #update(log)
