@@ -53,7 +53,7 @@ UPDATE_URL_DOWNLOAD_ACTEUR_ORGANE = __load_env(
     "https://data.assemblee-nationale.fr/static/openData/repository/17/amo/deputes_actifs_mandats_actifs_organes/"
     "AMO10_deputes_actifs_mandats_actifs_organes.json.zip") # URL to update acteur et organe
 UPDATE_HOUR = __load_env("UPDATE_HOUR", lambda: "08:00:00")  # Default update time
-UPDATE_AT_LAUNCH = __load_env("UPDATE_AT.LAUNCH", lambda: "TRUE").upper() in ('TRUE', '1', 'T')  # Enable updates at launch
+UPDATE_AT_LAUNCH = __load_env("UPDATE_AT_LAUNCH", lambda: "TRUE").upper() in ('TRUE', '1', 'T')  # Enable updates at launch
 UPDATE_PROGRESS_SECOND = int(__load_env("UPDATE_DOWNLOAD_PROGRESS_SECOND", lambda: "2")) # Download progress update in second, if 0 is disabled
 
 # Folders

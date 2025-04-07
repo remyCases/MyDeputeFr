@@ -5,8 +5,11 @@
 import os
 import json
 import discord
+
 from discord.ext import commands
 from discord.ext.commands import Context
+
+from handlers.deputeHandler import scr_handler, stat_handler, vote_handler, dep_handler, ciro_handler, nom_handler
 from config.config import ACTEUR_FOLDER, SCRUTINS_FOLDER
 
 from utils.deputeManager import Depute
@@ -101,26 +104,7 @@ class DeputeCommand(commands.Cog, name="depute"):
         name: str
             Name of a member of parliament
         """
-
-        for file in os.listdir(ACTEUR_FOLDER):
-            with open(os.path.join(ACTEUR_FOLDER, file), "r") as f:
-                data = json.load(f)
-
-                if depute := Depute.from_json_by_name(data, name):
-                    embed = discord.Embed(
-                        title="Député",
-                        description=depute.to_string(),
-                        color=0x367588,
-                    )
-                    await context.send(embed=embed)
-                    return
-        
-        embed = discord.Embed(
-            title="Député",
-            description=f"J'ai pas trouvé le député {name}.",
-            color=0x367588,
-        )
-        await context.send(embed=embed)
+        await context.send(embed=nom_handler(name))
 
     @commands.hybrid_command(
         name="circo",
@@ -139,24 +123,8 @@ class DeputeCommand(commands.Cog, name="depute"):
             Administrative subdivision
         """
 
-        for file in os.listdir(ACTEUR_FOLDER):
-            with open(os.path.join(ACTEUR_FOLDER, file), "r") as f:
-                data = json.load(f)
-                if depute := Depute.from_json_by_circo(data, code_dep, code_circo):
-                    embed = discord.Embed(
-                        title="Député",
-                        description=depute.to_string(),
-                        color=0x367588,
-                    )
-                    await context.send(embed=embed)
-                    return
-        
-        embed = discord.Embed(
-            title="Député",
-            description=f"J'ai pas trouvé de député dans le {code_dep}-{code_circo}.",
-            color=0x367588,
-        )
-        await context.send(embed=embed)
+
+        await context.send(embed=ciro_handler(code_dep,code_circo))
 
     @commands.hybrid_command(
         name="dep",
@@ -172,28 +140,7 @@ class DeputeCommand(commands.Cog, name="depute"):
         dep: str
             Administrative division
         """
-
-        description = ""
-        for file in os.listdir(ACTEUR_FOLDER):
-            with open(os.path.join(ACTEUR_FOLDER, file), "r") as f:
-                data = json.load(f)
-                if depute := Depute.from_json_by_dep(data, code_dep):
-                    description += f"\n{depute.to_string_less()}."
-
-        if description:
-            embed = discord.Embed(
-                title="Députés",
-                description=description,
-                color=0x367588,
-            )
-            await context.send(embed=embed)
-        else:
-            embed = discord.Embed(
-                title="Députés",
-                description=f"J'ai pas trouvé de députés dans le département {code_dep}.",
-                color=0x367588,
-            )
-            await context.send(embed=embed)
+        await context.send(embed=dep_handler(code_dep))
 
     @commands.hybrid_command(
         name="vote",
@@ -203,31 +150,7 @@ class DeputeCommand(commands.Cog, name="depute"):
         """
         TODO
         """
-
-        for file_depute in os.listdir(ACTEUR_FOLDER):
-            with open(os.path.join(ACTEUR_FOLDER, file_depute), "r") as f:
-                data_depute = json.load(f)
-                if depute := Depute.from_json_by_name(data_depute, name):
-
-                    for file_scrutin in os.listdir(SCRUTINS_FOLDER):
-                        with open(os.path.join(SCRUTINS_FOLDER, file_scrutin), "r") as g:
-                            data_scrutin = json.load(g)
-                            if scrutin := Scrutin.from_json_by_ref(data_scrutin, code_ref):
-                            
-                                embed = discord.Embed(
-                                    title="Députés",
-                                    description=scrutin.to_string_depute(depute),
-                                    color=0x367588,
-                                )
-                                await context.send(embed=embed)
-                                return
-            
-        embed = discord.Embed(
-            title="Députés",
-            description=f"J'ai pas trouvé le député {name} ou le scrutin {code_ref}.",
-            color=0x367588,
-        )
-        await context.send(embed=embed)
+        await context.send(embed=vote_handler(name, code_ref))
 
     @commands.hybrid_command(
         name="stat",
@@ -237,50 +160,7 @@ class DeputeCommand(commands.Cog, name="depute"):
         """
         TODO
         """
-        stat = {
-            "absent": 0,
-            "nonvotant": 0,
-            "pour": 0,
-            "contre": 0,
-            "abstention": 0,
-        }
-
-        for file_depute in os.listdir(ACTEUR_FOLDER):
-            with open(os.path.join(ACTEUR_FOLDER, file_depute), "r") as f:
-                data_depute = json.load(f)
-                if depute := Depute.from_json_by_name(data_depute, name):
-
-                    for file_scrutin in os.listdir(SCRUTINS_FOLDER):
-                        with open(os.path.join(SCRUTINS_FOLDER, file_scrutin), "r") as g:
-                            data_scrutin = json.load(g)
-                            scrutin = Scrutin.from_json(data_scrutin)
-
-                            match scrutin.result(depute):
-                                case ResultBallot.ABSENT:
-                                    stat["absent"] += 1
-                                case ResultBallot.NONVOTANT:
-                                    stat["nonvotant"] += 1
-                                case ResultBallot.POUR:
-                                    stat["pour"] += 1
-                                case ResultBallot.CONTRE:
-                                    stat["contre"] += 1
-                                case ResultBallot.ABSTENTION:
-                                    stat["abstention"] += 1
-
-                    embed = discord.Embed(
-                        title="Députés",
-                        description=f"{depute.to_string_less()}\n{stat}",
-                        color=0x367588,
-                    )
-                    await context.send(embed=embed)
-                    return
- 
-        embed = discord.Embed(
-            title="Députés",
-            description=f"J'ai pas trouvé le député {name}.",
-            color=0x367588,
-        )
-        await context.send(embed=embed)
+        await context.send(embed=stat_handler(name))
 
     @commands.hybrid_command(
     name="scr",
@@ -290,25 +170,8 @@ class DeputeCommand(commands.Cog, name="depute"):
         """
         TODO
         """
+        await context.send(embed=scr_handler(code_ref))
 
-        for file in os.listdir(SCRUTINS_FOLDER):
-            with open(os.path.join(SCRUTINS_FOLDER, file), "r") as f:
-                data = json.load(f)
-                if scrutin := Scrutin.from_json_by_ref(data, code_ref):
-                    embed = discord.Embed(
-                        title="Scrutin",
-                        description=scrutin.to_string(),
-                        color=0x367588,
-                    )
-                    await context.send(embed=embed)
-                    return
-
-        embed = discord.Embed(
-            title="Scrutin",
-            description=f"J'ai pas trouvé le scrutin {code_ref}.",
-            color=0x367588,
-        )
-        await context.send(embed=embed)
 
 async def setup(bot) -> None:
     await bot.add_cog(DeputeCommand(bot))

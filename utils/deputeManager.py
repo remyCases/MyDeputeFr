@@ -4,8 +4,11 @@
 
 import os
 import json
+import re
 from typing import Self
 from attrs import define
+from unidecode import unidecode
+
 from config.config import ORGANE_FOLDER
 
 @define(kw_only=True)
@@ -65,8 +68,10 @@ class Depute:
 
     @classmethod
     def from_json_by_name(cls, data: dict, name: str) -> Self | None:
-        last_name: str = data["acteur"]["etatCivil"]["ident"]["nom"].replace(" ", "")
-        if name.lower() != last_name.lower():
+        def normalize_name(name: str) -> str:
+            return re.sub(r'[^a-z]', '', unidecode(name).lower())
+        last_name: str = data["acteur"]["etatCivil"]["ident"]["nom"]
+        if normalize_name(name) != normalize_name(last_name) :
             return None
         return Depute.from_json(data)
 

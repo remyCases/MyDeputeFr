@@ -10,7 +10,7 @@ import pytest
 import requests
 
 from download.download import download_file
-from tests.common import mock_log
+from tests.commons import mock_log
 
 
 def test_download(mock_log):
