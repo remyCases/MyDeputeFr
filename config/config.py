@@ -46,6 +46,9 @@ def __load_env_required(name: str) -> str:
 DISCORD_TOKEN = __load_env_required("DISCORD_TOKEN")  # Discord bot token
 DISCORD_CMD_PREFIX = __load_env("DISCORD_CMD_PREFIX", lambda: "!")  # Bot command prefix
 DISCORD_BOT_MODE = MODE[__load_env("DISCORD_BOT_MODE", lambda: "RELEASE").upper()]
+DISCORD_EMBED_COLOR_MSG =  int(__load_env("DISCORD_EMBED_COLOR", lambda: "0x367588"), 16)
+DISCORD_EMBED_COLOR_ERR =  int(__load_env("DISCORD_EMBED_COLOR_ERR", lambda: "0xE02B2B"), 16)
+DISCORD_EMBED_COLOR_DEBUG =  int(__load_env("DISCORD_EMBED_COLOR_DEBUG", lambda: "0xFFFFFF"), 16)
 
 # Updates
 UPDATE_URL_DOWNLOAD_SCRUTINS = __load_env(

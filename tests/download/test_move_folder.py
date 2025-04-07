@@ -46,3 +46,4 @@ async def test_moving_folder_src_not_exist(mock_log, tmpdir):
     # Call the moving_folder function and expect a FileNotFoundError
     with pytest.raises(FileNotFoundError):
         await moving_folder_async(mock_log, str(src_folder), str(dst_folder))
+
