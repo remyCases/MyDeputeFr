@@ -14,11 +14,11 @@ import discord
 from discord.ext import commands
 from discord.ext.commands import Context
 
-from config.config import DISCORD_TOKEN, DISCORD_CMD_PREFIX, LOG_PATH, UPDATE_AT_LAUNCH, LOG_LEVEL, show_config
+from config.config import DISCORD_TOKEN, DISCORD_CMD_PREFIX, LOG_PATH, \
+    UPDATE_AT_LAUNCH, LOG_LEVEL, show_config, DISCORD_BOT_MODE
 import config.config
 from logger.logger import init_logger
 from download.download import start_planning
-
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -43,6 +43,7 @@ class DiscordBot(commands.Bot):
         self.logger = logger
         self.database = None
         self.bot_prefix = DISCORD_CMD_PREFIX
+        self.mode = DISCORD_BOT_MODE
 
     async def load_cogs(self) -> None:
         """
@@ -64,7 +65,7 @@ class DiscordBot(commands.Bot):
         """
         This will just be executed when the bot starts the first time.
         """
-        self.logger.info(f"Logged in as {self.user.name}")
+        self.logger.info(f"Logged in as {self.user.name} in {self.mode} mode")
         self.logger.info(f"discord.py API version: {discord.__version__}")
         self.logger.info(f"Python version: {platform.python_version()}")
         self.logger.info(

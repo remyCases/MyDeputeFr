@@ -4,14 +4,27 @@
 
 import os
 import json
+from typing import Self
 import discord
 from discord.ext import commands
 from discord.ext.commands import Context
 from config.config import ACTEUR_FOLDER, SCRUTINS_FOLDER
 
+from utils.utils import MODE
 from utils.deputeManager import Depute
 from utils.scrutinManager import ResultBallot, Scrutin
 
+def debug_command():
+    """
+    Decorator for debug commands, will check if the bot is in DEBUG mode.
+    Else will return a message to the user indicating the command is not available.
+    """
+    async def predicate(ctx: Context):
+        if ctx.bot.mode != MODE.DEBUG:
+            await ctx.send("Commande non disponible en mode release.")
+            return False
+        return True
+    return commands.check(predicate)
 
 class DeputeCommand(commands.Cog, name="depute"):
     def __init__(self, bot) -> None:
@@ -21,7 +34,8 @@ class DeputeCommand(commands.Cog, name="depute"):
         name="debugd",
         description="Debug command.",
     )
-    async def debugd(self, context: Context, name: str) -> None:
+    @debug_command()
+    async def debugd(self: Self, context: Context, name: str) -> None:
         """
         This is a debug command that displays all debug information regarding a member of parliament.
 
@@ -33,7 +47,7 @@ class DeputeCommand(commands.Cog, name="depute"):
         """
 
         for file in os.listdir(ACTEUR_FOLDER):
-            with open(os.path.join(ACTEUR_FOLDER, file), "r") as f:
+            with open(os.path.join(ACTEUR_FOLDER, file), "r", encoding="utf-8") as f:
                 data = json.load(f)
 
                 if depute := Depute.from_json_by_name(data, name):
@@ -44,7 +58,7 @@ class DeputeCommand(commands.Cog, name="depute"):
                     )
                     await context.send(embed=embed)
                     return
-        
+
         embed = discord.Embed(
             title="Député",
             description=f"J'ai pas trouvé le député {name}.",
@@ -56,6 +70,7 @@ class DeputeCommand(commands.Cog, name="depute"):
         name="debugs",
         description="Debug command.",
     )
+    @debug_command()
     async def debugs(self, context: Context, code_ref: str) -> None:
         """
         TODO
@@ -68,7 +83,7 @@ class DeputeCommand(commands.Cog, name="depute"):
         """
 
         for file in os.listdir(SCRUTINS_FOLDER):
-            with open(os.path.join(SCRUTINS_FOLDER, file), "r") as f:
+            with open(os.path.join(SCRUTINS_FOLDER, file), "r", encoding="utf-8") as f:
                 data = json.load(f)
 
                 if scrutin := Scrutin.from_json_by_ref(data, code_ref):
@@ -103,7 +118,7 @@ class DeputeCommand(commands.Cog, name="depute"):
         """
 
         for file in os.listdir(ACTEUR_FOLDER):
-            with open(os.path.join(ACTEUR_FOLDER, file), "r") as f:
+            with open(os.path.join(ACTEUR_FOLDER, file), "r", encoding="utf-8") as f:
                 data = json.load(f)
 
                 if depute := Depute.from_json_by_name(data, name):
@@ -142,7 +157,7 @@ class DeputeCommand(commands.Cog, name="depute"):
         """
 
         for file in os.listdir(ACTEUR_FOLDER):
-            with open(os.path.join(ACTEUR_FOLDER, file), "r") as f:
+            with open(os.path.join(ACTEUR_FOLDER, file), "r", encoding="utf-8") as f:
                 data = json.load(f)
                 if depute := Depute.from_json_by_circo(data, code_dep, code_circo):
                     embed = discord.Embed(
@@ -179,7 +194,7 @@ class DeputeCommand(commands.Cog, name="depute"):
 
         description = ""
         for file in os.listdir(ACTEUR_FOLDER):
-            with open(os.path.join(ACTEUR_FOLDER, file), "r") as f:
+            with open(os.path.join(ACTEUR_FOLDER, file), "r", encoding="utf-8") as f:
                 data = json.load(f)
                 if depute := Depute.from_json_by_dep(data, code_dep):
                     description += f"\n{depute.to_string_less()}."
@@ -209,12 +224,12 @@ class DeputeCommand(commands.Cog, name="depute"):
         """
 
         for file_depute in os.listdir(ACTEUR_FOLDER):
-            with open(os.path.join(ACTEUR_FOLDER, file_depute), "r") as f:
+            with open(os.path.join(ACTEUR_FOLDER, file_depute), "r", encoding="utf-8") as f:
                 data_depute = json.load(f)
                 if depute := Depute.from_json_by_name(data_depute, name):
 
                     for file_scrutin in os.listdir(SCRUTINS_FOLDER):
-                        with open(os.path.join(SCRUTINS_FOLDER, file_scrutin), "r") as g:
+                        with open(os.path.join(SCRUTINS_FOLDER, file_scrutin), "r", encoding="utf-8") as g:
                             data_scrutin = json.load(g)
                             if scrutin := Scrutin.from_json_by_ref(data_scrutin, code_ref):
                             
@@ -250,12 +265,12 @@ class DeputeCommand(commands.Cog, name="depute"):
         }
 
         for file_depute in os.listdir(ACTEUR_FOLDER):
-            with open(os.path.join(ACTEUR_FOLDER, file_depute), "r") as f:
+            with open(os.path.join(ACTEUR_FOLDER, file_depute), "r", encoding="utf-8") as f:
                 data_depute = json.load(f)
                 if depute := Depute.from_json_by_name(data_depute, name):
 
                     for file_scrutin in os.listdir(SCRUTINS_FOLDER):
-                        with open(os.path.join(SCRUTINS_FOLDER, file_scrutin), "r") as g:
+                        with open(os.path.join(SCRUTINS_FOLDER, file_scrutin), "r", encoding="utf-8") as g:
                             data_scrutin = json.load(g)
                             scrutin = Scrutin.from_json(data_scrutin)
 
@@ -296,11 +311,11 @@ class DeputeCommand(commands.Cog, name="depute"):
         """
 
         for file in os.listdir(SCRUTINS_FOLDER):
-            with open(os.path.join(SCRUTINS_FOLDER, file), "r") as f:
+            with open(os.path.join(SCRUTINS_FOLDER, file), "r", encoding="utf-8") as f:
                 data = json.load(f)
                 if scrutin := Scrutin.from_json_by_ref(data, code_ref):
                     embed = discord.Embed(
-                        title=f"{":green_circle:" if scrutin.sort == "adopté" else ":red_circle:"}  Scrutin nº{scrutin.ref} ",
+                        title=f"{':green_circle:' if scrutin.sort == 'adopté' else ':red_circle:'}  Scrutin nº{scrutin.ref} ",
                         description=f"Le {scrutin.dateScrutin}, {scrutin.titre[:-1]} est {scrutin.sort}.\n",
                         color=0x367588,
                     )
