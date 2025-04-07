@@ -13,16 +13,16 @@ from logging import Logger
 import requests
 import schedule
 
-from config.config import UPDATE_URL_DOWNLOAD_SCRUTINS, UPDATE_URL_DOWNLOAD_ACTEUR_ORGANE, UPDATE_HOUR, SCRUTINS_FOLDER, \
-    ACTEUR_FOLDER, ORGANE_FOLDER, UPDATE_PROGRESS_SECOND
+from config.config import UPDATE_URL_DOWNLOAD_SCRUTINS, UPDATE_URL_DOWNLOAD_ACTEUR_ORGANE, \
+    UPDATE_HOUR, SCRUTINS_FOLDER, ACTEUR_FOLDER, ORGANE_FOLDER, UPDATE_PROGRESS_SECOND
 
 def show_error_on_exception(log: Logger, msg: str, exception: Exception) -> None:
-        """
-        Handling error message during updates.
-        """
-        log.error(f"Update failed : {msg}")
-        log.error(f"Error : {str(exception)}")
-        log.error("=== Update failed ===")
+    """
+    Handling error message during updates.
+    """
+    log.error(f"Update failed : {msg}")
+    log.error(f"Error : {str(exception)}")
+    log.error("=== Update failed ===")
 
 def download_file(log: Logger, url: str, file_path: str) -> None :
     """
@@ -33,7 +33,8 @@ def download_file(log: Logger, url: str, file_path: str) -> None :
     Parameters:
         log (Logger) : The logger use by the function.
         url (str) : The url of file to download.
-        file_path (str) : The path where the file must write. Path must be writable and the parents folder must exist.
+        file_path (str) : The path where the file must write. 
+                        Path must be writable and the parents folder must exist.
     """
     def show_progress(
             p_log: Logger,
@@ -66,7 +67,7 @@ def download_file(log: Logger, url: str, file_path: str) -> None :
             nb_chunks_wrote += 1
             last_show = show_progress(log, url, content_length, chunk_size, nb_chunks_wrote, last_show)
 
-    log.info(f"Download done")
+    log.info("Download done")
 
 def unzip_file(log: Logger, path: str, dst_folder: str) -> None :
     """
@@ -98,7 +99,7 @@ def moving_folder(log: Logger, src_folder: str, dst_folder: str) -> None:
 
     log.info("Move file done")
 
-def update_scrutins(log: Logger, download_temp: str, zip_temp: str) -> bool:
+def update_scrutins(log: Logger, download_temp: str, zip_temp: str) -> None:
     """
     Update the data folder with fresh data from UPDATE_URL_DOWNLOAD_SCRUTINS.
 
@@ -111,24 +112,21 @@ def update_scrutins(log: Logger, download_temp: str, zip_temp: str) -> bool:
         download_file(log, UPDATE_URL_DOWNLOAD_SCRUTINS, zip_file_scrutins)
     except Exception as e:
         show_error_on_exception(log, "download failed", e)
-        return False
-    
+
     # Unzip File to zip temp folder
     zip_temp_scrutins = os.path.join(zip_temp, "scrutins")
     try:
         unzip_file(log, zip_file_scrutins, zip_temp_scrutins)
     except Exception as e:
         show_error_on_exception(log, "unzipping failed", e)
-        return False
 
     # Move folder to data folder
     try:
         moving_folder(log, os.path.join(zip_temp_scrutins, "json"), SCRUTINS_FOLDER)
     except Exception as e:
         show_error_on_exception(log, "moving folder failed", e)
-        return False
-    
-def update_acteur_organe(log: Logger, download_temp: str, zip_temp: str) -> bool:
+
+def update_acteur_organe(log: Logger, download_temp: str, zip_temp: str) -> None:
     """
     Update the data folder with fresh data from UPDATE_URL_DOWNLOAD_ACTEUR_ORGANE.
 
@@ -141,7 +139,6 @@ def update_acteur_organe(log: Logger, download_temp: str, zip_temp: str) -> bool
         download_file(log, UPDATE_URL_DOWNLOAD_ACTEUR_ORGANE, zip_file_acteur_organe)
     except Exception as e:
         show_error_on_exception(log, "download failed", e)
-        return False
 
     # Unzip File to zip temp folder
     zip_temp_acteur_organe = os.path.join(zip_temp, "acteur_organe")
@@ -149,7 +146,6 @@ def update_acteur_organe(log: Logger, download_temp: str, zip_temp: str) -> bool
         unzip_file(log, zip_file_acteur_organe, zip_temp_acteur_organe)
     except Exception as e:
         show_error_on_exception(log, "unzipping failed", e)
-        return False
 
     # Move folder to data folder
     try:
@@ -157,23 +153,30 @@ def update_acteur_organe(log: Logger, download_temp: str, zip_temp: str) -> bool
         moving_folder(log, os.path.join(zip_temp_acteur_organe, "json", "organe"), ORGANE_FOLDER)
     except Exception as e:
         show_error_on_exception(log, "moving folder failed", e)
-        return False
 
-def update(log: Logger, update_acteur_organe: bool = False) -> bool:
+def update(log: Logger, is_update_acteur_organe: bool = False) -> bool:
     """
-    Update the data folder with fresh data from UPDATE_URL_DOWNLOAD_SCRUTINS and UPDATE_URL_DOWNLOAD_ACTEUR_ORGANE.
+    Update the data folder with fresh data from 
+    UPDATE_URL_DOWNLOAD_SCRUTINS and UPDATE_URL_DOWNLOAD_ACTEUR_ORGANE.
 
     Parameters:
         log (Logger) : The logger use by the function.
-        update_acteur_organe (bool) : if True will update acteur and organe.
+        is_update_acteur_organe (bool) : if True will update acteur and organe.
     """
 
     log.info("=== Update starting ===")
-    
+
     with tempfile.TemporaryDirectory() as download_temp, tempfile.TemporaryDirectory() as zip_temp:
-        update_scrutins(log, download_temp, zip_temp)
-        if update_acteur_organe:
-            update_acteur_organe(log, download_temp, zip_temp)
+        try:
+            update_scrutins(log, download_temp, zip_temp)
+        except Exception:
+            return False
+
+        try:
+            if is_update_acteur_organe:
+                update_acteur_organe(log, download_temp, zip_temp)
+        except Exception:
+            return False
 
     log.info("=== Update success ===")
     return True

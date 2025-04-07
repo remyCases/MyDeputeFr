@@ -12,16 +12,16 @@ async def handle_client(log: Logger, reader, writer):
     data = await reader.readline()
     message = data.decode().strip()
     addr = writer.get_extra_info("peername")
-    
+
     log.info(f"Connexion reçue de {addr}: {message}")
-    
+
     if message == TCP_TOKEN:
         log.info("Token valide, démarrage de la mise à jour...")
-        result = await update(log, update_acteur_organe=True)
+        result = await update(log, is_update_acteur_organe=True)
         writer.write(f"{result}\n".encode())
     else:
         writer.write(b"Token invalide.\n")
-    
+
     await writer.drain()
     writer.close()
 
@@ -31,9 +31,9 @@ async def start_update_server(log: Logger):
         TCP_SERVER_HOST,
         TCP_SERVER_PORT
     )
-    
+
     addr = server.sockets[0].getsockname()
     log.info(f"Serveur de mise à jour démarré sur {addr}")
-    
+
     async with server:
         await server.serve_forever()
