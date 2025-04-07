@@ -3,7 +3,7 @@
 # This file is part of MyDeputeFr project from https://github.com/remyCases/MyDeputeFr.
 
 from functools import wraps
-from typing import Any, Callable, TypeVar, cast
+from typing import Any, Callable, Self, TypeVar, cast
 import inspect
 from discord.ext import commands
 
@@ -28,9 +28,14 @@ def not_updating() -> Callable[[T], T]:
         return cast(T, wrapper)
     return decorator
 
+def allow_during_update(func):
+    """Decorator to bypass the protection during updates"""
+    func.allow_during_update = True
+    return func
+
 class ProtectedDuringUpdateCog(commands.Cog):
     """Class with all commands protected during updates"""
-    def __init__(self, bot) -> None:
+    def __init__(self: Self, bot) -> None:
         self.bot = bot
         if not hasattr(bot, "update_lock"):
             raise commands.ExtensionError(
@@ -41,5 +46,5 @@ class ProtectedDuringUpdateCog(commands.Cog):
         # Apply not_updating decorator to all methods that are a command
         for name, method in inspect.getmembers(self, predicate=inspect.ismethod):
             if isinstance(method, commands.Command) or hasattr(method, "__command_flag__"):
-                if not getattr(method, "_allow_during_update", False):
+                if not getattr(method, "allow_during_update", False):
                     setattr(self, name, not_updating()(method))
