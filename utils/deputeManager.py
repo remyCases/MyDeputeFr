@@ -122,3 +122,11 @@ class Depute:
 
     def to_string_less(self) -> str:
         return f"{self.first_name} {self.last_name} élu dans le {self.dep}-{self.circo} dans le groupe {self.gp}"
+
+    @property
+    def url(self) -> str:
+        return f"https://www.assemblee-nationale.fr/dyn/deputes/{self.ref}"
+
+    @property
+    def image(self) -> str:
+        return f"https://www.assemblee-nationale.fr/dyn/static/tribun/17/photos/carre/{self.ref[2:]}.jpg"

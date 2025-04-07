@@ -108,10 +108,12 @@ class DeputeCommand(commands.Cog, name="depute"):
 
                 if depute := Depute.from_json_by_name(data, name):
                     embed = discord.Embed(
-                        title="Député",
+                        title=f"{depute.first_name} {depute.last_name}",
                         description=depute.to_string(),
                         color=0x367588,
+                        url=depute.url
                     )
+                    embed.set_thumbnail(url=depute.image)
                     await context.send(embed=embed)
                     return
         
@@ -144,10 +146,12 @@ class DeputeCommand(commands.Cog, name="depute"):
                 data = json.load(f)
                 if depute := Depute.from_json_by_circo(data, code_dep, code_circo):
                     embed = discord.Embed(
-                        title="Député",
+                        title=f"{depute.first_name} {depute.last_name}",
                         description=depute.to_string(),
                         color=0x367588,
+                        url=depute.url
                     )
+                    embed.set_thumbnail(url=depute.image)
                     await context.send(embed=embed)
                     return
         
