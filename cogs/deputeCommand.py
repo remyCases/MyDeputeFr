@@ -300,9 +300,25 @@ class DeputeCommand(commands.Cog, name="depute"):
                 data = json.load(f)
                 if scrutin := Scrutin.from_json_by_ref(data, code_ref):
                     embed = discord.Embed(
-                        title="Scrutin",
-                        description=scrutin.to_string(),
+                        title=f"{":green_circle:" if scrutin.sort == "adopté" else ":red_circle:"}  Scrutin nº{scrutin.ref} ",
+                        description=f"Le {scrutin.dateScrutin}, {scrutin.titre[:-1]} est {scrutin.sort}.\n",
                         color=0x367588,
+                    )
+                    embed.add_field(
+                        name="Participations",
+                        value=
+                        f":ballot_box: Nombre de votants: {scrutin.nombreVotants}\n"
+                        f":exclamation: Non votants: {scrutin.nonVotant}\n"
+                        f":no_entry_sign: Non votants volontaires: {scrutin.nonVotantsVolontaire}",
+                        inline=True
+                    )
+                    embed.add_field(
+                        name="Résulats",
+                        value=
+                        f":green_circle: Pour: {scrutin.pour}\n"
+                        f":red_circle: Contre: {scrutin.contre}\n"
+                        f":white_circle: Abstentions: {scrutin.abstention}",
+                        inline=True
                     )
                     await context.send(embed=embed)
                     return
