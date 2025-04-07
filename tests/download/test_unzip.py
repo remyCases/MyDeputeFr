@@ -8,7 +8,7 @@ import zipfile
 import pytest
 
 from download.download import unzip_file
-from tests.common import mock_log
+from tests.commons import mock_log
 
 
 @pytest.fixture

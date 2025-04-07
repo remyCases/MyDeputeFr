@@ -6,7 +6,7 @@ from unittest.mock import patch, MagicMock
 
 from config import config
 from download.download import update
-from tests.common import mock_log
+from tests.commons import mock_log
 
 
 def test_update_success(mock_log):

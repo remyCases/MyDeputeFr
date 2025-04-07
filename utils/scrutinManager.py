@@ -120,13 +120,13 @@ class Scrutin:
         return Scrutin.from_json(data)
     
     def to_string(self) -> str:
-        return f"Le {self.dateScrutin}, {self.sort}:\n{self.titre}\n\n  \
-            Nombre de votants: {self.nombreVotants}.\n                  \
-            Non votants: {self.nonVotant}.\n                            \
-            Pour: {self.pour}.\n                                        \
-            Contre: {self.contre}.\n                                    \
-            Abstentions: {self.abstention}.\n                           \
-            Non votants volontaires: {self.nonVotantsVolontaire}."
+        return f"Le {self.dateScrutin}, {self.sort}:\n{self.titre}\n\n"    \
+            f"Nombre de votants: {self.nombreVotants}.\n"                  \
+            f"Non votants: {self.nonVotant}.\n"                            \
+            f"Pour: {self.pour}.\n"                                        \
+            f"Contre: {self.contre}.\n"                                    \
+            f"Abstentions: {self.abstention}.\n"                           \
+            f"Non votants volontaires: {self.nonVotantsVolontaire}."
     
     def result(self, depute: Depute) -> ResultBallot:
 

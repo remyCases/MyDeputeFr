@@ -7,7 +7,7 @@ import os
 import pytest
 
 from download.download import moving_folder
-from tests.common import mock_log
+from tests.commons import mock_log
 
 
 @pytest.fixture
