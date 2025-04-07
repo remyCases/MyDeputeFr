@@ -18,7 +18,7 @@ from config.config import DISCORD_TOKEN, DISCORD_CMD_PREFIX, LOG_PATH, UPDATE_AT
 import config.config
 from logger.logger import init_logger
 from download.download import start_planning
-
+from tcp.tcp import start_update_server
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -43,6 +43,14 @@ class DiscordBot(commands.Bot):
         self.logger = logger
         self.database = None
         self.bot_prefix = DISCORD_CMD_PREFIX
+    
+    async def on_ready(self) -> None:
+        """
+        Called during initialisation. Not guaranteed to be called first nor once.
+        
+        Create a task to handle TCP communications.
+        """
+        self.loop.create_task(start_update_server(self.logger))
 
     async def load_cogs(self) -> None:
         """
