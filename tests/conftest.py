@@ -6,6 +6,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
+pytest_plugins = ['pytest_asyncio']
 
 @pytest.fixture(scope="session")
 def mock_log():

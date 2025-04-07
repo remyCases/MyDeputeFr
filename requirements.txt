@@ -3,3 +3,4 @@ discord.py==2.5.2
 python-dotenv
 requests
 schedule
+unidecode
