@@ -16,6 +16,13 @@ import schedule
 from config.config import UPDATE_URL_DOWNLOAD_SCRUTINS, UPDATE_URL_DOWNLOAD_ACTEUR_ORGANE, UPDATE_HOUR, SCRUTINS_FOLDER, \
     ACTEUR_FOLDER, ORGANE_FOLDER, UPDATE_PROGRESS_SECOND
 
+def show_error_on_exception(log: Logger, msg: str, exception: Exception) -> None:
+        """
+        Handling error message during updates.
+        """
+        log.error(f"Update failed : {msg}")
+        log.error(f"Error : {str(exception)}")
+        log.error("=== Update failed ===")
 
 def download_file(log: Logger, url: str, file_path: str) -> None :
     """
@@ -61,7 +68,6 @@ def download_file(log: Logger, url: str, file_path: str) -> None :
 
     log.info(f"Download done")
 
-
 def unzip_file(log: Logger, path: str, dst_folder: str) -> None :
     """
     Unzip a zip file to destination folder.
@@ -92,49 +98,82 @@ def moving_folder(log: Logger, src_folder: str, dst_folder: str) -> None:
 
     log.info("Move file done")
 
-def update(log: Logger) -> bool:
+def update_scrutins(log: Logger, download_temp: str, zip_temp: str) -> bool:
     """
-    Update the data folder with fresh data from UPDATE_URL_DOWNLOAD.
+    Update the data folder with fresh data from UPDATE_URL_DOWNLOAD_SCRUTINS.
 
     Parameters:
         log (Logger) : The logger use by the function.
     """
-    def show_error_on_exception(msg:str, exception: Exception) -> None:
-        log.error(f"Update failed : {msg}")
-        log.error(f"Error : {str(exception)}")
-        log.error("=== Update failed ===")
+    # Download File to zip download folder
+    zip_file_scrutins = os.path.join(download_temp, "data_scrutins.zip")
+    try:
+        download_file(log, UPDATE_URL_DOWNLOAD_SCRUTINS, zip_file_scrutins)
+    except Exception as e:
+        show_error_on_exception(log, "download failed", e)
+        return False
+    
+    # Unzip File to zip temp folder
+    zip_temp_scrutins = os.path.join(zip_temp, "scrutins")
+    try:
+        unzip_file(log, zip_file_scrutins, zip_temp_scrutins)
+    except Exception as e:
+        show_error_on_exception(log, "unzipping failed", e)
+        return False
+
+    # Move folder to data folder
+    try:
+        moving_folder(log, os.path.join(zip_temp_scrutins, "json"), SCRUTINS_FOLDER)
+    except Exception as e:
+        show_error_on_exception(log, "moving folder failed", e)
+        return False
+    
+def update_acteur_organe(log: Logger, download_temp: str, zip_temp: str) -> bool:
+    """
+    Update the data folder with fresh data from UPDATE_URL_DOWNLOAD_ACTEUR_ORGANE.
+
+    Parameters:
+        log (Logger) : The logger use by the function.
+    """
+    # Download File to zip download folder
+    zip_file_acteur_organe = os.path.join(download_temp, "data_acteur_organe.zip")
+    try:
+        download_file(log, UPDATE_URL_DOWNLOAD_ACTEUR_ORGANE, zip_file_acteur_organe)
+    except Exception as e:
+        show_error_on_exception(log, "download failed", e)
+        return False
+
+    # Unzip File to zip temp folder
+    zip_temp_acteur_organe = os.path.join(zip_temp, "acteur_organe")
+    try:
+        unzip_file(log, zip_file_acteur_organe, zip_temp_acteur_organe)
+    except Exception as e:
+        show_error_on_exception(log, "unzipping failed", e)
+        return False
+
+    # Move folder to data folder
+    try:
+        moving_folder(log, os.path.join(zip_temp_acteur_organe, "json", "acteur"), ACTEUR_FOLDER)
+        moving_folder(log, os.path.join(zip_temp_acteur_organe, "json", "organe"), ORGANE_FOLDER)
+    except Exception as e:
+        show_error_on_exception(log, "moving folder failed", e)
+        return False
+
+def update(log: Logger, update_acteur_organe: bool = False) -> bool:
+    """
+    Update the data folder with fresh data from UPDATE_URL_DOWNLOAD_SCRUTINS and UPDATE_URL_DOWNLOAD_ACTEUR_ORGANE.
+
+    Parameters:
+        log (Logger) : The logger use by the function.
+        update_acteur_organe (bool) : if True will update acteur and organe.
+    """
 
     log.info("=== Update starting ===")
     
     with tempfile.TemporaryDirectory() as download_temp, tempfile.TemporaryDirectory() as zip_temp:
-        # Download File to zip download folder
-        zip_file_scrutins = os.path.join(download_temp, "data_scrutins.zip")
-        zip_file_acteur_organe = os.path.join(download_temp, "data_acteur_organe.zip")
-        try:
-            download_file(log, UPDATE_URL_DOWNLOAD_SCRUTINS, zip_file_scrutins)
-            download_file(log, UPDATE_URL_DOWNLOAD_ACTEUR_ORGANE, zip_file_acteur_organe)
-        except Exception as e:
-            show_error_on_exception("download failed", e)
-            return False
-
-        # Unzip File to zip temp folder
-        zip_temp_scrutins = os.path.join(zip_temp, "scrutins")
-        zip_temp_acteur_organe = os.path.join(zip_temp, "acteur_organe")
-        try:
-            unzip_file(log, zip_file_scrutins, zip_temp_scrutins)
-            unzip_file(log, zip_file_acteur_organe, zip_temp_acteur_organe)
-        except Exception as e:
-            show_error_on_exception("unzipping failed", e)
-            return False
-
-        # Move folder to data folder
-        try:
-            moving_folder(log, os.path.join(zip_temp_scrutins, "json"), SCRUTINS_FOLDER)
-            moving_folder(log, os.path.join(zip_temp_acteur_organe, "json", "acteur"), ACTEUR_FOLDER)
-            moving_folder(log, os.path.join(zip_temp_acteur_organe, "json", "organe"), ORGANE_FOLDER)
-        except Exception as e:
-            show_error_on_exception("moving folder failed", e)
-            return False
+        update_scrutins(log, download_temp, zip_temp)
+        if update_acteur_organe:
+            update_acteur_organe(log, download_temp, zip_temp)
 
     log.info("=== Update success ===")
     return True
@@ -147,7 +186,7 @@ def start_planning(log: Logger, upload_at_launch: bool) -> None:
         log (Logger) : The logger use by the function.
         upload_at_launch (bool): If True run an update at launch.
     """
-    schedule.every().day.at(UPDATE_HOUR).do(update)
+    schedule.every().day.at(UPDATE_HOUR).do(lambda: update(log))
     log.info(f"Update planed at {UPDATE_HOUR}")
 
     if upload_at_launch:
