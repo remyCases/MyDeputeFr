@@ -6,6 +6,7 @@ Description:
 Version: 6.3.0
 """
 
+import asyncio
 import os
 import platform
 import threading
@@ -44,6 +45,10 @@ class DiscordBot(commands.Bot):
         self.database = None
         self.bot_prefix = DISCORD_CMD_PREFIX
         self.mode = DISCORD_BOT_MODE
+
+        # to handle blocking messages during updates
+        self.update_lock = asyncio.Lock()
+        self.is_updating = False
 
     async def load_cogs(self) -> None:
         """
