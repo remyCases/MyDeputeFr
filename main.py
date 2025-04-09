@@ -81,7 +81,7 @@ class DiscordBot(commands.Bot):
 
     async def on_ready(self):
         self.loop.create_task(
-            start_planning(log=logger, upload_at_launch=UPDATE_AT_LAUNCH)
+            start_planning(log=logger, bot=self, upload_at_launch=UPDATE_AT_LAUNCH)
         )
 
     async def on_message(self, message: discord.Message) -> None:
