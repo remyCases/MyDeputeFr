@@ -6,24 +6,7 @@ import os
 
 import pytest
 
-from download.download import moving_folder
-from tests.common import mock_log
-
-
-@pytest.fixture
-def setup_folders(tmpdir):
-    # Create a temporary source folder and a destination folder
-    src_folder = tmpdir.join("src_folder")
-    dst_folder = tmpdir.join("dst_folder")
-
-    # Create some files in the source folder
-    os.makedirs(src_folder, exist_ok=True)
-    file_in_src = src_folder.join("test.txt")
-    with open(file_in_src, 'w') as f:
-        f.write("This is a test file.")
-
-    return str(src_folder), str(dst_folder)
-
+from download.core import moving_folder
 
 def test_moving_folder_success(setup_folders, mock_log):
     # Get the source and destination folders
@@ -44,7 +27,7 @@ def test_moving_folder_success(setup_folders, mock_log):
     assert os.path.exists(moved_file_path), "File was not moved to the destination folder"
 
     # Check the content of the moved file
-    with open(moved_file_path, 'r') as f:
+    with open(moved_file_path, "r", encoding="utf-8") as f:
         content = f.read()
     assert content == "This is a test file.", "Content of the moved file is incorrect"
 
@@ -60,4 +43,3 @@ def test_moving_folder_src_not_exist(mock_log, tmpdir):
     # Call the moving_folder function and expect a FileNotFoundError
     with pytest.raises(FileNotFoundError):
         moving_folder(mock_log, str(src_folder), str(dst_folder))
-
