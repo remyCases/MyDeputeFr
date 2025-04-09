@@ -9,7 +9,6 @@ Version: 6.3.0
 import asyncio
 import os
 import platform
-import threading
 
 import discord
 from discord.ext import commands
@@ -19,7 +18,7 @@ from config.config import DISCORD_TOKEN, DISCORD_CMD_PREFIX, LOG_PATH, \
     UPDATE_AT_LAUNCH, LOG_LEVEL, show_config, DISCORD_BOT_MODE
 import config.config
 from logger.logger import init_logger
-from download.download import start_planning
+from download.update import start_planning
 
 intents = discord.Intents.default()
 intents.message_content = True
