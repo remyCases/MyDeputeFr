@@ -4,17 +4,18 @@
 
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
-import aiohttp
 import os
 import shutil
 import tempfile
 import zipfile
 from datetime import datetime
 from logging import Logger
+import aiohttp
 import requests
 
-from config.config import UPDATE_HOUR, UPDATE_URL_DOWNLOAD_SCRUTINS, UPDATE_URL_DOWNLOAD_ACTEUR_ORGANE, SCRUTINS_FOLDER, \
-    ACTEUR_FOLDER, ORGANE_FOLDER, UPDATE_PROGRESS_SECOND
+from config.config import UPDATE_HOUR, UPDATE_URL_DOWNLOAD_SCRUTINS,    \
+    UPDATE_URL_DOWNLOAD_ACTEUR_ORGANE, SCRUTINS_FOLDER, ACTEUR_FOLDER,  \
+    ORGANE_FOLDER, UPDATE_PROGRESS_SECOND
 from utils.utils import compute_time_for_update
 
 def show_progress(
@@ -24,12 +25,16 @@ def show_progress(
         p_chunk_size: int,
         p_nb_chunks_wrote: int,
         p_last_show: datetime | None) -> datetime:
+    """Show progress of download in log"""
     now = datetime.now()
     update_second = UPDATE_PROGRESS_SECOND
     if not p_last_show or (update_second != 0 and (now - p_last_show).seconds > update_second):
         size_wrote_chunks_mb = ((p_chunk_size * p_nb_chunks_wrote) / 1024) / 1024
         ct_length_mb = (int(p_content_length) / 1024) / 1024 if p_content_length else "???"
-        p_log.info(f"Download {os.path.basename(p_url)} : {size_wrote_chunks_mb:.2f} MB / {ct_length_mb:.2f} MB")
+        p_log.info("Download %s : %f.2f MB / %f.2f MB",
+                   os.path.basename(p_url),
+                   size_wrote_chunks_mb,
+                   ct_length_mb)
         return now
     return p_last_show
 
@@ -42,11 +47,13 @@ def download_file(log: Logger, url: str, file_path: str) -> None :
     Parameters:
         log (Logger) : The logger use by the function.
         url (str) : The url of file to download.
-        file_path (str) : The path where the file must write. Path must be writable and the parents folder must exist.
+        file_path (str) : 
+            The path where the file must write. 
+            Path must be writable and the parents folder must exist.
     """
     log.info(f"Downloading {url} to {file_path}")
 
-    content_length = requests.head(url).headers.get("content-length")
+    content_length = requests.head(url, timeout=10).headers.get("content-length")
     response = requests.get(url, stream=True, timeout=10)
     response.raise_for_status()
 
@@ -57,9 +64,10 @@ def download_file(log: Logger, url: str, file_path: str) -> None :
         for chunk in response.iter_content(chunk_size=chunk_size):
             f.write(chunk)
             nb_chunks_wrote += 1
-            last_show = show_progress(log, url, content_length, chunk_size, nb_chunks_wrote, last_show)
+            last_show = show_progress(log, url, content_length, chunk_size,
+                                      nb_chunks_wrote, last_show)
 
-    log.info(f"Download done")
+    log.info("Download done")
 
 async def download_file_async(log: Logger, url: str, file_path: str) -> None:
     """
@@ -89,7 +97,7 @@ async def download_file_async(log: Logger, url: str, file_path: str) -> None:
                             break
                         f.write(chunk)
                         nb_chunks_wrote += 1
-                        last_show = show_progress(log, url, content_length, 
+                        last_show = show_progress(log, url, content_length,
                                                   chunk_size, nb_chunks_wrote, last_show)
         except aiohttp.ClientConnectionError:
             log.error("Connection error from %s", url)
@@ -198,9 +206,15 @@ def update_sync(log: Logger) -> bool:
 
         # Move folder to data folder
         try:
-            moving_folder(log, os.path.join(zip_temp_scrutins, "json"), SCRUTINS_FOLDER)
-            moving_folder(log, os.path.join(zip_temp_acteur_organe, "json", "acteur"), ACTEUR_FOLDER)
-            moving_folder(log, os.path.join(zip_temp_acteur_organe, "json", "organe"), ORGANE_FOLDER)
+            moving_folder(log,
+                          os.path.join(zip_temp_scrutins, "json"),
+                          SCRUTINS_FOLDER)
+            moving_folder(log,
+                          os.path.join(zip_temp_acteur_organe, "json", "acteur"),
+                          ACTEUR_FOLDER)
+            moving_folder(log,
+                          os.path.join(zip_temp_acteur_organe, "json", "organe"),
+                          ORGANE_FOLDER)
         except Exception as e:
             show_error_on_exception("moving folder failed", e)
             return False
@@ -220,8 +234,12 @@ async def update_async(log: Logger) -> bool:
         zip_file_scrutins = os.path.join(download_temp, "data_scrutins.zip")
         zip_file_acteur_organe = os.path.join(download_temp, "data_acteur_organe.zip")
         try:
-            await download_file_async(log, UPDATE_URL_DOWNLOAD_SCRUTINS, zip_file_scrutins)
-            await download_file_async(log, UPDATE_URL_DOWNLOAD_ACTEUR_ORGANE, zip_file_acteur_organe)
+            await download_file_async(log,
+                                      UPDATE_URL_DOWNLOAD_SCRUTINS,
+                                      zip_file_scrutins)
+            await download_file_async(log,
+                                      UPDATE_URL_DOWNLOAD_ACTEUR_ORGANE,
+                                      zip_file_acteur_organe)
         except Exception as e:
             log.error("download failed %s", e)
             return False
