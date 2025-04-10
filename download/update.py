@@ -3,7 +3,6 @@
 # This file is part of MyDeputeFr project from https://github.com/remyCases/MyDeputeFr.
 
 import asyncio
-import os
 from pathlib import Path
 import tempfile
 from logging import Logger
@@ -11,64 +10,15 @@ from logging import Logger
 from config.config import UPDATE_HOUR, UPDATE_URL_DOWNLOAD_SCRUTINS,    \
     UPDATE_URL_DOWNLOAD_ACTEUR_ORGANE, SCRUTINS_FOLDER, ACTEUR_FOLDER,  \
     ORGANE_FOLDER
-from download.core import download_file, download_file_async,       \
-    moving_folder, moving_folder_async, unzip_file, unzip_file_async
+from download.core import download_file_async, moving_folder_async, unzip_file_async
 from utils.utils import compute_time_for_update
 
 
 def show_error_on_exception(log: Logger, msg: str, exception: Exception) -> None:
+    """Standard log output when an exception occur"""
     log.error("Update failed : %s", msg)
     log.error("Error : %s", str(exception))
     log.error("=== Update failed ===")
-
-def update_sync(log: Logger) -> bool:
-    """
-    Update the data folder with fresh data from UPDATE_URL_DOWNLOAD.
-
-    Parameters:
-        log (Logger) : The logger use by the function.
-    """
-
-    log.info("=== Update starting ===")
-
-    with tempfile.TemporaryDirectory() as download_temp, tempfile.TemporaryDirectory() as zip_temp:
-        # Download File to zip download folder
-        zip_file_scrutins = os.path.join(download_temp, "data_scrutins.zip")
-        zip_file_acteur_organe = os.path.join(download_temp, "data_acteur_organe.zip")
-        try:
-            download_file(log, UPDATE_URL_DOWNLOAD_SCRUTINS, zip_file_scrutins)
-            download_file(log, UPDATE_URL_DOWNLOAD_ACTEUR_ORGANE, zip_file_acteur_organe)
-        except Exception as e:
-            show_error_on_exception(log, "download failed", e)
-            return False
-
-        # Unzip File to zip temp folder
-        zip_temp_scrutins = os.path.join(zip_temp, "scrutins")
-        zip_temp_acteur_organe = os.path.join(zip_temp, "acteur_organe")
-        try:
-            unzip_file(log, zip_file_scrutins, zip_temp_scrutins)
-            unzip_file(log, zip_file_acteur_organe, zip_temp_acteur_organe)
-        except Exception as e:
-            show_error_on_exception(log, "unzipping failed", e)
-            return False
-
-        # Move folder to data folder
-        try:
-            moving_folder(log,
-                          os.path.join(zip_temp_scrutins, "json"),
-                          SCRUTINS_FOLDER)
-            moving_folder(log,
-                          os.path.join(zip_temp_acteur_organe, "json", "acteur"),
-                          ACTEUR_FOLDER)
-            moving_folder(log,
-                          os.path.join(zip_temp_acteur_organe, "json", "organe"),
-                          ORGANE_FOLDER)
-        except Exception as e:
-            show_error_on_exception(log, "moving folder failed", e)
-            return False
-
-    log.info("=== Update success ===")
-    return True
 
 async def update_async(log: Logger) -> bool:
     """

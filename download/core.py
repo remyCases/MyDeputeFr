@@ -11,7 +11,6 @@ import zipfile
 from datetime import datetime
 from logging import Logger
 import aiohttp
-import requests
 
 from config.config import UPDATE_PROGRESS_SECOND
 
@@ -34,37 +33,6 @@ def show_progress(
                    ct_length_mb)
         return now
     return p_last_show
-
-def download_file(log: Logger, url: str, file_path: str) -> None :
-    """
-    Download a file from url to file path.
-    Progress will show every DOWNLOAD_UPDATE_SECOND seconds (default 2).
-    To hide progress set DOWNLOAD_UPDATE_SECOND to 0.
-
-    Parameters:
-        log (Logger) : The logger use by the function.
-        url (str) : The url of file to download.
-        file_path (str) : 
-            The path where the file must write. 
-            Path must be writable and the parents folder must exist.
-    """
-    log.info(f"Downloading {url} to {file_path}")
-
-    content_length = requests.head(url, timeout=10).headers.get("content-length")
-    response = requests.get(url, stream=True, timeout=10)
-    response.raise_for_status()
-
-    with open(file_path, "wb") as f:
-        chunk_size = 8192
-        nb_chunks_wrote = 0
-        last_show = None
-        for chunk in response.iter_content(chunk_size=chunk_size):
-            f.write(chunk)
-            nb_chunks_wrote += 1
-            last_show = show_progress(log, url, content_length, chunk_size,
-                                      nb_chunks_wrote, last_show)
-
-    log.info("Download done")
 
 async def download_file_async(log: Logger, url: str, file_path: Path) -> None:
     """
