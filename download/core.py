@@ -145,7 +145,7 @@ def moving_folder(log: Logger, src_folder: str, dst_folder: str) -> None:
         src_folder (str) : The path of source folder to be moved.
         dst_folder (str) : The path of destination folder where the folder must be moved
     """
-    log.info(f"Moving file from {src_folder} to {dst_folder}")
+    log.info("Moving file from %s to %s", src_folder, dst_folder)
 
     shutil.rmtree(dst_folder, ignore_errors=True)
     shutil.move(src_folder, dst_folder)
