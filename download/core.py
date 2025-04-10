@@ -5,6 +5,7 @@
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
 import os
+from pathlib import Path
 import shutil
 import zipfile
 from datetime import datetime
@@ -65,7 +66,7 @@ def download_file(log: Logger, url: str, file_path: str) -> None :
 
     log.info("Download done")
 
-async def download_file_async(log: Logger, url: str, file_path: str) -> None:
+async def download_file_async(log: Logger, url: str, file_path: Path) -> None:
     """
     Download a file from url to file path asynchronously.
     Progress will show every DOWNLOAD_UPDATE_SECOND seconds (default 2).
@@ -74,7 +75,7 @@ async def download_file_async(log: Logger, url: str, file_path: str) -> None:
     Parameters:
         log (Logger) : The logger use by the function.
         url (str) : The url of file to download.
-        file_path (str) : 
+        file_path (Path) : 
             The path where the file must write. 
             Path must be writable and the parents folder must exist.
     """
@@ -106,28 +107,28 @@ async def download_file_async(log: Logger, url: str, file_path: str) -> None:
     log.info("Download done")
 
 
-def unzip_file(log: Logger, path: str, dst_folder: str) -> None :
+def unzip_file(log: Logger, path: Path, dst_folder: Path) -> None :
     """
     Unzip a zip file to destination folder.
 
     Parameters:
         log (Logger) : The logger use by the function.
-        path (str): The path of the zip file.
-        dst_folder (str) : The path of the destination folder.
+        path (Path): The path of the zip file.
+        dst_folder (Path) : The path of the destination folder.
     """
     log.info("Unzipping file %s to %s", path, dst_folder)
     with zipfile.ZipFile(path, "r") as zip_ref:
         zip_ref.extractall(dst_folder)
     log.info("Unzip done")
 
-async def unzip_file_async(log: Logger, path: str, dst_folder: str) -> None:
+async def unzip_file_async(log: Logger, path: Path, dst_folder: Path) -> None:
     """
     Unzip a zip file to destination folder asynchronously.
 
     Parameters:
         log (Logger) : The logger use by the function.
-        path (str): The path of the zip file.
-        dst_folder (str) : The path of the destination folder.
+        path (Path): The path of the zip file.
+        dst_folder (Path) : The path of the destination folder.
     """
     loop = asyncio.get_running_loop()
     with ThreadPoolExecutor() as pool:
@@ -136,14 +137,14 @@ async def unzip_file_async(log: Logger, path: str, dst_folder: str) -> None:
             lambda: unzip_file(log, path, dst_folder)
         )
 
-def moving_folder(log: Logger, src_folder: str, dst_folder: str) -> None:
+def moving_folder(log: Logger, src_folder: Path, dst_folder: Path) -> None:
     """
     Move the content source folder to destination folder.
 
     Parameters:
         log (Logger) : The logger use by the function.
-        src_folder (str) : The path of source folder to be moved.
-        dst_folder (str) : The path of destination folder where the folder must be moved
+        src_folder (Path) : The path of source folder to be moved.
+        dst_folder (Path) : The path of destination folder where the folder must be moved
     """
     log.info("Moving file from %s to %s", src_folder, dst_folder)
 
@@ -152,7 +153,7 @@ def moving_folder(log: Logger, src_folder: str, dst_folder: str) -> None:
 
     log.info("Move file done")
 
-async def moving_folder_async(log: Logger, src_folder: str, dst_folder: str) -> None:
+async def moving_folder_async(log: Logger, src_folder: Path, dst_folder: Path) -> None:
     """
     Move the content source folder to destination folder asynchronously.
 
