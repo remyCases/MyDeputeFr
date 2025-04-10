@@ -2,6 +2,7 @@
 # See LICENSE file for extended copyright information.
 # This file is part of MyDeputeFr project from https://github.com/remyCases/MyDeputeFr.
 
+import discord
 from discord.ext import commands
 from utils.cogManager import ProtectedDuringUpdateCog, allow_during_update
 
@@ -13,8 +14,21 @@ class GeneralCommands(ProtectedDuringUpdateCog):
     @allow_during_update
     async def status(self, context) -> None:
         """Basic command to check if the bot is updating or available"""
-        status = "en cours de mise à jour" if self.bot.is_updating else "disponible"
-        await context.send(f"Le bot est en ligne et {status}!")
+
+        if self.bot.is_updating:
+            embed = discord.Embed(
+                title=":red_circle: Indisponible",
+                description="Le bot est en cours de mise à jour.",
+                color=0x367588,
+            )
+        else:
+            embed = discord.Embed(
+                title=":green_circle: Disponible",
+                description="Le bot est disponible.",
+                color=0x367588,
+            )
+        
+        await context.send(embed=embed)
 
 async def setup(bot) -> None:
     await bot.add_cog(GeneralCommands(bot))
