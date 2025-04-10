@@ -115,7 +115,7 @@ def unzip_file(log: Logger, path: str, dst_folder: str) -> None :
         path (str): The path of the zip file.
         dst_folder (str) : The path of the destination folder.
     """
-    log.info(f"Unzipping file {path} to {dst_folder}")
+    log.info("Unzipping file %s to %s", path, dst_folder)
     with zipfile.ZipFile(path, "r") as zip_ref:
         zip_ref.extractall(dst_folder)
     log.info("Unzip done")

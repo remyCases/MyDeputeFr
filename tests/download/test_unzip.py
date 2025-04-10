@@ -7,10 +7,11 @@ import zipfile
 
 import pytest
 
-from download.core import unzip_file
+from download.core import unzip_file_async
 
 
-def test_unzip_file_success(valid_zip, mock_log):
+@pytest.mark.asyncio
+async def test_unzip_file_success(valid_zip, mock_log):
     # Get the zip file path and destination folder
     zip_path, dst_folder = valid_zip
 
@@ -18,10 +19,10 @@ def test_unzip_file_success(valid_zip, mock_log):
     os.makedirs(dst_folder, exist_ok=True)
 
     # Call the unzip function
-    unzip_file(mock_log, zip_path, dst_folder)
+    await unzip_file_async(mock_log, zip_path, dst_folder)
 
     # Check logs
-    mock_log.info.assert_any_call(f"Unzipping file {zip_path} to {dst_folder}")
+    mock_log.info.assert_any_call("Unzipping file %s to %s", zip_path, dst_folder)
     mock_log.info.assert_any_call("Unzip done")
 
     # Check if the file has been extracted
@@ -33,9 +34,8 @@ def test_unzip_file_success(valid_zip, mock_log):
         content = f.read()
     assert content == "This is a test file.", "Content of extracted file is incorrect"
 
-
-
-def test_unzip_file_bad_zip(tmpdir, mock_log):
+@pytest.mark.asyncio
+async def test_unzip_file_bad_zip(tmpdir, mock_log):
     # Create an invalid zip file (not actually a zip file)
     bad_zip_path = tmpdir.join("bad.zip")
     with open(bad_zip_path, "w", encoding="utf-8") as f:
@@ -43,13 +43,13 @@ def test_unzip_file_bad_zip(tmpdir, mock_log):
 
     # Call the unzip function and expect it to raise an exception
     with pytest.raises(zipfile.BadZipFile):
-        unzip_file(mock_log, str(bad_zip_path), str(tmpdir))
+        await unzip_file_async(mock_log, str(bad_zip_path), str(tmpdir))
 
-
-def test_unzip_file_file_not_found(tmpdir, mock_log):
+@pytest.mark.asyncio
+async def test_unzip_file_file_not_found(tmpdir, mock_log):
     # Simulate a FileNotFoundError by providing a non-existent file path
     non_existent_zip_path = tmpdir.join("non_existent.zip")
 
     # Call the unzip function and expect it to raise an exception
     with pytest.raises(FileNotFoundError):
-        unzip_file(mock_log, str(non_existent_zip_path), str(tmpdir))
+        await unzip_file_async(mock_log, str(non_existent_zip_path), str(tmpdir))
