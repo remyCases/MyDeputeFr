@@ -12,6 +12,7 @@ from download.core import unzip_file_async
 
 @pytest.mark.asyncio
 async def test_unzip_file_success(valid_zip, mock_log):
+    """Test a correct unzipping"""
     # Get the zip file path and destination folder
     zip_path, dst_folder = valid_zip
 
@@ -36,6 +37,7 @@ async def test_unzip_file_success(valid_zip, mock_log):
 
 @pytest.mark.asyncio
 async def test_unzip_file_bad_zip(tmpdir, mock_log):
+    """Test unzipping an invalid file"""
     # Create an invalid zip file (not actually a zip file)
     bad_zip_path = tmpdir.join("bad.zip")
     with open(bad_zip_path, "w", encoding="utf-8") as f:
@@ -47,6 +49,7 @@ async def test_unzip_file_bad_zip(tmpdir, mock_log):
 
 @pytest.mark.asyncio
 async def test_unzip_file_file_not_found(tmpdir, mock_log):
+    """Test unzipping an non existent file"""
     # Simulate a FileNotFoundError by providing a non-existent file path
     non_existent_zip_path = tmpdir.join("non_existent.zip")
 
