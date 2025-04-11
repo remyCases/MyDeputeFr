@@ -52,7 +52,7 @@ class DeputeCommand(commands.Cog, name="depute"):
 
                 if depute := Depute.from_json_by_name(data, name):
                     embed = discord.Embed(
-                        title="Député",
+                        title=f"{depute.first_name} {depute.last_name}",
                         description=depute,
                         color=0x367588,
                     )
@@ -60,7 +60,7 @@ class DeputeCommand(commands.Cog, name="depute"):
                     return
 
         embed = discord.Embed(
-            title="Député",
+            title="Erreur",
             description=f"J'ai pas trouvé le député {name}.",
             color=0x367588,
         )
@@ -88,7 +88,7 @@ class DeputeCommand(commands.Cog, name="depute"):
 
                 if scrutin := Scrutin.from_json_by_ref(data, code_ref):
                     embed = discord.Embed(
-                        title="Scrutin",
+                        title=f"Scrutin nº{scrutin.ref}",
                         description=scrutin,
                         color=0x367588,
                     )
@@ -96,7 +96,7 @@ class DeputeCommand(commands.Cog, name="depute"):
                     return
         
         embed = discord.Embed(
-            title="Scrutin",
+            title="Erreur",
             description=f"J'ai pas trouvé le scrutin {code_ref}.",
             color=0x367588,
         )
@@ -133,7 +133,7 @@ class DeputeCommand(commands.Cog, name="depute"):
                     return
         
         embed = discord.Embed(
-            title="Député",
+            title="Erreur",
             description=f"J'ai pas trouvé le député {name}.",
             color=0x367588,
         )
@@ -171,7 +171,7 @@ class DeputeCommand(commands.Cog, name="depute"):
                     return
         
         embed = discord.Embed(
-            title="Député",
+            title="Erreur",
             description=f"J'ai pas trouvé de député dans le {code_dep}-{code_circo}.",
             color=0x367588,
         )
@@ -201,14 +201,14 @@ class DeputeCommand(commands.Cog, name="depute"):
 
         if description:
             embed = discord.Embed(
-                title="Députés",
+                title=f"Département {code_dep}",
                 description=description,
                 color=0x367588,
             )
             await context.send(embed=embed)
         else:
             embed = discord.Embed(
-                title="Députés",
+                title="Erreur",
                 description=f"J'ai pas trouvé de députés dans le département {code_dep}.",
                 color=0x367588,
             )
@@ -234,7 +234,7 @@ class DeputeCommand(commands.Cog, name="depute"):
                             if scrutin := Scrutin.from_json_by_ref(data_scrutin, code_ref):
                             
                                 embed = discord.Embed(
-                                    title="Députés",
+                                    title=f"{depute.first_name} {depute.last_name}",
                                     description=scrutin.to_string_depute(depute),
                                     color=0x367588,
                                 )
@@ -242,7 +242,7 @@ class DeputeCommand(commands.Cog, name="depute"):
                                 return
             
         embed = discord.Embed(
-            title="Députés",
+            title="Erreur",
             description=f"J'ai pas trouvé le député {name} ou le scrutin {code_ref}.",
             color=0x367588,
         )
@@ -287,7 +287,7 @@ class DeputeCommand(commands.Cog, name="depute"):
                                     stat["abstention"] += 1
 
                     embed = discord.Embed(
-                        title="Députés",
+                        title=f"{depute.first_name} {depute.last_name}",
                         description=f"{depute.to_string_less()}\n{stat}",
                         color=0x367588,
                     )
@@ -295,7 +295,7 @@ class DeputeCommand(commands.Cog, name="depute"):
                     return
  
         embed = discord.Embed(
-            title="Députés",
+            title="Erreur",
             description=f"J'ai pas trouvé le député {name}.",
             color=0x367588,
         )
@@ -339,7 +339,7 @@ class DeputeCommand(commands.Cog, name="depute"):
                     return
 
         embed = discord.Embed(
-            title="Scrutin",
+            title="Erreur",
             description=f"J'ai pas trouvé le scrutin {code_ref}.",
             color=0x367588,
         )
