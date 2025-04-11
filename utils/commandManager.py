@@ -2,6 +2,8 @@
 # See LICENSE file for extended copyright information.
 # This file is part of MyDeputeFr project from https://github.com/remyCases/MyDeputeFr.
 
+from __future__ import annotations
+
 from typing import Any, Callable, ClassVar, Self, TYPE_CHECKING
 from discord import app_commands
 from discord.ext.commands import Context, core, _types
