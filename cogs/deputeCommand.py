@@ -10,7 +10,8 @@ from discord.ext import commands
 from discord.ext.commands import Context
 from config.config import ACTEUR_FOLDER, SCRUTINS_FOLDER
 
-from utils.cogManager import ProtectedDuringUpdateCog
+from utils.cogManager import ProtectedCog
+from utils.commandManager import protected_command
 from utils.utils import MODE
 from utils.deputeManager import Depute
 from utils.scrutinManager import ResultBallot, Scrutin
@@ -27,8 +28,8 @@ def debug_command():
         return True
     return commands.check(predicate)
 
-class DeputeCommand(ProtectedDuringUpdateCog, name="depute"):
-    @commands.hybrid_command(
+class DeputeCommand(ProtectedCog, name="depute"):
+    @protected_command(
         name="debugd",
         description="Debug command.",
     )
@@ -64,7 +65,7 @@ class DeputeCommand(ProtectedDuringUpdateCog, name="depute"):
         )
         await context.send(embed=embed)
 
-    @commands.hybrid_command(
+    @protected_command(
         name="debugs",
         description="Debug command.",
     )
@@ -100,7 +101,7 @@ class DeputeCommand(ProtectedDuringUpdateCog, name="depute"):
         )
         await context.send(embed=embed)
 
-    @commands.hybrid_command(
+    @protected_command(
         name="nom",
         description="Affiche un député.",
     )
@@ -137,7 +138,7 @@ class DeputeCommand(ProtectedDuringUpdateCog, name="depute"):
         )
         await context.send(embed=embed)
 
-    @commands.hybrid_command(
+    @protected_command(
         name="circo",
         description="Affiche le député associé à une circonscription.",
     )
@@ -175,7 +176,7 @@ class DeputeCommand(ProtectedDuringUpdateCog, name="depute"):
         )
         await context.send(embed=embed)
 
-    @commands.hybrid_command(
+    @protected_command(
         name="dep",
         description="Affiche la liste des députés dans un département.",
     )
@@ -212,7 +213,7 @@ class DeputeCommand(ProtectedDuringUpdateCog, name="depute"):
             )
             await context.send(embed=embed)
 
-    @commands.hybrid_command(
+    @protected_command(
         name="vote",
         description="TODO",
     )
@@ -246,7 +247,7 @@ class DeputeCommand(ProtectedDuringUpdateCog, name="depute"):
         )
         await context.send(embed=embed)
 
-    @commands.hybrid_command(
+    @protected_command(
         name="stat",
         description="TODO",
     )
@@ -299,9 +300,9 @@ class DeputeCommand(ProtectedDuringUpdateCog, name="depute"):
         )
         await context.send(embed=embed)
 
-    @commands.hybrid_command(
-    name="scr",
-    description="TODO",
+    @protected_command(
+        name="scr",
+        description="TODO",
     )
     async def scr(self, context: Context, code_ref: str) -> None:
         """

@@ -4,14 +4,13 @@
 
 import discord
 from discord.ext import commands
-from utils.cogManager import ProtectedDuringUpdateCog, allow_during_update
+from utils.cogManager import ProtectedCog
 
-class GeneralCommands(ProtectedDuringUpdateCog):
+class GeneralCommands(ProtectedCog):
     @commands.hybrid_command(
         name="status",
         description="Affiche le statut du bot."
     )
-    @allow_during_update
     async def status(self, context) -> None:
         """Basic command to check if the bot is updating or available"""
 
@@ -27,7 +26,7 @@ class GeneralCommands(ProtectedDuringUpdateCog):
                 description="Le bot est disponible.",
                 color=0x367588,
             )
-        
+
         await context.send(embed=embed)
 
 async def setup(bot) -> None:
