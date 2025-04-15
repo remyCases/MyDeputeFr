@@ -10,6 +10,8 @@ from discord.ext import commands
 from discord.ext.commands import Context
 from config.config import ACTEUR_FOLDER, SCRUTINS_FOLDER
 
+from utils.cogManager import ProtectedCog
+from utils.commandManager import protected_command
 from utils.utils import MODE
 from utils.deputeManager import Depute
 from utils.scrutinManager import ResultBallot, Scrutin
@@ -26,11 +28,8 @@ def debug_command():
         return True
     return commands.check(predicate)
 
-class DeputeCommand(commands.Cog, name="depute"):
-    def __init__(self, bot) -> None:
-        self.bot = bot
-
-    @commands.hybrid_command(
+class DeputeCommand(ProtectedCog, name="depute"):
+    @protected_command(
         name="debugd",
         description="Debug command.",
     )
@@ -66,7 +65,7 @@ class DeputeCommand(commands.Cog, name="depute"):
         )
         await context.send(embed=embed)
 
-    @commands.hybrid_command(
+    @protected_command(
         name="debugs",
         description="Debug command.",
     )
@@ -94,7 +93,7 @@ class DeputeCommand(commands.Cog, name="depute"):
                     )
                     await context.send(embed=embed)
                     return
-        
+
         embed = discord.Embed(
             title="Erreur",
             description=f"J'ai pas trouvé le scrutin {code_ref}.",
@@ -102,7 +101,7 @@ class DeputeCommand(commands.Cog, name="depute"):
         )
         await context.send(embed=embed)
 
-    @commands.hybrid_command(
+    @protected_command(
         name="nom",
         description="Affiche un député.",
     )
@@ -131,7 +130,7 @@ class DeputeCommand(commands.Cog, name="depute"):
                     embed.set_thumbnail(url=depute.image)
                     await context.send(embed=embed)
                     return
-        
+
         embed = discord.Embed(
             title="Erreur",
             description=f"J'ai pas trouvé le député {name}.",
@@ -139,7 +138,7 @@ class DeputeCommand(commands.Cog, name="depute"):
         )
         await context.send(embed=embed)
 
-    @commands.hybrid_command(
+    @protected_command(
         name="circo",
         description="Affiche le député associé à une circonscription.",
     )
@@ -177,7 +176,7 @@ class DeputeCommand(commands.Cog, name="depute"):
         )
         await context.send(embed=embed)
 
-    @commands.hybrid_command(
+    @protected_command(
         name="dep",
         description="Affiche la liste des députés dans un département.",
     )
@@ -214,7 +213,7 @@ class DeputeCommand(commands.Cog, name="depute"):
             )
             await context.send(embed=embed)
 
-    @commands.hybrid_command(
+    @protected_command(
         name="vote",
         description="TODO",
     )
@@ -232,7 +231,7 @@ class DeputeCommand(commands.Cog, name="depute"):
                         with open(os.path.join(SCRUTINS_FOLDER, file_scrutin), "r", encoding="utf-8") as g:
                             data_scrutin = json.load(g)
                             if scrutin := Scrutin.from_json_by_ref(data_scrutin, code_ref):
-                            
+
                                 embed = discord.Embed(
                                     title=f"{depute.first_name} {depute.last_name}",
                                     description=scrutin.to_string_depute(depute),
@@ -240,7 +239,7 @@ class DeputeCommand(commands.Cog, name="depute"):
                                 )
                                 await context.send(embed=embed)
                                 return
-            
+
         embed = discord.Embed(
             title="Erreur",
             description=f"J'ai pas trouvé le député {name} ou le scrutin {code_ref}.",
@@ -248,7 +247,7 @@ class DeputeCommand(commands.Cog, name="depute"):
         )
         await context.send(embed=embed)
 
-    @commands.hybrid_command(
+    @protected_command(
         name="stat",
         description="TODO",
     )
@@ -293,7 +292,7 @@ class DeputeCommand(commands.Cog, name="depute"):
                     )
                     await context.send(embed=embed)
                     return
- 
+
         embed = discord.Embed(
             title="Erreur",
             description=f"J'ai pas trouvé le député {name}.",
@@ -301,9 +300,9 @@ class DeputeCommand(commands.Cog, name="depute"):
         )
         await context.send(embed=embed)
 
-    @commands.hybrid_command(
-    name="scr",
-    description="TODO",
+    @protected_command(
+        name="scr",
+        description="TODO",
     )
     async def scr(self, context: Context, code_ref: str) -> None:
         """
