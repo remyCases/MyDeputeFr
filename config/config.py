@@ -5,9 +5,12 @@
 import os
 from collections.abc import Callable
 from logging import Logger
+from pathlib import Path
 from types import ModuleType
 
 from dotenv import load_dotenv
+
+from utils.utils import MODE
 
 load_dotenv()
 
@@ -42,6 +45,7 @@ def __load_env_required(name: str) -> str:
 # Discord Bot
 DISCORD_TOKEN = __load_env_required("DISCORD_TOKEN")  # Discord bot token
 DISCORD_CMD_PREFIX = __load_env("DISCORD_CMD_PREFIX", lambda: "!")  # Bot command prefix
+DISCORD_BOT_MODE = MODE[__load_env("DISCORD_BOT_MODE", lambda: "RELEASE").upper()]
 
 # Updates
 UPDATE_URL_DOWNLOAD_SCRUTINS = __load_env(
@@ -53,13 +57,13 @@ UPDATE_URL_DOWNLOAD_ACTEUR_ORGANE = __load_env(
     "https://data.assemblee-nationale.fr/static/openData/repository/17/amo/deputes_actifs_mandats_actifs_organes/"
     "AMO10_deputes_actifs_mandats_actifs_organes.json.zip") # URL to update acteur et organe
 UPDATE_HOUR = __load_env("UPDATE_HOUR", lambda: "08:00:00")  # Default update time
-UPDATE_AT_LAUNCH = __load_env("UPDATE_AT.LAUNCH", lambda: "TRUE").upper() in ('TRUE', '1', 'T')  # Enable updates at launch
+UPDATE_AT_LAUNCH = __load_env("UPDATE_AT_LAUNCH", lambda: "TRUE").upper() in ("TRUE", "1", "T")  # Enable updates at launch
 UPDATE_PROGRESS_SECOND = int(__load_env("UPDATE_DOWNLOAD_PROGRESS_SECOND", lambda: "2")) # Download progress update in second, if 0 is disabled
 
 # Folders
-ACTEUR_FOLDER = __load_env("ACTEUR_FOLDER", lambda: "data/acteur")  # Path to "acteur" folder
-ORGANE_FOLDER = __load_env("ORGANE_FOLDER", lambda: "data/organe")  # Path to "organe" folder
-SCRUTINS_FOLDER = __load_env("SCRUTINS_FOLDER", lambda: "data/scrutins")  # Path to "scrutins" folder
+ACTEUR_FOLDER = Path(__load_env("ACTEUR_FOLDER", lambda: "data/acteur"))  # Path to "acteur" folder
+ORGANE_FOLDER = Path(__load_env("ORGANE_FOLDER", lambda: "data/organe"))  # Path to "organe" folder
+SCRUTINS_FOLDER = Path(__load_env("SCRUTINS_FOLDER", lambda: "data/scrutins"))  # Path to "scrutins" folder
 
 # Logs
 LOG_PATH = __load_env("LOG_PATH", lambda: "discord.log")  # Path to the log file
