@@ -114,16 +114,18 @@ async def update_async(log: Logger, is_update_acteur_organe: bool) -> None:
 
     log.info("=== Update success ===")
 
-async def update(log: Logger, bot, is_update_acteur_organe: bool = False):
+async def update(log: Logger, bot, is_update_acteur_organe: bool = False) -> None:
     """Async version of update ot make it compatible with asyncio"""
     async with bot.update_lock:
         bot.is_updating = True
         try:
             await update_async(log, is_update_acteur_organe)
+        except Exception:
+            log.error("=== Update failed ===")
         finally:
             bot.is_updating = False
 
-async def start_planning(log: Logger, bot, upload_at_launch: bool) -> None:
+async def start_planning(log: Logger, bot, upload_at_launch: bool, max_iterations=None) -> None:
     """
     Start update scheduler to update data every UPDATE_HOUR.
 
@@ -135,6 +137,7 @@ async def start_planning(log: Logger, bot, upload_at_launch: bool) -> None:
         log.info("First update...")
         await update(log, bot)
 
+    iteration = 0
     while True:
         try:
             target_time, seconds_until_target = compute_time_for_update(UPDATE_HOUR)
@@ -142,6 +145,10 @@ async def start_planning(log: Logger, bot, upload_at_launch: bool) -> None:
             log.error("Invalid hour format given for updates. Expected '%H:%M:%S' format.")
             raise e
 
-        log.info(f"Update planed at {target_time} in {seconds_until_target} seconds.")
+        log.info("Update planed at %s in %s seconds.", target_time, seconds_until_target)
         await asyncio.sleep(seconds_until_target)
         await update(log, bot)
+
+        iteration += 1
+        if max_iterations is not None and iteration >= max_iterations:
+            break

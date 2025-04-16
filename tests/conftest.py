@@ -2,7 +2,7 @@
 # See LICENSE file for extended copyright information.
 # This file is part of MyDeputeFr project from https://github.com/remyCases/MyDeputeFr.
 
-from unittest.mock import MagicMock
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
@@ -14,5 +14,7 @@ def mock_log():
 @pytest.fixture
 def mock_bot():
     bot = MagicMock()
-    bot.update_lock = MagicMock()
+    bot.update_lock = AsyncMock()
+    bot.update_lock.__aenter__.return_value = bot.update_lock
+    bot.update_lock.__aexit__.return_value = None
     return bot
