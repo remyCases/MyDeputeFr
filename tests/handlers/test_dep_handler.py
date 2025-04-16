@@ -8,7 +8,7 @@ from tests.handlers.conftest import mock_folder_paths
 def test_dep_handler_found(mock_folder_paths, code_dep):
     embed = dep_handler(code_dep)
     assert isinstance(embed, Embed)
-    assert embed.title == "Stéphane Peu"
+    assert embed.title == f"Département {code_dep}"
     assert embed.description
     assert int(embed.color) == 0x367588
 

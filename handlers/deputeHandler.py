@@ -97,18 +97,18 @@ def dep_handler(code_dep: str) -> discord.Embed:
     """
     description = ""
     for file in os.listdir(ACTEUR_FOLDER):
-        with open(os.path.join(ACTEUR_FOLDER, file), "r") as f:
+        with open(os.path.join(ACTEUR_FOLDER, file), "r", encoding="utf-8") as f:
             data = json.load(f)
             if depute := Depute.from_json_by_dep(data, code_dep):
                 description += f"\n{depute.to_string_less()}."
-                if description:
-                    embed = discord.Embed(
-                        title=f"{depute.first_name} {depute.last_name}",
-                        description=description,
-                        color=0x367588,
-                    )
-                    return embed
 
+    if description:
+        embed = discord.Embed(
+            title=f"Département {code_dep}",
+            description=description,
+            color=0x367588,
+        )
+        return embed
     return error_handler(description=f"Je n'ai pas trouvé de députés dans le département {code_dep}.")
 
 
