@@ -21,3 +21,26 @@ def mock_folder_paths():
         patch('utils.deputeManager.ORGANE_FOLDER', DATA_TEST_ORGANE)
     ):
         yield
+
+
+@pytest.fixture(params=[
+    ("Panot", "Mathilde Panot"),
+    ("PaNoT", "Mathilde Panot"),
+    ("Le Pen", "Marine Le Pen"),
+    ("LePen", "Marine Le Pen"),
+    ("Trébuchet", "Vincent Trébuchet"),
+    ("Trebuchet", "Vincent Trébuchet"),
+    ("Thiébault-Martinez", "Céline Thiébault-Martinez"),
+    ("Thiébault Martinez", "Céline Thiébault-Martinez"),
+    ("Thiebault Martinez", "Céline Thiébault-Martinez"),
+    ("ThiebaultMartinez", "Céline Thiébault-Martinez"),
+    ("D'Intorni", "Christelle D'Intorni"),
+    ("D Intorni", "Christelle D'Intorni"),
+    ("DIntorni", "Christelle D'Intorni")
+])
+def valid_name(request):
+    return request.param
+
+@pytest.fixture(params=["Unknown", "Fictitious Name"])
+def invalid_name(request):
+    return request.param

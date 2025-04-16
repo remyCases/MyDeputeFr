@@ -1,20 +1,8 @@
-import pytest
+
 from discord import Embed
+
 from handlers.deputeHandler import nom_handler
-from tests.handlers.conftest import mock_folder_paths
-
-
-@pytest.fixture(params=[
-    ("Panot", "Mathilde Panot"),
-    ("Thiebault Martinez", "Céline Thiébault-Martinez"),
-])
-def valid_name(request):
-    return request.param
-
-
-@pytest.fixture(params=["Unknown", "Fictitious Name"])
-def invalid_name(request):
-    return request.param
+from tests.handlers.conftest import mock_folder_paths, valid_name, invalid_name
 
 
 def test_nom_handler_found(mock_folder_paths, valid_name):

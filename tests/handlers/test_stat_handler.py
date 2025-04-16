@@ -2,36 +2,12 @@
 # See LICENSE file for extended copyright information.
 # This file is part of MyDeputeFr project from https://github.com/remyCases/MyDeputeFr.
 
-import pytest
-
 from discord import Embed
 
 from handlers.deputeHandler import stat_handler
 from tests.handlers.conftest import mock_folder_paths
+from tests.handlers.conftest import valid_name, invalid_name
 
-
-@pytest.fixture(params=[
-    ("Panot", "Mathilde Panot"),
-    ("PaNoT", "Mathilde Panot"),
-    ("Le Pen", "Marine Le Pen"),
-    ("LePen", "Marine Le Pen"),
-    ("Trébuchet", "Vincent Trébuchet"),
-    ("Trebuchet", "Vincent Trébuchet"),
-    ("Thiébault-Martinez", "Céline Thiébault-Martinez"),
-    ("Thiébault Martinez", "Céline Thiébault-Martinez"),
-    ("Thiebault Martinez", "Céline Thiébault-Martinez"),
-    ("ThiebaultMartinez", "Céline Thiébault-Martinez"),
-    ("D'Intorni", "Christelle D'Intorni"),
-    ("D Intorni", "Christelle D'Intorni"),
-    ("DIntorni", "Christelle D'Intorni")
-])
-def valid_name(request):
-    return request.param
-
-
-@pytest.fixture(params=["Jane Doe", "John Smith", "Unknown"])
-def invalid_name(request):
-    return request.param
 
 def test_found_depute(mock_folder_paths, valid_name):
     embed = stat_handler(valid_name[0])
