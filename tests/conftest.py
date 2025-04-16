@@ -7,10 +7,10 @@ from unittest.mock import MagicMock
 import pytest
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture
 def mock_log():
     return MagicMock()
 
-@pytest.fixture(scope="session")
+@pytest.fixture
 def mock_bot():
     return MagicMock()

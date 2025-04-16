@@ -27,14 +27,13 @@ async def update_scrutins(log: Logger, download_temp: str, zip_temp: str) -> Non
     Parameters:
         log (Logger) : The logger use by the function.
     """
-    
-    print("__________________________________________scrutins")
     # Download File to zip download folder
     zip_file_scrutins: Path = Path(download_temp) / "data_scrutins.zip"
     try:
         await download_file_async(log, UPDATE_URL_DOWNLOAD_SCRUTINS, zip_file_scrutins)
     except Exception as e:
         show_error_on_exception(log, "download failed", e)
+        raise e
 
     # Unzip File to zip temp folder
     zip_temp_scrutins: Path = Path(zip_temp) / "scrutins"
@@ -42,6 +41,7 @@ async def update_scrutins(log: Logger, download_temp: str, zip_temp: str) -> Non
         await unzip_file_async(log, zip_file_scrutins, zip_temp_scrutins)
     except Exception as e:
         show_error_on_exception(log, "unzipping failed", e)
+        raise e
 
     # Move folder to data folder
     try:
@@ -50,6 +50,7 @@ async def update_scrutins(log: Logger, download_temp: str, zip_temp: str) -> Non
                                   SCRUTINS_FOLDER)
     except Exception as e:
         show_error_on_exception(log, "moving folder failed", e)
+        raise e
 
 async def update_acteur_organe(log: Logger, download_temp: str, zip_temp: str) -> None:
     """
@@ -64,6 +65,7 @@ async def update_acteur_organe(log: Logger, download_temp: str, zip_temp: str) -
         await download_file_async(log, UPDATE_URL_DOWNLOAD_ACTEUR_ORGANE, zip_file_acteur_organe)
     except Exception as e:
         show_error_on_exception(log, "download failed", e)
+        raise e
 
     # Unzip File to zip temp folder
     zip_temp_acteur_organe: Path = Path(zip_temp) / "acteur_organe"
@@ -71,6 +73,7 @@ async def update_acteur_organe(log: Logger, download_temp: str, zip_temp: str) -
         await unzip_file_async(log, zip_file_acteur_organe, zip_temp_acteur_organe)
     except Exception as e:
         show_error_on_exception(log, "unzipping failed", e)
+        raise e
 
     # Move folder to data folder
     try:
@@ -82,6 +85,7 @@ async def update_acteur_organe(log: Logger, download_temp: str, zip_temp: str) -
                                   ORGANE_FOLDER)
     except Exception as e:
         show_error_on_exception(log, "moving folder failed", e)
+        raise e
 
 async def update_async(log: Logger, is_update_acteur_organe: bool) -> bool:
     """
@@ -96,20 +100,17 @@ async def update_async(log: Logger, is_update_acteur_organe: bool) -> bool:
     log.info("=== Update starting ===")
 
     with tempfile.TemporaryDirectory() as download_temp, tempfile.TemporaryDirectory() as zip_temp:
-        print("__________________________________________start")
         try:
             await update_scrutins(log, download_temp, zip_temp)
         except Exception:
             log.error("=== Update scrutins failed ===")
             return False
-        print("__________________________________________middle")
         try:
             if is_update_acteur_organe:
                 await update_acteur_organe(log, download_temp, zip_temp)
         except Exception:
             log.error("=== Update acteur and organe failed ===")
             return False
-        print("__________________________________________end")
 
     log.info("=== Update success ===")
     return True
