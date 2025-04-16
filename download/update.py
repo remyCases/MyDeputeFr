@@ -87,7 +87,7 @@ async def update_acteur_organe(log: Logger, download_temp: str, zip_temp: str) -
         show_error_on_exception(log, "moving folder failed", e)
         raise e
 
-async def update_async(log: Logger, is_update_acteur_organe: bool) -> bool:
+async def update_async(log: Logger, is_update_acteur_organe: bool) -> None:
     """
     Update the data folder with fresh data from 
     UPDATE_URL_DOWNLOAD_SCRUTINS and UPDATE_URL_DOWNLOAD_ACTEUR_ORGANE.
@@ -102,18 +102,17 @@ async def update_async(log: Logger, is_update_acteur_organe: bool) -> bool:
     with tempfile.TemporaryDirectory() as download_temp, tempfile.TemporaryDirectory() as zip_temp:
         try:
             await update_scrutins(log, download_temp, zip_temp)
-        except Exception:
+        except Exception as e:
             log.error("=== Update scrutins failed ===")
-            return False
+            raise e
         try:
             if is_update_acteur_organe:
                 await update_acteur_organe(log, download_temp, zip_temp)
-        except Exception:
+        except Exception as e:
             log.error("=== Update acteur and organe failed ===")
-            return False
+            raise e
 
     log.info("=== Update success ===")
-    return True
 
 async def update(log: Logger, bot, is_update_acteur_organe: bool = False):
     """Async version of update ot make it compatible with asyncio"""

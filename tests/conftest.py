@@ -13,4 +13,6 @@ def mock_log():
 
 @pytest.fixture
 def mock_bot():
-    return MagicMock()
+    bot = MagicMock()
+    bot.update_lock = MagicMock()
+    return bot
