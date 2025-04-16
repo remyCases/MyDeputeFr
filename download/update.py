@@ -27,6 +27,8 @@ async def update_scrutins(log: Logger, download_temp: str, zip_temp: str) -> Non
     Parameters:
         log (Logger) : The logger use by the function.
     """
+    
+    print("__________________________________________scrutins")
     # Download File to zip download folder
     zip_file_scrutins: Path = Path(download_temp) / "data_scrutins.zip"
     try:
@@ -94,16 +96,20 @@ async def update_async(log: Logger, is_update_acteur_organe: bool) -> bool:
     log.info("=== Update starting ===")
 
     with tempfile.TemporaryDirectory() as download_temp, tempfile.TemporaryDirectory() as zip_temp:
+        print("__________________________________________start")
         try:
             await update_scrutins(log, download_temp, zip_temp)
         except Exception:
+            log.error("=== Update scrutins failed ===")
             return False
-
+        print("__________________________________________middle")
         try:
             if is_update_acteur_organe:
                 await update_acteur_organe(log, download_temp, zip_temp)
         except Exception:
+            log.error("=== Update acteur and organe failed ===")
             return False
+        print("__________________________________________end")
 
     log.info("=== Update success ===")
     return True
