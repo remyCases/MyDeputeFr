@@ -12,4 +12,4 @@ install_dev: install_venv
 
 # test 
 test:
-	$(BIN)\pytest tests\download -v
+	$(BIN)\pytest
