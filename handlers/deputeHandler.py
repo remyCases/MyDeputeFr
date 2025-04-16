@@ -55,7 +55,7 @@ def nom_handler(name: str) -> Embed:
                 )
                 embed.set_thumbnail(url=depute.image)
                 return embed
-    return error_handler(description=f"J'ai pas trouvé le député {name}.")
+    return error_handler(description=f"Je n'ai pas trouvé le député {name}.")
 
 
 def ciro_handler(code_dep: str, code_circo: str) -> discord.Embed:
@@ -82,7 +82,7 @@ def ciro_handler(code_dep: str, code_circo: str) -> discord.Embed:
                 embed.set_thumbnail(url=depute.image)
                 return embed
 
-    return error_handler(description=f"J'ai pas trouvé de député dans le {code_dep}-{code_circo}.")
+    return error_handler(description=f"Je n'ai pas trouvé de député dans le {code_dep}-{code_circo}.")
 
 
 def dep_handler(code_dep: str) -> discord.Embed:
@@ -109,7 +109,7 @@ def dep_handler(code_dep: str) -> discord.Embed:
                     )
                     return embed
 
-    return error_handler(description=f"J'ai pas trouvé de députés dans le département {code_dep}.")
+    return error_handler(description=f"Je n'ai pas trouvé de députés dans le département {code_dep}.")
 
 
 def vote_handler(name: str, code_ref: str) -> discord.Embed:
@@ -137,7 +137,7 @@ def vote_handler(name: str, code_ref: str) -> discord.Embed:
                                 description=scrutin.to_string_depute(depute),
                                 color=0x367588,
                             )
-    return error_handler(description=f"J'ai pas trouvé le député {name} ou le scrutin {code_ref}.")
+    return error_handler(description=f"Je n'ai pas trouvé le député {name} ou le scrutin {code_ref}.")
 
 
 def stat_handler(name: str) -> discord.Embed:
@@ -185,7 +185,7 @@ def stat_handler(name: str) -> discord.Embed:
                     description=f"{depute.to_string_less()}\n{stat}",
                     color=0x367588,
                 )
-    return error_handler(description=f"J'ai pas trouvé le député {name}.")
+    return error_handler(description=f"Je n'ai pas trouvé le député {name}.")
 
 
 def scr_handler(code_ref: str) -> discord.Embed:
@@ -203,7 +203,7 @@ def scr_handler(code_ref: str) -> discord.Embed:
             data = json.load(f)
             if scrutin := Scrutin.from_json_by_ref(data, code_ref):
                 embed = discord.Embed(
-                    title=f"{':green_circle:' if scrutin.sort == 'adopté' else ':red_circle:'}  Scrutin nº{scrutin.ref} ",
+                    title=f"{':green_circle:' if scrutin.sort == 'adopté' else ':red_circle:'}  Scrutin nº{scrutin.ref}",
                     description=f"Le {scrutin.dateScrutin}, {scrutin.titre[:-1]} est {scrutin.sort}.\n",
                     color=0x367588,
                 )
@@ -224,4 +224,4 @@ def scr_handler(code_ref: str) -> discord.Embed:
                     inline=True
                 )
                 return embed
-    return error_handler(description=f"J'ai pas trouvé le scrutin {code_ref}.")
+    return error_handler(description=f"Je n'ai pas trouvé le scrutin {code_ref}.")

@@ -10,7 +10,7 @@ from tests.handlers.conftest import mock_folder_paths
 def test_vote_handler_found(mock_folder_paths, name, code_ref):
     embed = vote_handler(name, code_ref)
     assert isinstance(embed, Embed)
-    assert embed.title == "Députés"
+    assert embed.title == "Mathilde Panot"
     assert embed.description
     assert int(embed.color) == 0x367588
 
@@ -23,4 +23,4 @@ def test_vote_handler_found(mock_folder_paths, name, code_ref):
 def test_vote_handler_not_found(mock_folder_paths, name, code_ref):
     embed = vote_handler(name, code_ref)
     assert embed.title == "Erreur"
-    assert f"J'ai pas trouvé le député {name} ou le scrutin {code_ref}." in embed.description
+    assert f"Je n'ai pas trouvé le député {name} ou le scrutin {code_ref}." in embed.description

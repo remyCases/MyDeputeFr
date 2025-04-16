@@ -22,4 +22,4 @@ def test_ciro_handler_found(mock_folder_paths, code_dep, code_circo):
 def test_ciro_handler_not_found(mock_folder_paths, code_dep, code_circo):
     embed = ciro_handler(code_dep, code_circo)
     assert embed.title == "Erreur"
-    assert f"J'ai pas trouvé de député dans le {code_dep}-{code_circo}." in embed.description
+    assert f"Je n'ai pas trouvé de député dans le {code_dep}-{code_circo}." in embed.description

@@ -29,4 +29,4 @@ def test_nom_handler_found(mock_folder_paths, valid_name):
 def test_nom_handler_not_found(mock_folder_paths, invalid_name):
     embed = nom_handler(invalid_name)
     assert embed.title == "Erreur"
-    assert f"J'ai pas trouvé le député {invalid_name}." in embed.description
+    assert f"Je n'ai pas trouvé le député {invalid_name}." in embed.description
