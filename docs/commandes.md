@@ -8,15 +8,19 @@
 
 **Utilisation :**
 ```
-/debugd <name>
+/debugd <last_name>
+/debugd <last_name> <first_name>
 ```
 
+
 **Paramètres :**
-- `name` (str) : Nom du député.
+- `last_name` (str) : Nom de famille du député.
+- `first_name` (str) : Prénom de famille du député.
 
 **Exemple :**
 ```
-/debugd Mathilde Panot
+/debugd Panot Mathilde
+/debugd Panot
 ```
 
 ### `debugs`
@@ -42,15 +46,18 @@
 
 **Utilisation :**
 ```
-/nom <name>
+/nom <last_name>
+/nom <last_name> <first_name>
 ```
 
 **Paramètres :**
-- `name` (str) : Nom du député.
+- `last_name` (str) : Nom de famille du député.
+- `first_name` (str) : Prénom de famille du député.
 
 **Exemple :**
 ```
-/nom Antoine Leaument
+/nom Leaument Antoine
+/nom Leaument
 ```
 
 ### `circo`
@@ -94,16 +101,19 @@
 
 **Utilisation :**
 ```
-/vote <name> <code_ref>
+/vote <last_name> <code_ref>
+/vote <last_name> <first_name> <code_ref>
 ```
 
 **Paramètres :**
-- `name` (str) : Nom du député.
+- `last_name` (str) : Nom de famille du député.
+- `first_name` (str) : Prénom de famille du député.
 - `code_ref` (str) : Code de référence du scrutin.
 
 **Exemple :**
 ```
-/vote David Guiraud 150
+/vote Guiraud David 150
+/vote Guiraud 150
 ```
 
 ### `stat`
@@ -112,15 +122,18 @@
 
 **Utilisation :**
 ```
-/stat <name>
+/stat <last_name>
+/stat <last_name> <first_name>
 ```
 
 **Paramètres :**
-- `name` (str) : Nom du député.
+- `last_name` (str) : Nom de famille du député.
+- `first_name` (str) : Prénom de famille du député.
+
 
 **Exemple :**
 ```
-/stat Éric Coquerel
+/stat Coquerel Éric
 ```
 
 ### `scr`
