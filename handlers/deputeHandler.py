@@ -101,14 +101,14 @@ def dep_handler(code_dep: str) -> discord.Embed:
             data = json.load(f)
             if depute := Depute.from_json_by_dep(data, code_dep):
                 description += f"\n{depute.to_string_less()}."
+                if description:
+                    embed = discord.Embed(
+                        title=f"{depute.first_name} {depute.last_name}",
+                        description=description,
+                        color=0x367588,
+                    )
+                    return embed
 
-    if description:
-        embed = discord.Embed(
-            title="Députés",
-            description=description,
-            color=0x367588,
-        )
-        return embed
     return error_handler(description=f"J'ai pas trouvé de députés dans le département {code_dep}.")
 
 
@@ -133,7 +133,7 @@ def vote_handler(name: str, code_ref: str) -> discord.Embed:
                         data_scrutin = json.load(g)
                         if scrutin := Scrutin.from_json_by_ref(data_scrutin, code_ref):
                             return discord.Embed(
-                                title="Députés",
+                                title=f"{depute.first_name} {depute.last_name}",
                                 description=scrutin.to_string_depute(depute),
                                 color=0x367588,
                             )
@@ -181,7 +181,7 @@ def stat_handler(name: str) -> discord.Embed:
                                 stat["abstention"] += 1
 
                 return discord.Embed(
-                    title="Députés",
+                    title=f"{depute.first_name} {depute.last_name}",
                     description=f"{depute.to_string_less()}\n{stat}",
                     color=0x367588,
                 )
@@ -199,12 +199,29 @@ def scr_handler(code_ref: str) -> discord.Embed:
         discord.Embed: Embed with scrutin info or error.
     """
     for file in os.listdir(SCRUTINS_FOLDER):
-        with open(os.path.join(SCRUTINS_FOLDER, file), "r") as f:
+        with open(os.path.join(SCRUTINS_FOLDER, file), "r", encoding="utf-8") as f:
             data = json.load(f)
             if scrutin := Scrutin.from_json_by_ref(data, code_ref):
-                return discord.Embed(
-                    title="Scrutin",
-                    description=scrutin.to_string(),
+                embed = discord.Embed(
+                    title=f"{':green_circle:' if scrutin.sort == 'adopté' else ':red_circle:'}  Scrutin nº{scrutin.ref} ",
+                    description=f"Le {scrutin.dateScrutin}, {scrutin.titre[:-1]} est {scrutin.sort}.\n",
                     color=0x367588,
                 )
+                embed.add_field(
+                    name="Participations",
+                    value=
+                    f":ballot_box: Nombre de votants: {scrutin.nombreVotants}\n"
+                    f":exclamation: Non votants: {scrutin.nonVotant}\n"
+                    f":no_entry_sign: Non votants volontaires: {scrutin.nonVotantsVolontaire}",
+                    inline=True
+                )
+                embed.add_field(
+                    name="Résulats",
+                    value=
+                    f":green_circle: Pour: {scrutin.pour}\n"
+                    f":red_circle: Contre: {scrutin.contre}\n"
+                    f":white_circle: Abstentions: {scrutin.abstention}",
+                    inline=True
+                )
+                return embed
     return error_handler(description=f"J'ai pas trouvé le scrutin {code_ref}.")
