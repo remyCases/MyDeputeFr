@@ -16,7 +16,6 @@ from discord.ext.commands import Context
 from config.config import DISCORD_BOT_MODE, DISCORD_CMD_PREFIX, UPDATE_AT_LAUNCH
 from download.update import start_planning
 from utils.utils import MODE
-from tcp.tcp import start_update_server
 
 class DiscordBot(commands.Bot):
     def __init__(self: Self, intents: Intents, logger: Logger) -> None:
@@ -80,7 +79,6 @@ class DiscordBot(commands.Bot):
         self.loop.create_task(
             start_planning(log=self.logger, bot=self, upload_at_launch=UPDATE_AT_LAUNCH)
         )
-        self.loop.create_task(start_update_server(self.logger))
 
     async def on_message(self: Self, message: discord.Message) -> None:
         """

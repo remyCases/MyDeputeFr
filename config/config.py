@@ -17,7 +17,7 @@ load_dotenv()
 class MissingEnvException(Exception):
     """Exception raised when an environment variable is missing."""
 
-__HIDE_VAL_IN_LOG = ["DISCORD_TOKEN", "TCP_TOKEN"]  # List of values to hide in the log
+__HIDE_VAL_IN_LOG = ["DISCORD_TOKEN"]  # List of values to hide in the log
 
 def show_config(module: ModuleType, logger: Logger):
     """Displays the attributes of a module, ignoring certain sensitive values."""
@@ -68,8 +68,3 @@ SCRUTINS_FOLDER = Path(__load_env("SCRUTINS_FOLDER", lambda: "data/scrutins"))  
 # Logs
 LOG_PATH = __load_env("LOG_PATH", lambda: "discord.log")  # Path to the log file
 LOG_LEVEL = __load_env("LOG_LEVEL", lambda: "INFO").upper()  # Logging level (INFO, DEBUG...)
-
-# TCP connection
-TCP_TOKEN = __load_env_required("TCP_TOKEN")
-TCP_SERVER_HOST = __load_env("TCP_SERVER_HOST", lambda: "127.0.0.1")
-TCP_SERVER_PORT = __load_env("TCP_SERVER_PORT", lambda: "8733")
