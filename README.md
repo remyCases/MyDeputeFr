@@ -20,7 +20,7 @@
 
 ### Prerequisites
 
-Make sure you have Python 3.7 or higher installed.
+Make sure you have Python 3.8 or higher installed.
 
 ### Steps to Install
 
@@ -57,14 +57,14 @@ Make sure you have Python 3.7 or higher installed.
 
 ### Running Tests
 
-To run the tests and check the code coverage, follow these steps:
+To run the tests follow these steps:
 
 1. **Install test dependencies** (if you haven't already):
    ```bash
    pip install -r requirements-dev.txt
    ```
 
-2. **Run the tests with coverage**:
+2. **Run the tests**:
    ```bash
    pytest
    ```
