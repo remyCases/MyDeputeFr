@@ -63,7 +63,7 @@ class DebugCommand(ProtectedCog, name="debug"):
             context (Context): The context of the command.
             code_ref (str): The reference code of the scrutin.
         """
-        await context.send(embed=debugs_handler())
+        await context.send(embed=debugs_handler(code_ref))
 
 async def setup(bot) -> None:
     """
