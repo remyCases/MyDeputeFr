@@ -156,9 +156,7 @@ async def test_download_invalid_path(
         await download_file_async(mock_log, url, file_path)
 
     # Assertions logs
-    mock_log.info.assert_has_calls([
-        call("Downloading %s to %s", url, file_path)
-    ])
+    mock_log.info.assert_not_called()
     mock_log.error.assert_has_calls([
         call("Invalid path %s", file_path),
     ])

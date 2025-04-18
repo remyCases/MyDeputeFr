@@ -8,7 +8,7 @@ import pytest
 
 pytest_plugins = ['pytest_asyncio']
 
-@pytest.fixture(scope="session")
+@pytest.fixture
 def mock_log():
     return MagicMock()
 
