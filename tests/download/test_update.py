@@ -514,7 +514,7 @@ async def test_update_success(
     mock_update_async.return_value = None  # No error
 
     # Call the update function
-    result = await update(mock_log, mock_bot)
+    result = await update(mock_log, mock_bot, False)
 
     # Assertions return
     assert result is None, "Update should succeed"
@@ -544,7 +544,7 @@ async def test_update_fail(
     mock_update_async.side_effect = Exception("Update failed")
 
     # Call the update function
-    result = await update(mock_log, mock_bot)
+    result = await update(mock_log, mock_bot, False)
 
     # Assertions return
     assert result is None, "Even if failing, update should return None"

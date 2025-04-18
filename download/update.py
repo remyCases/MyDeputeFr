@@ -114,7 +114,7 @@ async def update_async(log: Logger, is_update_acteur_organe: bool) -> None:
 
     log.info("=== Update success ===")
 
-async def update(log: Logger, bot, is_update_acteur_organe: bool = False) -> None:
+async def update(log: Logger, bot, is_update_acteur_organe: bool = True) -> None:
     """Async version of update ot make it compatible with asyncio"""
     async with bot.update_lock:
         bot.is_updating = True
