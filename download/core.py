@@ -71,6 +71,9 @@ async def download_file_async(log: Logger, url: str, file_path: Path) -> None:
         except aiohttp.ClientResponseError:
             log.error("Invalid response from %s", url)
             raise
+        except FileNotFoundError:
+            log.error("Invalid path %s", file_path)
+            raise
 
     log.info("Download done")
 
