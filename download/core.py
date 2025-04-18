@@ -88,8 +88,17 @@ def unzip_file(log: Logger, path: Path, dst_folder: Path) -> None :
         dst_folder (Path) : The path of the destination folder.
     """
     log.info("Unzipping file %s to %s", path, dst_folder)
-    with zipfile.ZipFile(path, "r") as zip_ref:
-        zip_ref.extractall(dst_folder)
+
+    try:
+        with zipfile.ZipFile(path, "r") as zip_ref:
+            zip_ref.extractall(dst_folder)
+    except zipfile.BadZipFile:
+        log.error("%s is not a correct Zip File.", path)
+        raise
+    except FileNotFoundError:
+        log.error("%s does not exist.", path)
+        raise
+
     log.info("Unzip done")
 
 async def unzip_file_async(log: Logger, path: Path, dst_folder: Path) -> None:

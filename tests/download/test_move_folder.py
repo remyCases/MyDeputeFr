@@ -116,7 +116,7 @@ async def test_moving_folder_async_success(
 
 @pytest.mark.asyncio
 @patch("download.core.moving_folder", side_effect=Exception("Moving folder failure"))
-async def test_moving_folder_async_src_not_exist(
+async def test_moving_folder_async_failure(
     mock_moving_folder,
     tmpdir,
     mock_log,
