@@ -21,6 +21,7 @@ async def test_update_success(mock_download_file_async, mock_unzip_file_async, m
     mock_temp_dir_context_manager.__enter__.return_value = mock_temp_dir_path
     mock_temp_dir = MagicMock(return_value=mock_temp_dir_context_manager)
 
+
     # Mock the functions used in the update process
     with (patch('tempfile.TemporaryDirectory', mock_temp_dir)):
         # Mock the behavior of each function to simulate success

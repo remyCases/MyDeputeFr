@@ -6,7 +6,7 @@ import os
 import zipfile
 import pytest
 
-pytest_plugins = ['pytest_asyncio']
+
 
 @pytest.fixture
 def setup_folders(tmpdir):

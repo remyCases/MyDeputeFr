@@ -4,8 +4,11 @@
 
 import os
 import json
-from typing import Self
+import re
+from typing_extensions import Self
 from attrs import define
+from unidecode import unidecode
+
 from config.config import ORGANE_FOLDER
 
 @define(kw_only=True)
@@ -65,8 +68,10 @@ class Depute:
 
     @classmethod
     def from_json_by_name(cls, data: dict, name: str) -> Self | None:
-        last_name: str = data["acteur"]["etatCivil"]["ident"]["nom"].replace(" ", "")
-        if name.lower() != last_name.lower():
+        def normalize_name(name: str) -> str:
+            return re.sub(r'[^a-z]', '', unidecode(name).lower())
+        last_name: str = data["acteur"]["etatCivil"]["ident"]["nom"]
+        if normalize_name(name) != normalize_name(last_name) :
             return None
         return Depute.from_json(data)
 
@@ -117,12 +122,6 @@ class Depute:
             return None
         return Depute.from_json(data)
 
-    def to_string(self) -> str:
-        return f"Ton député est {self.to_string_less()}."
-
-    def to_string_less(self) -> str:
-        return f"{self.first_name} {self.last_name} élu dans le {self.dep}-{self.circo} dans le groupe {self.gp}"
-
     @property
     def url(self) -> str:
         return f"https://www.assemblee-nationale.fr/dyn/deputes/{self.ref}"
@@ -130,3 +129,6 @@ class Depute:
     @property
     def image(self) -> str:
         return f"https://www.assemblee-nationale.fr/dyn/static/tribun/17/photos/carre/{self.ref[2:]}.jpg"
+
+    def to_string(self) -> str:
+        return f"{self.first_name} {self.last_name} député élu de la circonscription {self.dep}-{self.circo} appartenant au groupe {self.gp}."
