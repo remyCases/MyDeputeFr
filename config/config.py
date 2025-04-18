@@ -71,3 +71,8 @@ SCRUTINS_FOLDER = Path(__load_env("SCRUTINS_FOLDER", lambda: "data/scrutins"))  
 # Logs
 LOG_PATH = __load_env("LOG_PATH", lambda: "discord.log")  # Path to the log file
 LOG_LEVEL = __load_env("LOG_LEVEL", lambda: "INFO").upper()  # Logging level (INFO, DEBUG...)
+
+
+# SQLAlchemy
+DB_URL = __load_env("DB_URL", lambda: "sqlite://")
+DB_ECHO = __load_env("DB_ECHO", lambda: "FALSE").upper() in ('TRUE', '1', 'T')
