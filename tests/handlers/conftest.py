@@ -15,13 +15,10 @@ DATA_TEST_ORGANE = os.path.join(DATA_TEST, 'organe')
 
 @pytest.fixture()
 def mock_folder_paths():
-    with (
-        patch('handlers.deputeHandler.SCRUTINS_FOLDER', DATA_TEST_SCRUTINS),
-        patch('handlers.deputeHandler.ACTEUR_FOLDER', DATA_TEST_ACTEUR),
-        patch('utils.deputeManager.ORGANE_FOLDER', DATA_TEST_ORGANE)
-    ):
+    with patch('handlers.deputeHandler.SCRUTINS_FOLDER', DATA_TEST_SCRUTINS), \
+            patch('handlers.deputeHandler.ACTEUR_FOLDER', DATA_TEST_ACTEUR), \
+            patch('utils.deputeManager.ORGANE_FOLDER', DATA_TEST_ORGANE):
         yield
-
 
 @pytest.fixture(params=[
     ("Panot", "Mathilde Panot"),
