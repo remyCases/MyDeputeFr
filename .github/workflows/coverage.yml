@@ -9,6 +9,8 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    env:
+      DISCORD_TOKEN: "NOT_A_DISCORD_TOKEN"
 
     strategy:
       matrix:
