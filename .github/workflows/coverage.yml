@@ -34,7 +34,7 @@ jobs:
         pytest --cov=handlers --cov=utils --cov=download --cov=cogs --cov-report=xml --cov-branch
 
     - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@5
+      uses: codecov/codecov-action@v5
       with:
         flags: py${{ matrix.python-version }}
         name: python-${{ matrix.python-version }}
