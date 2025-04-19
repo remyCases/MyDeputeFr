@@ -1,15 +1,18 @@
 # Copyright (C) 2025 Rémy Cases
 # See LICENSE file for extended copyright information.
 # This file is part of MyDeputeFr project from https://github.com/remyCases/MyDeputeFr.
+from __future__ import annotations
 
-import os
 import json
+import os
 import re
-from typing_extensions import Self
+
 from attrs import define
+from typing_extensions import Self
 from unidecode import unidecode
 
 from config.config import ORGANE_FOLDER
+
 
 @define(kw_only=True)
 class Depute:

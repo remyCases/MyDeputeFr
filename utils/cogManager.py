@@ -3,12 +3,15 @@
 # This file is part of MyDeputeFr project from https://github.com/remyCases/MyDeputeFr.
 
 from functools import wraps
-from typing import Self, cast
+from typing import cast
+
 from discord.ext import commands
 from discord.ext.commands import Context
 from discord.ext.commands.hybrid import T
+from typing_extensions import Self
 
 from utils.botManager import DiscordBot
+
 
 class ProtectedCog(commands.Cog):
     """Class with all commands protected during updates"""

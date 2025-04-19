@@ -4,11 +4,13 @@
 
 from __future__ import annotations
 
-from typing import Any, Callable, ClassVar, Self, TYPE_CHECKING
+from typing import Any, Callable, ClassVar, TYPE_CHECKING
+
 from discord import app_commands
 from discord.ext.commands import Context, core, _types
 from discord.ext.commands.hybrid import HybridCommand, CogT, P, T
 from discord.utils import MISSING
+from typing_extensions import Self
 
 from utils.cogManager import not_updating
 

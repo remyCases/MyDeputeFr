@@ -28,7 +28,7 @@ def show_config(module: ModuleType, logger: Logger):
             logger.debug(msg)
 
 
-def __load_env(name: str, func: Callable[[], str]) -> str:
+def __load_env(name: str, func: Callable) -> str:
     """Loads an environment variable either from the environment or from a default generating function."""
     value = os.getenv(name)
     return value if value else func()

@@ -1,6 +1,7 @@
 # Copyright (C) 2025 Rémy Cases
 # See LICENSE file for extended copyright information.
 # This file is part of MyDeputeFr project from https://github.com/remyCases/MyDeputeFr.
+from __future__ import annotations
 
 import discord
 from discord import Embed
@@ -133,17 +134,18 @@ def stat_handler(name: str) -> discord.Embed:
         discord.Embed: Embed showing statistics or error.
     """
     def update_stat(p_stat: dict[str, int], p_scrutin: Scrutin, p_depute:Depute) :
-        match p_scrutin.result(p_depute):
-            case ResultBallot.ABSENT:
-                p_stat["absent"] += 1
-            case ResultBallot.NONVOTANT:
-                p_stat["nonvotant"] += 1
-            case ResultBallot.POUR:
-                p_stat["pour"] += 1
-            case ResultBallot.CONTRE:
-                p_stat["contre"] += 1
-            case ResultBallot.ABSTENTION:
-                p_stat["abstention"] += 1
+        result = p_scrutin.result(p_depute)
+
+        if result == ResultBallot.ABSENT:
+            p_stat["absent"] += 1
+        elif result == ResultBallot.NONVOTANT:
+            p_stat["nonvotant"] += 1
+        elif result == ResultBallot.POUR:
+            p_stat["pour"] += 1
+        elif result == ResultBallot.CONTRE:
+            p_stat["contre"] += 1
+        elif result == ResultBallot.ABSTENTION:
+            p_stat["abstention"] += 1
 
     stat = {
         "absent": 0,

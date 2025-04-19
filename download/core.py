@@ -1,18 +1,21 @@
 # Copyright (C) 2025 Rémy Cases
 # See LICENSE file for extended copyright information.
 # This file is part of MyDeputeFr project from https://github.com/remyCases/MyDeputeFr.
+from __future__ import annotations
 
 import asyncio
-from concurrent.futures import ThreadPoolExecutor
 import os
-from pathlib import Path
 import shutil
 import zipfile
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 from logging import Logger
+from pathlib import Path
+
 import aiohttp
 
 from config.config import UPDATE_PROGRESS_SECOND
+
 
 def show_progress(
         p_log: Logger,
