@@ -50,9 +50,9 @@ def test_nom_handler_found_multiple(_mock_from_json_by_name, _mock_listdir):
 
     assert isinstance(embeds, list)
     assert len(embeds) == 3
+    assert embeds[0].title == ":bust_in_silhouette: Bob Bernard"
     assert embeds[1].title == ":bust_in_silhouette: Claire Bernard"
-    assert embeds[0].title == ":bust_in_silhouette: Sam Bernard"
-    assert embeds[2].title == ":bust_in_silhouette: Bob Bernard"
+    assert embeds[2].title == ":bust_in_silhouette: Sam Bernard"
 
 @patch('os.listdir', return_value=["depute_1.json", "depute_2.json", "depute_3.json", "depute_4.json"])
 @patch('utils.deputeManager.Depute.from_json_by_name',
@@ -75,11 +75,8 @@ def test_nom_handler_found_first_name(_mock_from_json_by_name, _mock_listdir):
 @patch('utils.deputeManager.Depute.from_json_by_name', return_value=[])
 @patch('builtins.open', mock_open(read_data='{}'))
 def test_nom_handler_not_found(_mock_from_json_by_name, _mock_listdir, name):
-    embeds = nom_handler(name)
+    embed = nom_handler(name)
 
-    assert isinstance(embeds, list)
-    assert len(embeds) == 1
-    embed = embeds[0]
     assert embed.title == "Député non trouvé"
     assert f"Je n'ai pas trouvé le député {name}." in embed.description
     assert int(embed.color) == DISCORD_EMBED_COLOR_ERR
@@ -89,11 +86,8 @@ def test_nom_handler_not_found(_mock_from_json_by_name, _mock_listdir, name):
 @patch('os.listdir', return_value=[])
 @patch('utils.deputeManager.Depute.from_json_by_name', return_value=[])
 def test_nom_handler_no_files(_mock_listdir, _mock_from_json_by_name, name):
-    embeds = nom_handler(name)
+    embed = nom_handler(name)
 
-    assert isinstance(embeds, list)
-    assert len(embeds) == 1
-    embed = embeds[0]
     assert embed.title == "Député non trouvé"
     assert f"Je n'ai pas trouvé le député {name}." in embed.description
     assert int(embed.color) == DISCORD_EMBED_COLOR_ERR
@@ -105,11 +99,8 @@ def test_nom_handler_no_files(_mock_listdir, _mock_from_json_by_name, name):
        side_effect=[mock_depute("Bernard", "Claire", "1")])
 @patch('builtins.open', mock_open(read_data='not json'))
 def test_nom_handler_malformed_json(_mock_from_json_by_name, _mock_listdir, name):
-    embeds = nom_handler(name)
+    embed = nom_handler(name)
 
-    assert isinstance(embeds, list)
-    assert len(embeds) == 1
-    embed = embeds[0]
     assert embed.title == "Député non trouvé"
     assert f"Je n'ai pas trouvé le député {name}." in embed.description
     assert int(embed.color) == DISCORD_EMBED_COLOR_ERR

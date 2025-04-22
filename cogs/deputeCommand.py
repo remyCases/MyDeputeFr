@@ -1,7 +1,3 @@
-# Copyright (C) 2025 Rémy Cases
-# See LICENSE file for extended copyright information.
-# This file is part of MyDeputeFr project from https://github.com/remyCases/MyDeputeFr.
-
 from typing_extensions import Self
 
 from discord.ext.commands import Context
@@ -9,7 +5,7 @@ from discord.ext.commands import Context
 from handlers.deputeHandler import scr_handler, stat_handler, vote_handler, dep_handler, ciro_handler, nom_handler
 from utils.cogManager import ProtectedCog
 from utils.commandManager import protected_command
-
+from utils.utils import send_embeds  # Import the utility function
 
 class DeputeCommand(ProtectedCog, name="depute"):
     """
@@ -29,9 +25,7 @@ class DeputeCommand(ProtectedCog, name="depute"):
             last_name (str): The last name of the député.
             first_name (str | None): The optional first name of the député.
         """
-        embeds = nom_handler(last_name, first_name)
-        for embed in embeds:
-            await context.send(embed=embed)
+        await send_embeds(context, lambda: nom_handler(last_name, first_name))
 
     @protected_command(
         name="stat",
@@ -46,10 +40,7 @@ class DeputeCommand(ProtectedCog, name="depute"):
             last_name (str): The last name of the député.
             first_name (str | None): The optional first name of the député.
         """
-        embeds = stat_handler(last_name, first_name)
-        for embed in embeds:
-            await context.send(embed=embed)
-
+        await send_embeds(context, lambda: stat_handler(last_name, first_name))
 
     @protected_command(
         name="dep",
@@ -63,8 +54,7 @@ class DeputeCommand(ProtectedCog, name="depute"):
             context (Context): The context of the command.
             code_dep (str): Department code.
         """
-        await context.send(embed=dep_handler(code_dep))
-
+        await send_embeds(context, lambda: dep_handler(code_dep))
 
     @protected_command(
         name="circo",
@@ -79,8 +69,7 @@ class DeputeCommand(ProtectedCog, name="depute"):
             code_dep (str): Department code.
             code_circo (str): Circonscription code.
         """
-        await context.send(embed=ciro_handler(code_dep, code_circo))
-
+        await send_embeds(context, lambda: ciro_handler(code_dep, code_circo))
 
     @protected_command(
         name="scr",
@@ -94,8 +83,7 @@ class DeputeCommand(ProtectedCog, name="depute"):
             context (Context): The context of the command.
             code_ref (str): Reference of the scrutin.
         """
-        await context.send(embed=scr_handler(code_ref))
-
+        await send_embeds(context, lambda: scr_handler(code_ref))
 
     @protected_command(
         name="vote",
@@ -111,10 +99,7 @@ class DeputeCommand(ProtectedCog, name="depute"):
             last_name (str): The last name of the député.
             first_name (str | None): The optional first name of the député.
         """
-        embeds = vote_handler(code_ref, last_name, first_name)
-        for embed in embeds:
-            await context.send(embed=embed)
-
+        await send_embeds(context, lambda: vote_handler(code_ref, last_name, first_name))
 
 async def setup(bot) -> None:
     """

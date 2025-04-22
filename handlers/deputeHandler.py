@@ -46,7 +46,7 @@ def __scrutin_to_embed(scrutin):
     return embed
 
 
-def nom_handler(last_name: str, first_name: str | None = None) -> list[discord.Embed]:
+def nom_handler(last_name: str, first_name: str | None = None) -> list[discord.Embed] | discord.Embed:
     """
     Retrieve embeds with député information based on the given name.
 
@@ -60,16 +60,16 @@ def nom_handler(last_name: str, first_name: str | None = None) -> list[discord.E
     deputes = [ depute for data in read_files_from_directory(ACTEUR_FOLDER)
                 if (depute := Depute.from_json_by_name(data, last_name, first_name)) ]
     if len(deputes) > 0 :
-        deputes.sort(key=lambda x: x.last_name)
+        deputes.sort(key=lambda x: x.first_name)
         return [
             __depute_to_embed(depute)
             for depute in deputes
         ]
     full_name = f"{first_name + ' ' if first_name else ''}{last_name}"
-    return [ error_handler(
+    return error_handler(
         title="Député non trouvé",
         description=f"Je n'ai pas trouvé le député {full_name}."
-    ) ]
+    )
 
 
 def ciro_handler(code_dep: str, code_circo: str) -> discord.Embed:
@@ -123,7 +123,7 @@ def dep_handler(code_dep: str) -> discord.Embed:
     return error_handler(title="Député non trouvé", description=f"Je n'ai pas trouvé de députés dans le département {code_dep}.")
 
 
-def vote_handler(code_ref: str, last_name: str, first_name: str | None = None) -> list[discord.Embed]:
+def vote_handler(code_ref: str, last_name: str, first_name: str | None = None) -> list[discord.Embed] | discord.Embed:
     """
     Return embed showing how a député voted in a scrutin.
 
@@ -152,7 +152,7 @@ def vote_handler(code_ref: str, last_name: str, first_name: str | None = None) -
         None
     )
     if scrutin and len(deputes) > 0:
-        deputes.sort(key=lambda x: x.last_name)
+        deputes.sort(key=lambda x: x.first_name)
         embeds = []
         for depute in deputes:
             embed = __scrutin_to_embed(scrutin)
@@ -171,22 +171,23 @@ def vote_handler(code_ref: str, last_name: str, first_name: str | None = None) -
         return embeds
     elif scrutin:
         full_name = f"{first_name + ' ' if first_name else ''}{last_name}"
-        return [ error_handler(title="Député non trouvé", description=f"Je n'ai pas trouvé le député {full_name}.") ]
+        return error_handler(title="Député non trouvé", description=f"Je n'ai pas trouvé le député {full_name}.")
     elif len(deputes) > 0:
-        return [ error_handler(title="Scrutin non trouvé", description=f"Je n'ai pas trouvé le scrutin {code_ref}.") ]
+        return error_handler(title="Scrutin non trouvé", description=f"Je n'ai pas trouvé le scrutin {code_ref}.")
     else:
         full_name = f"{first_name + ' ' if first_name else ''}{last_name}"
-        return [ error_handler(title="Député et scrutin non trouvé", description=f"Je n'ai trouvé ni le député {full_name}, ni le scrutin {code_ref}.") ]
+        return error_handler(title="Député et scrutin non trouvé", description=f"Je n'ai trouvé ni le député {full_name}, ni le scrutin {code_ref}.")
 
 
 
 
-def stat_handler(name: str) -> discord.Embed:
+def stat_handler(last_name: str, first_name: str | None = None) -> list[discord.Embed] | discord.Embed:
     """
     Return embed with voting statistics for a député.
 
     Parameters:
-        name (str): The name of the député.
+        last_name (str): The last name of the député.
+        first_name (str | None): The optional first name of the député.
 
     Returns:
         discord.Embed: Embed showing statistics or error.
@@ -246,10 +247,10 @@ def stat_handler(name: str) -> discord.Embed:
 
 
     full_name = f"{first_name + ' ' if first_name else ''}{last_name}"
-    return [error_handler(
+    return error_handler(
         title="Député non trouvé",
         description=f"Je n'ai pas trouvé le député {full_name}."
-    )]
+    )
 
 
 def scr_handler(code_ref: str) -> discord.Embed:

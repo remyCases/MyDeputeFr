@@ -57,11 +57,8 @@ def test_stat_handler_found(_mock_from_json_by_name, _mock_scrutin, _mock_listdi
 @patch('utils.deputeManager.Depute.from_json_by_name', return_value=None)
 @patch('builtins.open', mock_open(read_data='{}'))
 def test_stat_handler_depute_not_found(_mock_from_json_by_name, _mock_listdir, last_name):
-    embeds = stat_handler(last_name)
+    embed = stat_handler(last_name)
 
-    assert isinstance(embeds, list)
-    assert len(embeds) == 1
-    embed = embeds[0]
     assert embed.title == "Député non trouvé"
     assert f"Je n'ai pas trouvé le député {last_name}." in embed.description
     assert int(embed.color) == DISCORD_EMBED_COLOR_ERR
@@ -71,11 +68,8 @@ def test_stat_handler_depute_not_found(_mock_from_json_by_name, _mock_listdir, l
 @patch('os.listdir', return_value=[])
 @patch('utils.deputeManager.Depute.from_json_by_name', return_value=None)
 def test_stat_handler_no_files(_mock_from_json_by_name, _mock_listdir, last_name):
-    embeds = stat_handler(last_name)
+    embed = stat_handler(last_name)
 
-    assert isinstance(embeds, list)
-    assert len(embeds) == 1
-    embed = embeds[0]
     assert embed.title == "Député non trouvé"
     assert f"Je n'ai pas trouvé le député {last_name}." in embed.description
     assert int(embed.color) == DISCORD_EMBED_COLOR_ERR
@@ -87,11 +81,8 @@ def test_stat_handler_no_files(_mock_from_json_by_name, _mock_listdir, last_name
 @patch('utils.deputeManager.Depute.from_json_by_name', side_effect=[mock_depute()])
 @patch('builtins.open', mock_open(read_data='not json'))
 def test_stat_handler_malformed_json(_mock_from_json_by_name, _mock_scrutin, _mock_listdir, last_name):
-    embeds = stat_handler(last_name)
+    embed = stat_handler(last_name)
 
-    assert isinstance(embeds, list)
-    assert len(embeds) == 1
-    embed = embeds[0]
     assert embed.title == "Député non trouvé"
     assert f"Je n'ai pas trouvé le député {last_name}." in embed.description
     assert int(embed.color) == DISCORD_EMBED_COLOR_ERR
