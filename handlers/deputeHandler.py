@@ -156,40 +156,65 @@ def stat_handler(name: str) -> discord.Embed:
     Returns:
         discord.Embed: Embed showing statistics or error.
     """
-    def update_stat(p_stat: dict[str, int], p_scrutin: Scrutin, p_depute:Depute) :
-        result = p_scrutin.result(p_depute)
 
+    def update_stat(stat: dict[str, int], scrutin: Scrutin, depute: Depute):
+        result = scrutin.result(depute)
         if result == ResultBallot.ABSENT:
-            p_stat["absent"] += 1
+            stat["absent"] += 1
         elif result == ResultBallot.NONVOTANT:
-            p_stat["nonvotant"] += 1
+            stat["nonvotant"] += 1
         elif result == ResultBallot.POUR:
-            p_stat["pour"] += 1
+            stat["pour"] += 1
         elif result == ResultBallot.CONTRE:
-            p_stat["contre"] += 1
+            stat["contre"] += 1
         elif result == ResultBallot.ABSTENTION:
-            p_stat["abstention"] += 1
+            stat["abstention"] += 1
 
-    stat = {
-        "absent": 0,
-        "nonvotant": 0,
-        "pour": 0,
-        "contre": 0,
-        "abstention": 0,
-    }
+    def emoticon_stat(k: str) -> str:
+        return {
+            "pour": ":green_circle:",
+            "contre": ":red_circle:",
+            "abstention": ":white_circle:",
+            "nonvotant": ":exclamation:",
+            "absent": ":orange_circle:",
+        }.get(k, "")
 
-    for data_depute in read_files_from_directory(ACTEUR_FOLDER):
-        if depute := Depute.from_json_by_name(data_depute, name):
-            for data_scrutin in read_files_from_directory(SCRUTINS_FOLDER):
-                scrutin = Scrutin.from_json(data_scrutin)
-                update_stat(stat, scrutin, depute)
+    deputes = [
+        depute
+        for data in read_files_from_directory(ACTEUR_FOLDER)
+        if (depute := Depute.from_json_by_name(data, last_name, first_name))
+    ]
+
+    if len(deputes) > 0:
+        deputes.sort(key=lambda d: int(d.circo))
+
+        default_stat = { "absent": 0, "pour": 0, "contre": 0, "abstention": 0, "nonvotant": 0}
+        stats = {depute.ref: default_stat.copy() for depute in deputes}
+
+        for data in read_files_from_directory(SCRUTINS_FOLDER):
+            scrutin = Scrutin.from_json(data)
+            for depute in deputes:
+                update_stat(stats[depute.ref], scrutin, depute)
+
+        embeds = []
+        for depute in deputes:
             embed = __depute_to_embed(depute)
-            embed.description = embed.description + f"\n {stat}"
-            return embed
-    return error_handler(
+            stat_lines = "\n".join(f"{emoticon_stat(key) + ' ' if emoticon_stat(key) else ''}{key.capitalize()} : {value}" for key, value in stats[depute.ref].items())
+            embed.add_field(
+                name="Statistiques de vote",
+                value=
+                f"{stat_lines}"
+            )
+            embeds.append(embed)
+
+        return embeds
+
+
+    full_name = f"{first_name + ' ' if first_name else ''}{last_name}"
+    return [error_handler(
         title="Député non trouvé",
-        description=f"Je n'ai pas trouvé le député {name}."
-    )
+        description=f"Je n'ai pas trouvé le député {full_name}."
+    )]
 
 
 def scr_handler(code_ref: str) -> discord.Embed:

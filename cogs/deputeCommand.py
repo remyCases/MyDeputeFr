@@ -37,15 +37,18 @@ class DeputeCommand(ProtectedCog, name="depute"):
         name="stat",
         description="Affiches les statistiques de votes pour un député.",
     )
-    async def stat(self: Self, context: Context, name: str) -> None:
+    async def stat(self: Self, context: Context, last_name: str, first_name: str | None = None) -> None:
         """
         Display voting statistics for a député.
 
         Parameters:
             context (Context): The context of the command.
-            name (str): Name of the député.
+            last_name (str): The last name of the député.
+            first_name (str | None): The optional first name of the député.
         """
-        await context.send(embed=stat_handler(name))
+        embeds = stat_handler(last_name, first_name)
+        for embed in embeds:
+            await context.send(embed=embed)
 
 
     @protected_command(
