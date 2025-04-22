@@ -40,15 +40,17 @@ class DebugCommand(ProtectedCog, name="debug"):
         description="Debug command.",
     )
     @debug_command()
-    async def debugd(self: Self, context: Context, name: str) -> None:
+    async def debugd(self: Self, context: Context, last_name: str, first_name: str | None = None) -> None:
         """
         Show debug info for a député by name.
 
         Parameters:
-            context (Context): The context of the command.
-            name (str): The name of the député to search.
+            last_name (str): The last name of the député.
+            first_name (str | None): The optional first name of the député.
         """
-        await context.send(embed=debugd_handler(name))
+        embeds = debugd_handler(last_name, first_name)
+        for embed in embeds:
+            await context.send(embed=embed)
 
     @protected_command(
         name="debugs",
