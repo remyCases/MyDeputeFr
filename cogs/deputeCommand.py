@@ -20,16 +20,18 @@ class DeputeCommand(ProtectedCog, name="depute"):
         name="nom",
         description="Affiche un député.",
     )
-    async def nom(self: Self, context: Context, name: str) -> None:
+    async def nom(self: Self, context: Context, last_name: str, first_name: str | None = None) -> None:
         """
-        Display a député's info by name.
+        Display information about a député by name.
 
         Parameters:
             context (Context): The context of the command.
-            name (str): The name of the député.
+            last_name (str): The last name of the député.
+            first_name (str | None): The optional first name of the député.
         """
-        await context.send(embed=nom_handler(name))
-
+        embeds = nom_handler(last_name, first_name)
+        for embed in embeds:
+            await context.send(embed=embed)
 
     @protected_command(
         name="stat",

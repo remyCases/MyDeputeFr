@@ -38,7 +38,7 @@ def test_stat_handler_valid(_mock_depute, _mock_scrutin_from_json, _mock_listdir
     embed = stat_handler(name)
 
     assert isinstance(embed, Embed)
-    assert embed.title == "Nora Lemoine"
+    assert embed.title == ":bust_in_silhouette: Nora Lemoine"
     assert "pour': 1" in embed.description
     assert "contre': 1" in embed.description
     assert "abstention': 1" in embed.description
@@ -53,7 +53,7 @@ def test_stat_handler_valid(_mock_depute, _mock_scrutin_from_json, _mock_listdir
 def test_stat_handler_not_found(_mock_depute, _mock_listdir, name):
     embed = stat_handler(name)
 
-    assert embed.title == "Erreur"
+    assert embed.title == "Député non trouvé"
     assert f"Je n'ai pas trouvé le député {name}." in embed.description
     assert int(embed.color) == DISCORD_EMBED_COLOR_ERR
 
@@ -65,7 +65,7 @@ def test_stat_handler_not_found(_mock_depute, _mock_listdir, name):
 def test_stat_handler_no_files(_mock_listdir, _mock_depute, name):
     embed = stat_handler(name)
 
-    assert embed.title == "Erreur"
+    assert embed.title == "Député non trouvé"
     assert f"Je n'ai pas trouvé le député {name}." in embed.description
     assert int(embed.color) == DISCORD_EMBED_COLOR_ERR
 
@@ -78,7 +78,7 @@ def test_stat_handler_no_files(_mock_listdir, _mock_depute, name):
 def test_stat_handler_malformed_json(_mock_depute, _mock_scrutin, _mock_listdir, name):
     embed = stat_handler(name)
 
-    assert embed.title == "Erreur"
+    assert embed.title == "Député non trouvé"
     assert f"Je n'ai pas trouvé le député {name}." in embed.description
     assert int(embed.color) == DISCORD_EMBED_COLOR_ERR
 

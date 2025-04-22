@@ -4,7 +4,6 @@
 from __future__ import annotations
 
 import discord
-from discord import Embed
 
 from config.config import SCRUTINS_FOLDER, ACTEUR_FOLDER, DISCORD_EMBED_COLOR_MSG
 from handlers.commonHandler import error_handler
@@ -13,28 +12,51 @@ from utils.scrutinManager import Scrutin, ResultBallot
 from utils.utils import read_files_from_directory
 
 
-def nom_handler(name: str) -> Embed:
+def __depute_to_embed(depute: Depute) -> discord.Embed:
     """
-    Return embed with député info based on name.
+    Converts a Depute object into a Discord Embed message.
 
     Parameters:
-        name (str): The name of the député.
+        depute (Depute): The deputy object.
 
     Returns:
-        discord.Embed: Embed containing député info or error message.
+        discord.Embed: A Discord Embed formatted with the deputy's details.
     """
-    for data in read_files_from_directory(ACTEUR_FOLDER):
-        if depute := Depute.from_json_by_name(data, name):
-            embed = discord.Embed(
-                title=f"{depute.first_name} {depute.last_name}",
-                description=f"{depute.to_string()}",
-                color=DISCORD_EMBED_COLOR_MSG,
-                url=depute.url
-            )
-            embed.set_thumbnail(url=depute.image)
-            return embed
-    return error_handler(description=f"Je n'ai pas trouvé le député {name}.")
+    return discord.Embed(
+        title=f":bust_in_silhouette: {depute.first_name} {depute.last_name}",
+        description=(
+            f":round_pushpin: **Circoncription** : {depute.dep}-{depute.circo} ({depute.dep_name})\n"
+            f":classical_building: **Groupe** : {depute.gp}"
+        ),
+        color=DISCORD_EMBED_COLOR_MSG,
+        url=depute.url
+    ).set_thumbnail(url=depute.image)
 
+
+def nom_handler(last_name: str, first_name: str | None = None) -> list[discord.Embed]:
+    """
+    Retrieve embeds with député information based on the given name.
+
+    Parameters:
+        last_name (str): The last name of the député.
+        first_name (str | None): The optional first name of the député.
+
+    Returns:
+        list[discord.Embed]: A list of embeds with député info or an error message.
+    """
+    deputes = [ depute for data in read_files_from_directory(ACTEUR_FOLDER)
+                if (depute := Depute.from_json_by_name(data, last_name, first_name)) ]
+    if len(deputes) > 0 :
+        deputes.sort(key=lambda x: int(x.circo))
+        return [
+            __depute_to_embed(depute)
+            for depute in deputes
+        ]
+    full_name = f"{first_name + ' ' if first_name else ''}{last_name}"
+    return [ error_handler(
+        title="Député non trouvé",
+        description=f"Je n'ai pas trouvé le député {full_name}."
+    ) ]
 
 
 def ciro_handler(code_dep: str, code_circo: str) -> discord.Embed:
@@ -50,16 +72,12 @@ def ciro_handler(code_dep: str, code_circo: str) -> discord.Embed:
     """
     for data in read_files_from_directory(ACTEUR_FOLDER):
         if depute := Depute.from_json_by_circo(data, code_dep, code_circo):
-            embed = discord.Embed(
-                title=f"{depute.first_name} {depute.last_name}",
-                description=f"{depute.to_string()}",
-                color=DISCORD_EMBED_COLOR_MSG,
-                url=depute.url
-            )
-            embed.set_thumbnail(url=depute.image)
-            return embed
+            return __depute_to_embed(depute)
 
-    return error_handler(description=f"Je n'ai pas trouvé de député dans le {code_dep}-{code_circo}.")
+    return error_handler(
+        title="Député non trouvé",
+        description=f"Je n'ai pas trouvé de député dans le {code_dep}-{code_circo}."
+    )
 
 
 def dep_handler(code_dep: str) -> discord.Embed:
@@ -72,19 +90,24 @@ def dep_handler(code_dep: str) -> discord.Embed:
     Returns:
         discord.Embed: Embed with list of députés or error.
     """
-    description = ""
-    for data in read_files_from_directory(ACTEUR_FOLDER):
-        if depute := Depute.from_json_by_dep(data, code_dep):
-            description += f"\n{depute.to_string()}"
+    deputes = [ depute for data in read_files_from_directory(ACTEUR_FOLDER)
+                if (depute := Depute.from_json_by_dep(data, code_dep)) ]
 
-    if description:
-        embed = discord.Embed(
-            title=f"Département {code_dep}",
+    if len(deputes) > 0:
+        deputes.sort(key=lambda x: int(x.circo))
+        description = '\n'.join([
+            f":bust_in_silhouette: [{depute.first_name} {depute.last_name}]({depute.url}) — "
+            f":round_pushpin: **Circoncription** : {depute.dep}-{depute.circo} | "
+            f":classical_building: **Groupe** : {depute.gp}"
+            for depute in deputes
+        ])
+        return discord.Embed(
+            title=f":pushpin: Département {deputes[0].dep} ({deputes[0].dep_name})",
             description=description,
             color=DISCORD_EMBED_COLOR_MSG,
         )
-        return embed
-    return error_handler(description=f"Je n'ai pas trouvé de députés dans le département {code_dep}.")
+
+    return error_handler(title="Député non trouvé", description=f"Je n'ai pas trouvé de députés dans le département {code_dep}.")
 
 
 def vote_handler(name: str, code_ref: str) -> discord.Embed:
@@ -115,11 +138,11 @@ def vote_handler(name: str, code_ref: str) -> discord.Embed:
         embed.set_thumbnail(url=depute.image)
         return embed
     elif scrutin:
-        return error_handler(description=f"Je n'ai pas trouvé le député {name}.")
+        return error_handler(title="Député non trouvé", description=f"Je n'ai pas trouvé le député {name}.")
     elif depute:
-        return error_handler(description=f"Je n'ai pas trouvé le scrutin {code_ref}.")
+        return error_handler(title="Scrutin non trouvé", description=f"Je n'ai pas trouvé le scrutin {code_ref}.")
     else:
-        return error_handler(description=f"Je n'ai trouvé ni le député {name}, ni le scrutin {code_ref}.")
+        return error_handler(title="Député et scrutin non trouvé", description=f"Je n'ai trouvé ni le député {name}, ni le scrutin {code_ref}.")
 
 
 
@@ -160,15 +183,13 @@ def stat_handler(name: str) -> discord.Embed:
             for data_scrutin in read_files_from_directory(SCRUTINS_FOLDER):
                 scrutin = Scrutin.from_json(data_scrutin)
                 update_stat(stat, scrutin, depute)
-            embed= discord.Embed(
-                title=f"{depute.first_name} {depute.last_name}",
-                description=f"{depute.to_string()[:-1]}: {stat}",
-                color=DISCORD_EMBED_COLOR_MSG,
-                url=depute.url
-            )
-            embed.set_thumbnail(url=depute.image)
+            embed = __depute_to_embed(depute)
+            embed.description = embed.description + f"\n {stat}"
             return embed
-    return error_handler(description=f"Je n'ai pas trouvé le député {name}.")
+    return error_handler(
+        title="Député non trouvé",
+        description=f"Je n'ai pas trouvé le député {name}."
+    )
 
 
 def scr_handler(code_ref: str) -> discord.Embed:
@@ -205,4 +226,8 @@ def scr_handler(code_ref: str) -> discord.Embed:
                 inline=True
             )
             return embed
-    return error_handler(description=f"Je n'ai pas trouvé le scrutin {code_ref}.")
+    return error_handler(
+        title="Scrutin non trouvé",
+        description=f"Je n'ai pas trouvé le scrutin {code_ref}."
+    )
+

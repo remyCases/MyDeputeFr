@@ -42,7 +42,7 @@ def test_scr_handler_found(_mock_scrutin, _mock_listdir, code_ref):
 def test_scr_handler_not_found(_mock_scrutin, _mock_listdir, code_ref):
     embed = scr_handler(code_ref)
 
-    assert embed.title == "Erreur"
+    assert embed.title == "Scrutin non trouvé"
     assert f"Je n'ai pas trouvé le scrutin {code_ref}." in embed.description
     assert int(embed.color) == DISCORD_EMBED_COLOR_ERR
 
@@ -54,7 +54,7 @@ def test_scr_handler_not_found(_mock_scrutin, _mock_listdir, code_ref):
 def test_scr_handler_no_files(_mock_listdir, _mock_scrutin, code_ref):
     embed = scr_handler(code_ref)
 
-    assert embed.title == "Erreur"
+    assert embed.title == "Scrutin non trouvé"
     assert f"Je n'ai pas trouvé le scrutin {code_ref}." in embed.description
     assert int(embed.color) == DISCORD_EMBED_COLOR_ERR
 
@@ -66,6 +66,6 @@ def test_scr_handler_no_files(_mock_listdir, _mock_scrutin, code_ref):
 def test_scr_handler_malformed_json(_mock_scrutin, _mock_listdir, code_ref):
     embed = scr_handler(code_ref)
 
-    assert embed.title == "Erreur"
+    assert embed.title == "Scrutin non trouvé"
     assert f"Je n'ai pas trouvé le scrutin {code_ref}." in embed.description
     assert int(embed.color) == DISCORD_EMBED_COLOR_ERR

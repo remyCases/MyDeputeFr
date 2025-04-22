@@ -55,6 +55,7 @@ def sample_depute():
         last_name="Durand",
         first_name="Claire",
         dep="75",
+        dep_name="Paris",
         circo="1",
         gp_ref="GP001",
         gp="Groupe Test"
@@ -101,6 +102,7 @@ def test_result_variants(sample_scrutin_data, ref, expected_result):
         last_name="Test",
         first_name="Test",
         dep="00",
+        dep_name="Department test",
         circo="1",
         gp_ref="GP001",
         gp="Groupe Test"
@@ -132,6 +134,7 @@ def test_to_string_depute_absent(sample_scrutin_data):
         last_name="Martin",
         first_name="Sophie",
         dep="34",
+        dep_name="Departement Test",
         circo="2",
         gp_ref="GP001",
         gp="Groupe Test"

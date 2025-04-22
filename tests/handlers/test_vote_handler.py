@@ -49,7 +49,7 @@ def test_vote_handler_success(_mock_depute, _mock_scrutin, _mock_listdir, name, 
 def test_vote_handler_scrutin_not_found(_mock_listdir, _mock_from_json_by_ref, _mock_from_json_by_name, name, code_ref):
     embed = vote_handler(name, code_ref)
 
-    assert embed.title == "Erreur"
+    assert embed.title == "Scrutin non trouvé"
     assert f"Je n'ai pas trouvé le scrutin {code_ref}." in embed.description
     assert int(embed.color) == DISCORD_EMBED_COLOR_ERR
 
@@ -62,7 +62,7 @@ def test_vote_handler_scrutin_not_found(_mock_listdir, _mock_from_json_by_ref, _
 def test_vote_handler_depute_not_found(_mock_listdir, _mock_from_json_by_ref, _mock_from_json_by_name, name, code_ref):
     embed = vote_handler(name, code_ref)
 
-    assert embed.title == "Erreur"
+    assert embed.title == "Député non trouvé"
     assert f"Je n'ai pas trouvé le député {name}." in embed.description
     assert int(embed.color) == DISCORD_EMBED_COLOR_ERR
 
@@ -75,7 +75,7 @@ def test_vote_handler_depute_not_found(_mock_listdir, _mock_from_json_by_ref, _m
 def test_vote_handler_both_not_found(_mock_listdir, _mock_from_json_by_ref, _mock_from_json_by_name, name, code_ref):
     embed = vote_handler(name, code_ref)
 
-    assert embed.title == "Erreur"
+    assert embed.title == "Député et scrutin non trouvé"
     assert f"Je n'ai trouvé ni le député {name}, ni le scrutin {code_ref}." in embed.description
     assert int(embed.color) == DISCORD_EMBED_COLOR_ERR
 
@@ -89,5 +89,5 @@ def test_vote_handler_malformed_json(_mock_listdir, _mock_from_json_by_ref, _moc
     embed = vote_handler(name, code_ref)
 
     assert isinstance(embed, Embed)
-    assert embed.title == "Erreur"
+    assert embed.title == "Député et scrutin non trouvé"
     assert f"Je n'ai trouvé ni le député {name}, ni le scrutin {code_ref}." in embed.description
