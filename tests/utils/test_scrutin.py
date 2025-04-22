@@ -8,60 +8,12 @@ from utils.deputeManager import Depute
 from utils.scrutinManager import Scrutin, ResultBallot
 
 
-@pytest.fixture
-def sample_scrutin_data():
-    return {
-        "scrutin": {
-            "numero": "1001",
-            "titre": "Projet de loi sur l'énergie renouvelable.",
-            "dateScrutin": "2025-03-12",
-            "sort": {"code": "Adopté"},
-            "syntheseVote": {
-                "nombreVotants": "577",
-                "decompte": {
-                    "nonVotants": "50",
-                    "pour": "300",
-                    "contre": "200",
-                    "abstentions": "27",
-                    "nonVotantsVolontaires": "15"
-                }
-            },
-            "ventilationVotes": {
-                "organe": {
-                    "groupes": {
-                        "groupe": [
-                            {
-                                "organeRef": "GP001",
-                                "vote": {
-                                    "decompteNominatif": {
-                                        "nonVotants": {"votant": {"acteurRef": "PA123"}},
-                                        "pours": {"votant": [{"acteurRef": "PA456"}]},
-                                        "contres": {"votant": [{"acteurRef": "PA789"}]},
-                                        "abstentions": {"votant": {"acteurRef": "PA321"}}
-                                    }
-                                }
-                            }
-                        ]
-                    }
-                }
-            }
-        }
-    }
+def test_from_json(
+    sample_scrutin_data_json,
+    mock_log,
+    mock_bot):
 
-@pytest.fixture
-def sample_depute():
-    return Depute(
-        ref="PA456",
-        last_name="Durand",
-        first_name="Claire",
-        dep="75",
-        circo="1",
-        gp_ref="GP001",
-        gp="Groupe Test"
-    )
-
-def test_from_json(sample_scrutin_data):
-    scrutin = Scrutin.from_json(sample_scrutin_data)
+    scrutin = Scrutin.from_json(sample_scrutin_data_json)
 
     assert scrutin.ref == "1001"
     assert scrutin.titre.startswith("Projet de loi")
@@ -70,22 +22,75 @@ def test_from_json(sample_scrutin_data):
     assert scrutin.nombreVotants == "577"
     assert scrutin.groupes["GP001"]["pour"] == ["PA456"]
 
+    # Assertions logs
+    mock_log.info.assert_not_called()
+    mock_log.error.assert_not_called()
+    mock_log.warning.assert_not_called()
 
-def test_from_json_by_ref_match(sample_scrutin_data):
-    scrutin = Scrutin.from_json_by_ref(sample_scrutin_data, "1001")
+    # Assertions bot
+    mock_bot.assert_not_called()
+    mock_bot.update_lock.__aenter__.assert_not_called()
+    mock_bot.update_lock.__aexit__.assert_not_called()
+
+
+def test_from_json_by_ref_match(
+    sample_scrutin_data_json,
+    mock_log,
+    mock_bot):
+
+    scrutin = Scrutin.from_json_by_ref(sample_scrutin_data_json, "1001")
     assert scrutin is not None
     assert scrutin.ref == "1001"
 
+    # Assertions logs
+    mock_log.info.assert_not_called()
+    mock_log.error.assert_not_called()
+    mock_log.warning.assert_not_called()
 
-def test_from_json_by_ref_no_match(sample_scrutin_data):
-    scrutin = Scrutin.from_json_by_ref(sample_scrutin_data, "9999")
+    # Assertions bot
+    mock_bot.assert_not_called()
+    mock_bot.update_lock.__aenter__.assert_not_called()
+    mock_bot.update_lock.__aexit__.assert_not_called()
+
+
+def test_from_json_by_ref_no_match(
+    sample_scrutin_data_json,
+    mock_log,
+    mock_bot):
+
+    scrutin = Scrutin.from_json_by_ref(sample_scrutin_data_json, "9999")
     assert scrutin is None
 
+    # Assertions logs
+    mock_log.info.assert_not_called()
+    mock_log.error.assert_not_called()
+    mock_log.warning.assert_not_called()
 
-def test_result_pour(sample_scrutin_data, sample_depute):
-    scrutin = Scrutin.from_json(sample_scrutin_data)
-    result = scrutin.result(sample_depute)
+    # Assertions bot
+    mock_bot.assert_not_called()
+    mock_bot.update_lock.__aenter__.assert_not_called()
+    mock_bot.update_lock.__aexit__.assert_not_called()
+
+
+def test_result_pour(
+    sample_scrutin_data_json,
+    sample_valid_depute_dataclass,
+    mock_log,
+    mock_bot):
+
+    scrutin = Scrutin.from_json(sample_scrutin_data_json)
+    result = scrutin.result(sample_valid_depute_dataclass)
     assert result == ResultBallot.POUR
+
+    # Assertions logs
+    mock_log.info.assert_not_called()
+    mock_log.error.assert_not_called()
+    mock_log.warning.assert_not_called()
+
+    # Assertions bot
+    mock_bot.assert_not_called()
+    mock_bot.update_lock.__aenter__.assert_not_called()
+    mock_bot.update_lock.__aexit__.assert_not_called()
 
 
 @pytest.mark.parametrize("ref, expected_result", [
@@ -95,7 +100,13 @@ def test_result_pour(sample_scrutin_data, sample_depute):
     ("PA321", ResultBallot.ABSTENTION),
     ("PA999", ResultBallot.ABSENT),
 ])
-def test_result_variants(sample_scrutin_data, ref, expected_result):
+def test_result_variants(
+    sample_scrutin_data_json,
+    ref,
+    expected_result,
+    mock_log,
+    mock_bot):
+
     depute = Depute(
         ref=ref,
         last_name="Test",
@@ -105,28 +116,71 @@ def test_result_variants(sample_scrutin_data, ref, expected_result):
         gp_ref="GP001",
         gp="Groupe Test"
     )
-    scrutin = Scrutin.from_json(sample_scrutin_data)
+    scrutin = Scrutin.from_json(sample_scrutin_data_json)
     result = scrutin.result(depute)
     assert result == expected_result
 
+    # Assertions logs
+    mock_log.info.assert_not_called()
+    mock_log.error.assert_not_called()
+    mock_log.warning.assert_not_called()
 
-def test_to_string(sample_scrutin_data):
-    scrutin = Scrutin.from_json(sample_scrutin_data)
+    # Assertions bot
+    mock_bot.assert_not_called()
+    mock_bot.update_lock.__aenter__.assert_not_called()
+    mock_bot.update_lock.__aexit__.assert_not_called()
+
+
+def test_to_string(
+    sample_scrutin_data_json,
+    mock_log,
+    mock_bot):
+
+    scrutin = Scrutin.from_json(sample_scrutin_data_json)
     s = scrutin.to_string()
     assert "Scrutin nº1001" in s
     assert "le 2025-03-12" in s
     assert "Nombre de votants: 577" in s
 
+    # Assertions logs
+    mock_log.info.assert_not_called()
+    mock_log.error.assert_not_called()
+    mock_log.warning.assert_not_called()
 
-def test_to_string_depute_pour(sample_scrutin_data, sample_depute):
-    scrutin = Scrutin.from_json(sample_scrutin_data)
-    msg = scrutin.to_string_depute(sample_depute)
+    # Assertions bot
+    mock_bot.assert_not_called()
+    mock_bot.update_lock.__aenter__.assert_not_called()
+    mock_bot.update_lock.__aexit__.assert_not_called()
+
+
+def test_to_string_depute_pour(
+    sample_scrutin_data_json,
+    sample_valid_depute_dataclass,
+    mock_log,
+    mock_bot):
+
+    scrutin = Scrutin.from_json(sample_scrutin_data_json)
+    msg = scrutin.to_string_depute(sample_valid_depute_dataclass)
     assert "**pour**" in msg
     assert "scrutin 1001" in msg
 
+    # Assertions logs
+    mock_log.info.assert_not_called()
+    mock_log.error.assert_not_called()
+    mock_log.warning.assert_not_called()
 
-def test_to_string_depute_absent(sample_scrutin_data):
-    scrutin = Scrutin.from_json(sample_scrutin_data)
+    # Assertions bot
+    mock_bot.assert_not_called()
+    mock_bot.update_lock.__aenter__.assert_not_called()
+    mock_bot.update_lock.__aexit__.assert_not_called()
+
+
+def test_to_string_depute_absent(
+    sample_scrutin_data_json,
+    mock_log,
+    mock_bot):
+
+    scrutin = Scrutin.from_json(sample_scrutin_data_json)
     depute = Depute(
         ref="PA999",
         last_name="Martin",
@@ -139,3 +193,12 @@ def test_to_string_depute_absent(sample_scrutin_data):
     msg = scrutin.to_string_depute(depute)
     assert "**absent**" in msg
 
+    # Assertions logs
+    mock_log.info.assert_not_called()
+    mock_log.error.assert_not_called()
+    mock_log.warning.assert_not_called()
+
+    # Assertions bot
+    mock_bot.assert_not_called()
+    mock_bot.update_lock.__aenter__.assert_not_called()
+    mock_bot.update_lock.__aexit__.assert_not_called()
