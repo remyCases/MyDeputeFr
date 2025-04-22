@@ -41,7 +41,7 @@ def test_nom_handler_found(_mock_from_json_by_name, _mock_listdir):
        side_effect=[
            mock_depute("Bernard", "Sam", "2"),
            mock_depute("Bernard", "Claire", "1"),
-           mock_depute("Martin", "Toni", "5"),
+           None,
            mock_depute("Bernard", "Bob", "3")
        ])
 @patch('builtins.open', mock_open(read_data='{}'))
@@ -58,9 +58,9 @@ def test_nom_handler_found_multiple(_mock_from_json_by_name, _mock_listdir):
 @patch('utils.deputeManager.Depute.from_json_by_name',
        side_effect=[
            mock_depute("Bernard", "Sam", "2"),
-           mock_depute("Bernard", "Claire", "1"),
-           mock_depute("Martin", "Toni", "5"),
-           mock_depute("Bernard", "Bob", "3")
+           None,
+           None,
+           None
        ])
 @patch('builtins.open', mock_open(read_data='{}'))
 def test_nom_handler_found_first_name(_mock_from_json_by_name, _mock_listdir):

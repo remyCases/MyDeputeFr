@@ -101,16 +101,20 @@ class DeputeCommand(ProtectedCog, name="depute"):
         name="vote",
         description="Affiche les informations pour un vote d'un député pour un un scrutin.",
     )
-    async def vote(self: Self, context: Context, name: str, code_ref: str) -> None:
+    async def vote(self: Self, context: Context, code_ref: str, last_name: str, first_name: str | None = None) -> None:
         """
         Display how a député voted in a scrutin.
 
         Parameters:
             context (Context): The context of the command.
-            name (str): Name of the député.
             code_ref (str): Reference of the scrutin.
+            last_name (str): The last name of the député.
+            first_name (str | None): The optional first name of the député.
         """
-        await context.send(embed=vote_handler(name, code_ref))
+        embeds = vote_handler(code_ref, last_name, first_name)
+        for embed in embeds:
+            await context.send(embed=embed)
+
 
 async def setup(bot) -> None:
     """

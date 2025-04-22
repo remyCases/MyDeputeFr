@@ -165,3 +165,7 @@ class Scrutin:
             res = None
 
         return f"{depute.to_string()[:-1]} a voté **{res}** lors scrutin {self.ref} {self.sort} du {self.dateScrutin} concernant {self.titre}"
+
+
+    def depute_vote(self, depute: Depute) -> ResultBallot:
+        return self.result(depute)
