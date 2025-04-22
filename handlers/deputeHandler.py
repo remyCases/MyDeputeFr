@@ -46,6 +46,30 @@ def __scrutin_to_embed(scrutin):
     return embed
 
 
+def __vote_emoticon(k: str) -> str:
+    """
+    Returns an emoji corresponding to a given key.
+
+    Parameters:
+        k (str): The key representing the type of vote or status.
+            Valid keys include (case insentive):
+                - "pour"
+                - "contre"
+                - "abstention"
+                - "nonvotant"
+                - "absent"
+    Returns:
+        str: The corresponding emoji as a string, or an empty string if the key is not recognized.
+    """
+    k = k.lower()
+    return {
+        "pour": ":green_circle:",
+        "contre": ":red_circle:",
+        "abstention": ":white_circle:",
+        "nonvotant": ":exclamation:",
+        "absent": ":orange_circle:",
+    }.get(k, "")
+
 def nom_handler(last_name: str, first_name: str | None = None) -> list[discord.Embed] | discord.Embed:
     """
     Retrieve embeds with député information based on the given name.
@@ -135,15 +159,6 @@ def vote_handler(code_ref: str, last_name: str, first_name: str | None = None) -
     Returns:
         discord.Embed: Embed showing the voting result or error.
     """
-    def emoticon_vote(k: ResultBallot) -> str:
-        return {
-            ResultBallot.POUR: ":green_circle:",
-            ResultBallot.CONTRE: ":red_circle:",
-            ResultBallot.ABSTENTION: ":white_circle:",
-            ResultBallot.NONVOTANT: ":exclamation:",
-            ResultBallot.ABSENT: ":orange_circle:",
-        }.get(k, "")
-
     deputes = [
         depute for x in read_files_from_directory(ACTEUR_FOLDER) if (depute := Depute.from_json_by_name(x, last_name, first_name))
     ]
@@ -161,7 +176,7 @@ def vote_handler(code_ref: str, last_name: str, first_name: str | None = None) -
             vote = f":bust_in_silhouette: **Député** : {depute.first_name} {depute.last_name}\n" \
                    f":round_pushpin: **Circoncription** : {depute.dep}-{depute.circo} ({depute.dep_name})\n"\
                    f":classical_building: **Groupe** : {depute.gp}\n" \
-                   f":bar_chart: **Position** : {scrutin.depute_vote(depute).name.capitalize()} {emoticon_vote(position)} \n"
+                   f":bar_chart: **Position** : {scrutin.depute_vote(depute).name.capitalize()} {__vote_emoticon(position.name)} \n"
             embed.add_field(
                 name="Vote",
                 value=vote,
@@ -206,14 +221,6 @@ def stat_handler(last_name: str, first_name: str | None = None) -> list[discord.
         elif result == ResultBallot.ABSTENTION:
             stat["abstention"] += 1
 
-    def emoticon_stat(k: str) -> str:
-        return {
-            "pour": ":green_circle:",
-            "contre": ":red_circle:",
-            "abstention": ":white_circle:",
-            "nonvotant": ":exclamation:",
-            "absent": ":orange_circle:",
-        }.get(k, "")
 
     deputes = [
         depute
@@ -235,7 +242,7 @@ def stat_handler(last_name: str, first_name: str | None = None) -> list[discord.
         embeds = []
         for depute in deputes:
             embed = __depute_to_embed(depute)
-            stat_lines = "\n".join(f"{emoticon_stat(key) + ' ' if emoticon_stat(key) else ''}{key.capitalize()} : {value}" for key, value in stats[depute.ref].items())
+            stat_lines = "\n".join(f"{__vote_emoticon(key) + ' ' if __vote_emoticon(key) else ''}{key.capitalize()} : {value}" for key, value in stats[depute.ref].items())
             embed.add_field(
                 name="Statistiques de vote",
                 value=
