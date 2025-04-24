@@ -78,7 +78,7 @@ class DiscordBot(commands.Bot):
         """
         Called during initialisation. Not guaranteed to be called first nor once.
         
-        Create a task to handle TCP communications and updates.
+        Create a task to handle updates.
         """
         self.loop.create_task(
             start_planning(log=self.logger, bot=self, upload_at_launch=UPDATE_AT_LAUNCH)

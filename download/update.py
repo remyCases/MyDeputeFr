@@ -87,6 +87,7 @@ async def update_acteur_organe(log: Logger, download_temp: str, zip_temp: str) -
         show_error_on_exception(log, "moving folder failed", e)
         raise e
 
+
 async def update_async(log: Logger, is_update_acteur_organe: bool) -> None:
     """
     Update the data folder with fresh data from 
