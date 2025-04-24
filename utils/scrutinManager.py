@@ -1,14 +1,15 @@
 # Copyright (C) 2025 Rémy Cases
 # See LICENSE file for extended copyright information.
 # This file is part of MyDeputeFr project from https://github.com/remyCases/MyDeputeFr.
+from __future__ import annotations
 
-import os
-from typing import Self
 from enum import Enum
+from typing_extensions import Self
+
 from attrs import define
-from dotenv import load_dotenv
 
 from utils.deputeManager import Depute
+
 
 # class syntax
 
@@ -118,18 +119,9 @@ class Scrutin:
         if ref != code_ref:
             return None
         return Scrutin.from_json(data)
-    
-    def to_string(self) -> str:
-        return f"Le {self.dateScrutin}, {self.sort}:\n{self.titre}\n\n  \
-            Nombre de votants: {self.nombreVotants}.\n                  \
-            Non votants: {self.nonVotant}.\n                            \
-            Pour: {self.pour}.\n                                        \
-            Contre: {self.contre}.\n                                    \
-            Abstentions: {self.abstention}.\n                           \
-            Non votants volontaires: {self.nonVotantsVolontaire}."
-    
-    def result(self, depute: Depute) -> ResultBallot:
 
+
+    def result(self, depute: Depute) -> ResultBallot | None:
         for gp_ref, groupe in self.groupes.items():
             if depute.gp_ref != gp_ref:
                 continue
@@ -148,17 +140,28 @@ class Scrutin:
 
             return ResultBallot.ABSENT
 
-    def to_string_depute(self, depute: Depute) -> str:
-        match self.result(depute):
-            case ResultBallot.ABSENT:
-                res = "absent"
-            case ResultBallot.NONVOTANT:
-                res = "non votant"
-            case ResultBallot.POUR:
-                res = "pour"
-            case ResultBallot.CONTRE:
-                res = "contre"
-            case ResultBallot.ABSTENTION:
-                res = "abstention"
 
-        return f"{depute.to_string_less()}\na voté **{res}** lors du \n{self.dateScrutin}, {self.sort}:\n{self.titre}"
+    def to_string(self) -> str:
+        return  f"Scrutin nº{self.ref}, le {self.dateScrutin}, {self.titre[:-1]} est {self.sort}." \
+                f"Nombre de votants: {self.nombreVotants}\n" \
+                f"Non votants: {self.nonVotant}\n" \
+                f"Non votants volontaires: {self.nonVotantsVolontaire}" \
+                f"Pour: {self.pour}\n" \
+                f"Contre: {self.contre}\n" \
+                f"Abstentions: {self.abstention}"
+
+    def to_string_depute(self, depute: Depute) -> str | None:
+        if self.result(depute) == ResultBallot.ABSENT:
+            res = "absent"
+        elif self.result(depute) == ResultBallot.NONVOTANT:
+            res = "non votant"
+        elif self.result(depute) == ResultBallot.POUR:
+            res = "pour"
+        elif self.result(depute) == ResultBallot.CONTRE:
+            res = "contre"
+        elif self.result(depute) == ResultBallot.ABSTENTION:
+            res = "abstention"
+        else:
+            res = None
+
+        return f"{depute.to_string()[:-1]} a voté **{res}** lors scrutin {self.ref} {self.sort} du {self.dateScrutin} concernant {self.titre}"

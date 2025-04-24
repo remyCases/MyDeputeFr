@@ -8,6 +8,7 @@ import tempfile
 
 import aiohttp
 import pytest
+import requests
 
 from download.core import download_file_async
 
