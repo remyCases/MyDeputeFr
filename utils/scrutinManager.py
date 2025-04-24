@@ -1,6 +1,7 @@
 # Copyright (C) 2025 Rémy Cases
 # See LICENSE file for extended copyright information.
 # This file is part of MyDeputeFr project from https://github.com/remyCases/MyDeputeFr.
+from __future__ import annotations
 
 from enum import Enum
 from typing_extensions import Self
@@ -150,18 +151,17 @@ class Scrutin:
                 f"Abstentions: {self.abstention}"
 
     def to_string_depute(self, depute: Depute) -> str | None:
-        match self.result(depute):
-            case ResultBallot.ABSENT:
-                res = "absent"
-            case ResultBallot.NONVOTANT:
-                res = "non votant"
-            case ResultBallot.POUR:
-                res = "pour"
-            case ResultBallot.CONTRE:
-                res = "contre"
-            case ResultBallot.ABSTENTION:
-                res = "abstention"
-            case _:
-                return None
+        if self.result(depute) == ResultBallot.ABSENT:
+            res = "absent"
+        elif self.result(depute) == ResultBallot.NONVOTANT:
+            res = "non votant"
+        elif self.result(depute) == ResultBallot.POUR:
+            res = "pour"
+        elif self.result(depute) == ResultBallot.CONTRE:
+            res = "contre"
+        elif self.result(depute) == ResultBallot.ABSTENTION:
+            res = "abstention"
+        else:
+            res = None
 
         return f"{depute.to_string()[:-1]} a voté **{res}** lors scrutin {self.ref} {self.sort} du {self.dateScrutin} concernant {self.titre}"
