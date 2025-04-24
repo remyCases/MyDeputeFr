@@ -3,6 +3,8 @@
 # This file is part of MyDeputeFr project from https://github.com/remyCases/MyDeputeFr.
 from __future__ import annotations
 
+from typing import Optional
+
 import discord
 
 from config.config import SCRUTINS_FOLDER, ACTEUR_FOLDER, DISCORD_EMBED_COLOR_MSG
@@ -70,13 +72,13 @@ def __vote_emoticon(k: str) -> str:
         "absent": ":orange_circle:",
     }.get(k, "")
 
-def nom_handler(last_name: str, first_name: str | None = None) -> list[discord.Embed] | discord.Embed:
+def nom_handler(last_name: str, first_name: Optional[str] = None) -> list[discord.Embed] | discord.Embed:
     """
     Retrieve embeds with député information based on the given name.
 
     Parameters:
         last_name (str): The last name of the député.
-        first_name (str | None): The optional first name of the député.
+        first_name (Optional[str]): The optional first name of the député.
 
     Returns:
         list[discord.Embed]: A list of embeds with député info or an error message.
@@ -147,14 +149,14 @@ def dep_handler(code_dep: str) -> discord.Embed:
     return error_handler(title="Député non trouvé", description=f"Je n'ai pas trouvé de députés dans le département {code_dep}.")
 
 
-def vote_handler(code_ref: str, last_name: str, first_name: str | None = None) -> list[discord.Embed] | discord.Embed:
+def vote_handler(code_ref: str, last_name: str, first_name: Optional[str] = None) -> list[discord.Embed] | discord.Embed:
     """
     Return embed showing how a député voted in a scrutin.
 
     Parameters:
         code_ref (str): Reference of the scrutin.
         last_name (str): The last name of the député.
-        first_name (str | None): The optional first name of the député.
+        first_name (Optional[str]): The optional first name of the député.
 
     Returns:
         discord.Embed: Embed showing the voting result or error.
@@ -196,13 +198,13 @@ def vote_handler(code_ref: str, last_name: str, first_name: str | None = None) -
 
 
 
-def stat_handler(last_name: str, first_name: str | None = None) -> list[discord.Embed] | discord.Embed:
+def stat_handler(last_name: str, first_name: Optional[str] = None) -> list[discord.Embed] | discord.Embed:
     """
     Return embed with voting statistics for a député.
 
     Parameters:
         last_name (str): The last name of the député.
-        first_name (str | None): The optional first name of the député.
+        first_name (Optional[str]): The optional first name of the député.
 
     Returns:
         discord.Embed: Embed showing statistics or error.

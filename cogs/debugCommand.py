@@ -1,11 +1,13 @@
 # Copyright (C) 2025 Rémy Cases
 # See LICENSE file for extended copyright information.
 # This file is part of MyDeputeFr project from https://github.com/remyCases/MyDeputeFr.
+from __future__ import annotations
 
-from typing_extensions import Self
+from typing import Optional
 
 from discord.ext import commands
 from discord.ext.commands import Context
+from typing_extensions import Self
 
 from handlers.debugHandler import debugd_handler, debugs_handler
 from utils.cogManager import ProtectedCog
@@ -40,7 +42,7 @@ class DebugCommand(ProtectedCog, name="debug"):
         description="Debug command.",
     )
     @debug_command()
-    async def debugd(self: Self, context: Context, last_name: str, first_name: str | None = None) -> None:
+    async def debugd(self: Self, context: Context, last_name: str, first_name: Optional[str] = None) -> None:
         """
         Show debug info for a député by name.
 

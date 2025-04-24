@@ -5,4 +5,3 @@ requests
 schedule
 unidecode
 typing-extensions
-SQLAlchemy

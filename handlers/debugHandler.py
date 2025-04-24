@@ -2,6 +2,10 @@
 # See LICENSE file for extended copyright information.
 # This file is part of MyDeputeFr project from https://github.com/remyCases/MyDeputeFr.
 
+from __future__ import annotations
+
+from typing import Optional
+
 import discord
 
 from config.config import ACTEUR_FOLDER, SCRUTINS_FOLDER, DISCORD_EMBED_COLOR_DEBUG
@@ -11,7 +15,7 @@ from utils.scrutinManager import Scrutin
 from utils.utils import read_files_from_directory
 
 
-def debugd_handler(last_name: str, first_name: str | None = None) -> list[discord.Embed]:
+def debugd_handler(last_name: str, first_name: Optional[str] = None) -> list[discord.Embed]:
     """
     Return an embed with debug info of a député by name.
 
