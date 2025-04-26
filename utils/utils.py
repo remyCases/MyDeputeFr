@@ -3,10 +3,12 @@
 # This file is part of MyDeputeFr project from https://github.com/remyCases/MyDeputeFr.
 
 from datetime import datetime, timedelta
-from enum import Enum
-from logging import Logger
+import json
 from os import PathLike
-from typing import Tuple, Generator
+import os
+from typing import Callable, Tuple, Generator
+
+from discord.ext.commands import Context
 
 from logger.logger import logger
 
