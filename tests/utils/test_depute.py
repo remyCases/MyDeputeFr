@@ -30,6 +30,7 @@ sample_depute_data = {
                         "causeMandat": "élections générales",
                         "lieu": {
                             "numDepartement": "75",
+                            "departement": "Paris",
                             "numCirco": "1"
                         }
                     }
@@ -116,7 +117,7 @@ def test_from_json_by_circo_no_match():
 @patch('builtins.open', mock_open(read_data=json.dumps(sample_gp_data)))
 def test_to_string(mocked_organe_folder):
     depute = Depute.from_json(sample_depute_data)
-    expected = "Jean Dupont député élu de la circonscription 75-1 appartenant au groupe Groupe Test."
+    expected = "Jean Dupont député élu de la circonscription 75-1 (Paris) appartenant au groupe Groupe Test."
     assert depute.to_string() == expected
 
 

@@ -2,6 +2,10 @@
 # See LICENSE file for extended copyright information.
 # This file is part of MyDeputeFr project from https://github.com/remyCases/MyDeputeFr.
 
+from __future__ import annotations
+
+from typing import Optional
+
 import discord
 
 from config.config import ACTEUR_FOLDER, SCRUTINS_FOLDER, DISCORD_EMBED_COLOR_DEBUG
@@ -11,23 +15,31 @@ from utils.scrutinManager import Scrutin
 from utils.utils import read_files_from_directory
 
 
-def debugd_handler(name: str) -> discord.Embed:
+def debugd_handler(last_name: str, first_name: Optional[str] = None) -> list[discord.Embed]:
     """
     Return an embed with debug info of a député by name.
 
     Parameters:
-        name (str): The name of the député to search.
+        last_name (str): The last_name of the député to search.
+        first_name (str | None): The optional first name of the député.
     """
-    for data in read_files_from_directory(ACTEUR_FOLDER):
-        if depute := Depute.from_json_by_name(data, name):
-            embed = discord.Embed(
+    deputes = [ depute for data in read_files_from_directory(ACTEUR_FOLDER)
+                if (depute := Depute.from_json_by_name(data, last_name, first_name)) ]
+    if len(deputes) > 0 :
+        deputes.sort(key=lambda x: int(x.circo))
+        return [
+            discord.Embed(
                 title=f"{depute.first_name} {depute.last_name}",
                 description=depute,
                 color=DISCORD_EMBED_COLOR_DEBUG,
             )
-            return embed
-
-    return error_handler(description=f"Je n'ai pas trouvé le député {name}.")
+            for depute in deputes
+        ]
+    full_name = f"{first_name + ' ' if first_name else ''}{last_name}"
+    return [ error_handler(
+        title="Député non trouvé",
+        description=f"Je n'ai pas trouvé le député {full_name}."
+    ) ]
 
 
 def debugs_handler(code_ref: str) -> discord.Embed:

@@ -1,68 +1,106 @@
 from unittest.mock import patch, MagicMock, mock_open
+
 import pytest
 from discord import Embed
 
 from config.config import DISCORD_EMBED_COLOR_MSG, DISCORD_EMBED_COLOR_ERR
 from handlers.deputeHandler import nom_handler
 
-
-def mock_depute():
+def mock_depute(last_name, first_name, circo):
     depute = MagicMock()
-    depute.first_name = "Claire"
-    depute.last_name = "Bernard"
-    depute.url = "http://example.com/claire"
-    depute.image = "http://example.com/claire.jpg"
-    depute.to_string.return_value = "Claire Bernard, députée du Rhône"
+    depute.first_name = first_name
+    depute.last_name = last_name
+    depute.url = f"http://example.com/{last_name.replace(' ', '_').lower()}"
+    depute.image = f"http://example.com/{last_name.replace(' ', '_').lower()}.jpg"
+    depute.dep = "69"
+    depute.circo = circo
+    depute.dep_name = "Rhône"
+    depute.gp = "Groupe"
     return depute
 
 
 
-@pytest.mark.parametrize("name", ["Claire Bernard"])
-@patch('os.listdir', return_value=["depute_data_rhone.json"])
-@patch('utils.deputeManager.Depute.from_json_by_name', side_effect=lambda data, name: mock_depute() if name == "Claire Bernard" else None)
+@patch('os.listdir', return_value=["depute_1.json"])
+@patch('utils.deputeManager.Depute.from_json_by_name',
+       side_effect=[mock_depute("Bernard", "Claire", "1")])
 @patch('builtins.open', mock_open(read_data='{}'))
-def test_nom_handler_found(_mock_from_json_by_name, _mock_listdir, name):
-    embed = nom_handler(name)
+def test_nom_handler_found(_mock_from_json_by_name, _mock_listdir):
+    embeds = nom_handler("Bernard")
 
+    assert isinstance(embeds, list)
+    assert len(embeds) == 1
+    embed = embeds[0]
     assert isinstance(embed, Embed)
-    assert embed.title == "Claire Bernard"
-    assert "Claire Bernard, députée du Rhône" in embed.description
+    assert embed.title == ":bust_in_silhouette: Claire Bernard"
+    assert ":round_pushpin: **Circoncription** : 69-1 (Rhône)\n:classical_building: **Groupe** : Groupe" == embed.description
     assert int(embed.color) == DISCORD_EMBED_COLOR_MSG
 
 
+@patch('os.listdir', return_value=["depute_1.json", "depute_2.json", "depute_3.json", "depute_4.json"])
+@patch('utils.deputeManager.Depute.from_json_by_name',
+       side_effect=[
+           mock_depute("Bernard", "Sam", "2"),
+           mock_depute("Bernard", "Claire", "1"),
+           None,
+           mock_depute("Bernard", "Bob", "3")
+       ])
+@patch('builtins.open', mock_open(read_data='{}'))
+def test_nom_handler_found_multiple(_mock_from_json_by_name, _mock_listdir):
+    embeds = nom_handler("Bernard")
 
-@pytest.mark.parametrize("name", ["Inconnu Nom", "Random Person"])
-@patch('os.listdir', return_value=["depute_data_rhone.json", "depute_data_paris.json"])
-@patch('utils.deputeManager.Depute.from_json_by_name', return_value=None)
+    assert isinstance(embeds, list)
+    assert len(embeds) == 3
+    assert embeds[0].title == ":bust_in_silhouette: Bob Bernard"
+    assert embeds[1].title == ":bust_in_silhouette: Claire Bernard"
+    assert embeds[2].title == ":bust_in_silhouette: Sam Bernard"
+
+@patch('os.listdir', return_value=["depute_1.json", "depute_2.json", "depute_3.json", "depute_4.json"])
+@patch('utils.deputeManager.Depute.from_json_by_name',
+       side_effect=[
+           mock_depute("Bernard", "Sam", "2"),
+           None,
+           None,
+           None
+       ])
+@patch('builtins.open', mock_open(read_data='{}'))
+def test_nom_handler_found_first_name(_mock_from_json_by_name, _mock_listdir):
+    embeds = nom_handler("Bernard", "Sam")
+
+    assert isinstance(embeds, list)
+    assert len(embeds) == 1
+    assert embeds[0].title == ":bust_in_silhouette: Sam Bernard"
+
+@pytest.mark.parametrize("name", ["Inconnu"])
+@patch('os.listdir', return_value=["depute_1.json", "depute_2.json"])
+@patch('utils.deputeManager.Depute.from_json_by_name', return_value=[])
 @patch('builtins.open', mock_open(read_data='{}'))
 def test_nom_handler_not_found(_mock_from_json_by_name, _mock_listdir, name):
     embed = nom_handler(name)
 
-    assert embed.title == "Erreur"
+    assert embed.title == "Député non trouvé"
     assert f"Je n'ai pas trouvé le député {name}." in embed.description
     assert int(embed.color) == DISCORD_EMBED_COLOR_ERR
 
 
-
-@pytest.mark.parametrize("name", ["Claire Bernard"])
+@pytest.mark.parametrize("name", ["Bernard"])
 @patch('os.listdir', return_value=[])
-@patch('utils.deputeManager.Depute.from_json_by_name', return_value=None)
+@patch('utils.deputeManager.Depute.from_json_by_name', return_value=[])
 def test_nom_handler_no_files(_mock_listdir, _mock_from_json_by_name, name):
     embed = nom_handler(name)
 
-    assert embed.title == "Erreur"
+    assert embed.title == "Député non trouvé"
     assert f"Je n'ai pas trouvé le député {name}." in embed.description
     assert int(embed.color) == DISCORD_EMBED_COLOR_ERR
 
 
-
-@pytest.mark.parametrize("name", ["Claire Bernard"])
-@patch('os.listdir', return_value=["depute_data_rhone.json"])
-@patch('utils.deputeManager.Depute.from_json_by_name', side_effect=lambda data, name: mock_depute() if name == "Claire Bernard" else None)
+@pytest.mark.parametrize("name", ["Bernard"])
+@patch('os.listdir', return_value=["depute_1.json"])
+@patch('utils.deputeManager.Depute.from_json_by_name',
+       side_effect=[mock_depute("Bernard", "Claire", "1")])
 @patch('builtins.open', mock_open(read_data='not json'))
 def test_nom_handler_malformed_json(_mock_from_json_by_name, _mock_listdir, name):
     embed = nom_handler(name)
 
-    assert embed.title == "Erreur"
+    assert embed.title == "Député non trouvé"
     assert f"Je n'ai pas trouvé le député {name}." in embed.description
     assert int(embed.color) == DISCORD_EMBED_COLOR_ERR

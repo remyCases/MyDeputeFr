@@ -1,14 +1,11 @@
-# Copyright (C) 2025 Rémy Cases
-# See LICENSE file for extended copyright information.
-# This file is part of MyDeputeFr project from https://github.com/remyCases/MyDeputeFr.
-
-from typing_extensions import Self
-
+from typing import Optional
 from discord.ext.commands import Context
+from typing_extensions import Self
 
 from handlers.deputeHandler import scr_handler, stat_handler, vote_handler, dep_handler, ciro_handler, nom_handler
 from utils.cogManager import ProtectedCog
 from utils.commandManager import protected_command
+from utils.utils import send_embeds
 
 
 class DeputeCommand(ProtectedCog, name="depute"):
@@ -20,31 +17,31 @@ class DeputeCommand(ProtectedCog, name="depute"):
         name="nom",
         description="Affiche un député.",
     )
-    async def nom(self: Self, context: Context, name: str) -> None:
+    async def nom(self: Self, context: Context, last_name: str, first_name: Optional[str] = None) -> None:
         """
-        Display a député's info by name.
+        Display information about a député by name.
 
         Parameters:
             context (Context): The context of the command.
-            name (str): The name of the député.
+            last_name (str): The last name of the député.
+            first_name (Optional[str]): The optional first name of the député.
         """
-        await context.send(embed=nom_handler(name))
-
+        await send_embeds(context, lambda: nom_handler(last_name, first_name))
 
     @protected_command(
         name="stat",
         description="Affiches les statistiques de votes pour un député.",
     )
-    async def stat(self: Self, context: Context, name: str) -> None:
+    async def stat(self: Self, context: Context, last_name: str, first_name: Optional[str] = None) -> None:
         """
         Display voting statistics for a député.
 
         Parameters:
             context (Context): The context of the command.
-            name (str): Name of the député.
+            last_name (str): The last name of the député.
+            first_name (Optional[str]): The optional first name of the député.
         """
-        await context.send(embed=stat_handler(name))
-
+        await send_embeds(context, lambda: stat_handler(last_name, first_name))
 
     @protected_command(
         name="dep",
@@ -58,8 +55,7 @@ class DeputeCommand(ProtectedCog, name="depute"):
             context (Context): The context of the command.
             code_dep (str): Department code.
         """
-        await context.send(embed=dep_handler(code_dep))
-
+        await send_embeds(context, lambda: dep_handler(code_dep))
 
     @protected_command(
         name="circo",
@@ -74,8 +70,7 @@ class DeputeCommand(ProtectedCog, name="depute"):
             code_dep (str): Department code.
             code_circo (str): Circonscription code.
         """
-        await context.send(embed=ciro_handler(code_dep, code_circo))
-
+        await send_embeds(context, lambda: ciro_handler(code_dep, code_circo))
 
     @protected_command(
         name="scr",
@@ -89,23 +84,23 @@ class DeputeCommand(ProtectedCog, name="depute"):
             context (Context): The context of the command.
             code_ref (str): Reference of the scrutin.
         """
-        await context.send(embed=scr_handler(code_ref))
-
+        await send_embeds(context, lambda: scr_handler(code_ref))
 
     @protected_command(
         name="vote",
         description="Affiche les informations pour un vote d'un député pour un un scrutin.",
     )
-    async def vote(self: Self, context: Context, name: str, code_ref: str) -> None:
+    async def vote(self: Self, context: Context, code_ref: str, last_name: str, first_name: Optional[str] = None) -> None:
         """
         Display how a député voted in a scrutin.
 
         Parameters:
             context (Context): The context of the command.
-            name (str): Name of the député.
             code_ref (str): Reference of the scrutin.
+            last_name (str): The last name of the député.
+            first_name (Optional[str]): The optional first name of the député.
         """
-        await context.send(embed=vote_handler(name, code_ref))
+        await send_embeds(context, lambda: vote_handler(code_ref, last_name, first_name))
 
 async def setup(bot) -> None:
     """
