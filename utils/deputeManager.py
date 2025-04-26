@@ -20,6 +20,7 @@ class Depute:
     last_name: str
     first_name: str
     dep: str
+    dep_name: str
     circo: str
     gp_ref: str
     gp: str
@@ -35,6 +36,7 @@ class Depute:
         gp_ref: str = ""
         gp: str = ""
         dep: str = ""
+        dep_name: str = ""
         circo: str = ""
         elec_found = False
         gp_found = False
@@ -52,6 +54,7 @@ class Depute:
 
         if elec:
             dep = elec["lieu"]["numDepartement"]
+            dep_name = elec["lieu"]["departement"]
             circo = elec["lieu"]["numCirco"]
 
         if gp_ref:
@@ -64,19 +67,22 @@ class Depute:
             last_name=last_name,
             first_name=first_name,
             dep=dep,
+            dep_name=dep_name,
             circo=circo,
             gp_ref=gp_ref,
             gp=gp,
         )
 
     @classmethod
-    def from_json_by_name(cls, data: dict, name: str) -> Self | None:
+    def from_json_by_name(cls, data: dict, last_name: str, first_name: str | None = None) -> Self | None:
         def normalize_name(name: str) -> str:
             return re.sub(r'[^a-z]', '', unidecode(name).lower())
-        last_name: str = data["acteur"]["etatCivil"]["ident"]["nom"]
-        if normalize_name(name) != normalize_name(last_name) :
-            return None
-        return Depute.from_json(data)
+        data_last_name: str = data["acteur"]["etatCivil"]["ident"]["nom"]
+        data_first_name: str = data["acteur"]["etatCivil"]["ident"]["prenom"]
+        if normalize_name(last_name) == normalize_name(data_last_name):
+            if first_name is None or normalize_name(first_name) == normalize_name(data_first_name):
+                return Depute.from_json(data)
+        return None
 
     @classmethod
     def from_json_by_dep(cls, data: dict, code_dep: str):
@@ -134,4 +140,4 @@ class Depute:
         return f"https://www.assemblee-nationale.fr/dyn/static/tribun/17/photos/carre/{self.ref[2:]}.jpg"
 
     def to_string(self) -> str:
-        return f"{self.first_name} {self.last_name} député élu de la circonscription {self.dep}-{self.circo} appartenant au groupe {self.gp}."
+        return f"{self.first_name} {self.last_name} député élu de la circonscription {self.dep}-{self.circo} ({self.dep_name}) appartenant au groupe {self.gp}."

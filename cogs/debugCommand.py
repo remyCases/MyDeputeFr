@@ -1,16 +1,19 @@
 # Copyright (C) 2025 Rémy Cases
 # See LICENSE file for extended copyright information.
 # This file is part of MyDeputeFr project from https://github.com/remyCases/MyDeputeFr.
+from __future__ import annotations
 
-from typing_extensions import Self
+from typing import Optional
 
 from discord.ext import commands
 from discord.ext.commands import Context
+from typing_extensions import Self
 
 from config.config import MODE
 from handlers.debugHandler import debugd_handler, debugs_handler
 from utils.cogManager import ProtectedCog
 from utils.commandManager import protected_command
+from utils.utils import MODE, send_embeds
 
 
 def debug_command():
@@ -40,15 +43,15 @@ class DebugCommand(ProtectedCog, name="debug"):
         description="Debug command.",
     )
     @debug_command()
-    async def debugd(self: Self, context: Context, name: str) -> None:
+    async def debugd(self: Self, context: Context, last_name: str, first_name: Optional[str] = None) -> None:
         """
         Show debug info for a député by name.
 
         Parameters:
-            context (Context): The context of the command.
-            name (str): The name of the député to search.
+            last_name (str): The last name of the député.
+            first_name (str | None): The optional first name of the député.
         """
-        await context.send(embed=debugd_handler(name))
+        await send_embeds(context, lambda: debugd_handler(last_name, first_name))
 
     @protected_command(
         name="debugs",
@@ -63,7 +66,7 @@ class DebugCommand(ProtectedCog, name="debug"):
             context (Context): The context of the command.
             code_ref (str): The reference code of the scrutin.
         """
-        await context.send(embed=debugs_handler(code_ref))
+        await send_embeds(context, lambda: debugs_handler(code_ref))
 
 async def setup(bot) -> None:
     """

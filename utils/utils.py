@@ -2,9 +2,9 @@
 # See LICENSE file for extended copyright information.
 # This file is part of MyDeputeFr project from https://github.com/remyCases/MyDeputeFr.
 
-import json
-import os
 from datetime import datetime, timedelta
+from enum import Enum
+from logging import Logger
 from os import PathLike
 from typing import Tuple, Generator
 
@@ -50,3 +50,19 @@ def read_files_from_directory(directory: PathLike) -> Generator[dict, None, None
         except (OSError, json.JSONDecodeError) as e:
             logger.error("Error reading %s: %s", file, e)
             continue
+
+
+async def send_embeds(context: Context, handler : Callable):
+    """
+    Send a list of embeds to the context.
+
+    Parameters:
+        context (Context): The context in which to send the embeds.
+        handler: A function that returns a list of embeds or an embed.
+    """
+    embeds_or_embed = handler()
+    if isinstance(embeds_or_embed, list):
+        for embed in embeds_or_embed:
+            await context.send(embed=embed)
+    else:
+        await context.send(embed=embeds_or_embed)
