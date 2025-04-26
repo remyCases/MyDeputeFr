@@ -15,7 +15,7 @@ class DeputeCommand(ProtectedCog, name="depute"):
 
     @protected_command(
         name="nom",
-        description="Affiche un député.",
+        description="Affiche les informations d'un député en fonction de son nom.",
     )
     async def nom(self: Self, context: Context, last_name: str, first_name: Optional[str] = None) -> None:
         """
