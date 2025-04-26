@@ -29,7 +29,7 @@ def show_progress(
     if not p_last_show or (update_second != 0 and (now - p_last_show).seconds > update_second):
         size_wrote_chunks_mb = ((p_chunk_size * p_nb_chunks_wrote) / 1024) / 1024
         ct_length_mb = (int(p_content_length) / 1024) / 1024 if p_content_length else "???"
-        logger.info("Download %s : %f.2f MB / %f.2f MB",
+        logger.info("Download %s : %.2f MB / %.2f MB",
                    os.path.basename(p_url),
                    size_wrote_chunks_mb,
                    ct_length_mb)

@@ -7,10 +7,10 @@ from typing_extensions import Self
 from discord.ext import commands
 from discord.ext.commands import Context
 
+from config.config import MODE
 from handlers.debugHandler import debugd_handler, debugs_handler
 from utils.cogManager import ProtectedCog
 from utils.commandManager import protected_command
-from utils.utils import MODE
 
 
 def debug_command():

@@ -92,6 +92,9 @@ async def start_planning(bot, upload_at_launch: bool) -> None:
             logger.error("Invalid hour format given for updates. Expected '%H:%M:%S' format.")
             raise e
 
-        logger.info("Update planed at %s in %s seconds.", target_time, seconds_until_target)
+        logger.info(
+            "Update planed at %s in %.0f minutes and %.2f seconds.", 
+            target_time, seconds_until_target / 60, seconds_until_target % 60
+        )
         await asyncio.sleep(seconds_until_target)
         await update(bot)

@@ -3,9 +3,11 @@
 # This file is part of MyDeputeFr project from https://github.com/remyCases/MyDeputeFr.
 
 import logging
+from types import ModuleType
+from typing import List
 
 import config.config
-from config.config import LOG_LEVEL, LOG_PATH, show_config
+from config.config import LOG_LEVEL, LOG_PATH, __HIDE_VAL_IN_LOG
 
 class LoggingFormatter(logging.Formatter):
     black = "\x1b[30m"
@@ -36,6 +38,17 @@ class LoggingFormatter(logging.Formatter):
         return formatter.format(record)
 
 
+def show_config(module: ModuleType, _logger: logging.Logger, hide_list: List[str]):
+    """Displays the attributes of a module, ignoring certain sensitive values."""
+    for name, val in module.__dict__.items():
+        if not callable(val) and not isinstance(val, ModuleType) and not name.startswith("_"):
+            # Hides secret entries in the log
+            _logger.debug(
+                "%s : %s",
+                name, val if name not in hide_list else '***secret***'
+            )
+
+
 def init_logger(log_name: str, file_name: str, log_level: str) -> logging.Logger:
     _logger = logging.getLogger(log_name)
     _logger.setLevel(log_level)
@@ -56,5 +69,5 @@ def init_logger(log_name: str, file_name: str, log_level: str) -> logging.Logger
 
     return _logger
 
-logger = init_logger("discord_bot", LOG_PATH, LOG_LEVEL)
-show_config(config.config, logger)
+logger: logging.Logger = init_logger("discord_bot", LOG_PATH, LOG_LEVEL)
+show_config(config.config, logger, __HIDE_VAL_IN_LOG)

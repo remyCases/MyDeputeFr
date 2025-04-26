@@ -5,17 +5,11 @@
 import json
 import os
 from datetime import datetime, timedelta
-from enum import Enum
 from os import PathLike
 from typing import Tuple, Generator
 
 from logger.logger import logger
 
-
-class MODE(Enum):
-    """Define the mode of the bot"""
-    DEBUG = 0
-    RELEASE = 1
 
 def compute_time_for_update(update_hour: str) -> Tuple[datetime, float]:
     """Return the seconds for the next update"""

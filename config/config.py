@@ -2,30 +2,23 @@
 # See LICENSE file for extended copyright information.
 # This file is part of MyDeputeFr project from https://github.com/remyCases/MyDeputeFr.
 
+from enum import Enum
 import os
 from collections.abc import Callable
-from logging import Logger
 from pathlib import Path
-from types import ModuleType
 
 from dotenv import load_dotenv
 
-from utils.utils import MODE
-
 load_dotenv()
+
+class MODE(Enum):
+    """Define the mode of the bot"""
+    DEBUG = 0
+    RELEASE = 1
+
 
 class MissingEnvException(Exception):
     """Exception raised when an environment variable is missing."""
-
-__HIDE_VAL_IN_LOG = ["DISCORD_TOKEN"]  # List of values to hide in the log
-
-def show_config(module: ModuleType, logger: Logger):
-    """Displays the attributes of a module, ignoring certain sensitive values."""
-    for name, val in module.__dict__.items():
-        if not callable(val) and not isinstance(val, ModuleType) and not name.startswith("_"):
-            # Hides secret entries in the log
-            msg = f"{name} : {val if name not in __HIDE_VAL_IN_LOG else '***secret***'}"
-            logger.debug(msg)
 
 
 def __load_env(name: str, func: Callable) -> str:
@@ -42,6 +35,7 @@ def __load_env_required(name: str) -> str:
     return token
 
 
+__HIDE_VAL_IN_LOG = ["DISCORD_TOKEN"]  # List of values to hide in the log
 # Discord Bot
 DISCORD_TOKEN = __load_env_required("DISCORD_TOKEN")  # Discord bot token
 DISCORD_CMD_PREFIX = __load_env("DISCORD_CMD_PREFIX", lambda: "!")  # Bot command prefix
