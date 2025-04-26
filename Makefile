@@ -1,15 +1,24 @@
-BIN=.venv\Scripts
+PYTHON=python
+ifeq ($(OS),Windows_NT)
+  BIN=.venv\Scripts
+  PIP=$(BIN)\pip
+  PYTEST=$(BIN)\pytest
+else
+  BIN=venv/bin
+  PIP=$(BIN)/pip
+  PYTEST=$(BIN)/pytest
+endif
 
 # install
 install_venv:
-	python -m venv --clear .venv
+	$(PYTHON) -m venv --clear .venv
 
 install: install_venv
-	$(BIN)\pip install --upgrade -r .\requirements.txt
+	$(PIP) install --upgrade -r ./requirements.txt
 
 install_dev: install_venv
-	$(BIN)\pip install --upgrade -r .\requirements-dev.txt
+	$(PIP) install --upgrade -r ./requirements-dev.txt
 
-# test 
+# test
 test:
-	$(BIN)\pytest tests\download -v
+	$(PYTEST) -v

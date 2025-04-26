@@ -4,18 +4,22 @@
 
 import asyncio
 import os
+import platform
+import time
 from logging import Logger
 from pathlib import Path
-import platform
-from typing import List, Self
-from discord import Intents
+from typing import List
+
 import discord
+from discord import Intents
 from discord.ext import commands
 from discord.ext.commands import Context
+from typing_extensions import Self
 
 from config.config import DISCORD_BOT_MODE, DISCORD_CMD_PREFIX, UPDATE_AT_LAUNCH
 from download.update import start_planning
 from utils.utils import MODE
+
 
 class DiscordBot(commands.Bot):
     def __init__(self: Self, intents: Intents, logger: Logger) -> None:
@@ -75,6 +79,7 @@ class DiscordBot(commands.Bot):
             start_planning(log=self.logger, bot=self, upload_at_launch=UPDATE_AT_LAUNCH)
         )
 
+
     async def on_message(self: Self, message: discord.Message) -> None:
         """
         The code in this event is executed every time someone sends a message, 
@@ -82,9 +87,23 @@ class DiscordBot(commands.Bot):
 
         :param message: The message that was sent.
         """
+
         if message.author == self.user or message.author.bot:
+            self.logger.debug(
+                f"Ignored bot message (ID: {message.id}) from {message.author} in #{message.channel}"
+            )
             return
+        self.logger.info(
+            f"Received message (ID : {message.id}) from {message.author} in #{message.channel}: \"{message.content}\""
+        )
+        start = time.perf_counter()
         await self.process_commands(message)
+        end = time.perf_counter()
+        duration = (end - start) * 1000
+        self.logger.debug(
+            f"Processed message (ID : {message.id}) from {message.author} in #{message.channel} "
+            f"in {duration:.2f} ms"
+        )
 
     async def on_command_completion(self: Self, context: Context) -> None:
         """
