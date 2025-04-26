@@ -3,6 +3,7 @@
 # This file is part of MyDeputeFr project from https://github.com/remyCases/MyDeputeFr.
 
 import os
+from unittest.mock import patch
 import zipfile
 
 import pytest
@@ -11,7 +12,8 @@ from download.core import unzip_file_async
 
 
 @pytest.mark.asyncio
-async def test_unzip_file_success(valid_zip, mock_log):
+@patch("download.core.logger")
+async def test_unzip_file_success(mock_log, valid_zip):
     """Test a correct unzipping"""
     # Get the zip file path and destination folder
     zip_path, dst_folder = valid_zip
@@ -20,7 +22,7 @@ async def test_unzip_file_success(valid_zip, mock_log):
     os.makedirs(dst_folder, exist_ok=True)
 
     # Call the unzip function
-    await unzip_file_async(mock_log, zip_path, dst_folder)
+    await unzip_file_async(zip_path, dst_folder)
 
     # Check logs
     mock_log.info.assert_any_call("Unzipping file %s to %s", zip_path, dst_folder)
@@ -45,7 +47,7 @@ async def test_unzip_file_bad_zip(tmpdir, mock_log):
 
     # Call the unzip function and expect it to raise an exception
     with pytest.raises(zipfile.BadZipFile):
-        await unzip_file_async(mock_log, str(bad_zip_path), str(tmpdir))
+        await unzip_file_async(str(bad_zip_path), str(tmpdir))
 
 @pytest.mark.asyncio
 async def test_unzip_file_file_not_found(tmpdir, mock_log):
@@ -55,4 +57,4 @@ async def test_unzip_file_file_not_found(tmpdir, mock_log):
 
     # Call the unzip function and expect it to raise an exception
     with pytest.raises(FileNotFoundError):
-        await unzip_file_async(mock_log, str(non_existent_zip_path), str(tmpdir))
+        await unzip_file_async(str(non_existent_zip_path), str(tmpdir))

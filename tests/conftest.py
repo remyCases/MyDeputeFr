@@ -8,9 +8,10 @@ import pytest
 
 pytest_plugins = ['pytest_asyncio']
 
-@pytest.fixture(scope="session")
+@pytest.fixture
 def mock_log():
-    return MagicMock()
+    _mock_log = MagicMock()
+    return _mock_log
 
 @pytest.fixture(scope="session")
 def mock_bot():

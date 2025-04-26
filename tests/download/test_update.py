@@ -11,6 +11,7 @@ from config import config
 from download.update import update_async
 
 @pytest.mark.asyncio
+@patch("download.update.logger")
 @patch("download.update.moving_folder_async")
 @patch("download.update.unzip_file_async")
 @patch("download.update.download_file_async")
@@ -30,7 +31,7 @@ async def test_update_success(mock_download_file_async, mock_unzip_file_async, m
         mock_moving_file_async.return_value = None  # No error
 
         # Call the update function
-        result = await update_async(mock_log)
+        result = await update_async()
 
         # Assertions
         assert result is True, "Update should succeed"
@@ -38,36 +39,30 @@ async def test_update_success(mock_download_file_async, mock_unzip_file_async, m
         mock_log.info.assert_any_call("=== Update success ===")
 
         # Check that the functions were called correctly
-        mock_download_file_async.assert_any_call(mock_log,
-                                                 config.UPDATE_URL_DOWNLOAD_SCRUTINS,
+        mock_download_file_async.assert_any_call(config.UPDATE_URL_DOWNLOAD_SCRUTINS,
                                                  Path("/tmp_dir/data_scrutins.zip"))
-        mock_download_file_async.assert_any_call(mock_log,
-                                                 config.UPDATE_URL_DOWNLOAD_ACTEUR_ORGANE,
+        mock_download_file_async.assert_any_call(config.UPDATE_URL_DOWNLOAD_ACTEUR_ORGANE,
                                                  Path("/tmp_dir/data_acteur_organe.zip"))
-        mock_unzip_file_async.assert_any_call(mock_log,
-                                              Path("/tmp_dir/data_scrutins.zip"),
+        mock_unzip_file_async.assert_any_call(Path("/tmp_dir/data_scrutins.zip"),
                                               Path("/tmp_dir/scrutins"))
-        mock_unzip_file_async.assert_any_call(mock_log,
-                                              Path("/tmp_dir/data_acteur_organe.zip"),
+        mock_unzip_file_async.assert_any_call(Path("/tmp_dir/data_acteur_organe.zip"),
                                               Path("/tmp_dir/acteur_organe"))
-        mock_moving_file_async.assert_any_call(mock_log,
-                                               Path("/tmp_dir/scrutins/json"),
+        mock_moving_file_async.assert_any_call(Path("/tmp_dir/scrutins/json"),
                                                config.SCRUTINS_FOLDER)
-        mock_moving_file_async.assert_any_call(mock_log,
-                                               Path("/tmp_dir/acteur_organe/json/acteur"),
+        mock_moving_file_async.assert_any_call(Path("/tmp_dir/acteur_organe/json/acteur"),
                                                config.ACTEUR_FOLDER)
-        mock_moving_file_async.assert_any_call(mock_log,
-                                               Path("/tmp_dir/acteur_organe/json/organe"),
+        mock_moving_file_async.assert_any_call(Path("/tmp_dir/acteur_organe/json/organe"),
                                                config.ORGANE_FOLDER)
 
 @pytest.mark.asyncio
+@patch("download.update.logger")
 @patch("download.update.download_file_async")
 async def test_update_download_fail(mock_download_file_async, mock_log):
     # Mock download failure (download_file raises an exception)
     mock_download_file_async.side_effect = Exception("Download failed")
 
     # Call the update function
-    result = await update_async(mock_log)
+    result = await update_async()
 
     # Assertions
     assert result is False, "Update should fail due to download failure"
@@ -76,6 +71,7 @@ async def test_update_download_fail(mock_download_file_async, mock_log):
     mock_log.error.assert_any_call("=== Update failed ===")
 
 @pytest.mark.asyncio
+@patch("download.update.logger")
 @patch("download.update.unzip_file_async")
 @patch("download.update.download_file_async")
 async def test_update_unzip_fail(mock_download_file_async, mock_unzip_file_async, mock_log):
@@ -84,7 +80,7 @@ async def test_update_unzip_fail(mock_download_file_async, mock_unzip_file_async
     mock_unzip_file_async.side_effect = Exception("Unzip failed")
 
     # Call the update function
-    result = await update_async(mock_log)
+    result = await update_async()
 
     # Assertions
     assert result is False, "Update should fail due to unzip failure"
@@ -94,6 +90,7 @@ async def test_update_unzip_fail(mock_download_file_async, mock_unzip_file_async
 
 
 @pytest.mark.asyncio
+@patch("download.update.logger")
 @patch("download.update.moving_folder_async")
 @patch("download.update.unzip_file_async")
 @patch("download.update.download_file_async")
@@ -105,7 +102,7 @@ async def test_update_move_fail(mock_download_file_async, mock_unzip_file_async,
     mock_moving_file_async.side_effect = Exception("Move folder failed")
 
     # Call the update function
-    result = await update_async(mock_log)
+    result = await update_async()
 
     # Assertions
     assert result is False, "Update should fail due to moving folder failure"

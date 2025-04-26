@@ -3,19 +3,21 @@
 # This file is part of MyDeputeFr project from https://github.com/remyCases/MyDeputeFr.
 
 import os
+from unittest.mock import patch
 
 import pytest
 
 from download.core import moving_folder_async
 
 @pytest.mark.asyncio
-async def test_moving_folder_success(setup_folders, mock_log):
+@patch("download.core.logger")
+async def test_moving_folder_success(mock_log, setup_folders):
     """Test successfully moving a folder"""
     # Get the source and destination folders
     src_folder, dst_folder = setup_folders
 
     # Call the moving_folder function
-    await moving_folder_async(mock_log, src_folder, dst_folder)
+    await moving_folder_async(src_folder, dst_folder)
 
     # Check logs
     mock_log.info.assert_any_call("Moving file from %s to %s", src_folder, dst_folder)
@@ -34,6 +36,7 @@ async def test_moving_folder_success(setup_folders, mock_log):
     assert content == "This is a test file.", "Content of the moved file is incorrect"
 
 @pytest.mark.asyncio
+@patch("download.core.logger")
 async def test_moving_folder_src_not_exist(mock_log, tmpdir):
     """Test moving a nonexistent folder"""
     # Set up paths where the source folder doesn't exist
@@ -45,5 +48,5 @@ async def test_moving_folder_src_not_exist(mock_log, tmpdir):
 
     # Call the moving_folder function and expect a FileNotFoundError
     with pytest.raises(FileNotFoundError):
-        await moving_folder_async(mock_log, str(src_folder), str(dst_folder))
+        await moving_folder_async(str(src_folder), str(dst_folder))
 
