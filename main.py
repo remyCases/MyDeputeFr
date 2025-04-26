@@ -8,15 +8,10 @@ Version: 6.3.0
 
 import discord
 
-from config.config import DISCORD_TOKEN, LOG_PATH, LOG_LEVEL, show_config
-import config.config
-from logger.logger import init_logger
+from config.config import DISCORD_TOKEN
 from utils.botManager import DiscordBot
-
-logger = init_logger("discord_bot", LOG_PATH, LOG_LEVEL)
-show_config(config.config, logger)
 
 intents = discord.Intents.default()
 intents.message_content = True
-bot = DiscordBot(intents, logger)
+bot = DiscordBot(intents)
 bot.run(DISCORD_TOKEN)

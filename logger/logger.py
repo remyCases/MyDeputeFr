@@ -3,6 +3,10 @@
 # This file is part of MyDeputeFr project from https://github.com/remyCases/MyDeputeFr.
 
 import logging
+
+import config.config
+from config.config import LOG_LEVEL, LOG_PATH, show_config
+
 class LoggingFormatter(logging.Formatter):
     black = "\x1b[30m"
     red = "\x1b[31m"
@@ -23,17 +27,18 @@ class LoggingFormatter(logging.Formatter):
 
     def format(self, record):
         log_color = self.COLORS[record.levelno]
-        format = "(black){asctime}(reset) (levelcolor){levelname:<8}(reset) (green){name}(reset) {message}"
-        format = format.replace("(black)", self.black + self.bold)
-        format = format.replace("(reset)", self.reset)
-        format = format.replace("(levelcolor)", log_color)
-        format = format.replace("(green)", self.green + self.bold)
-        formatter = logging.Formatter(format, "%Y-%m-%d %H:%M:%S", style="{")
+        fmt = "(black){asctime}(reset) (levelcolor){levelname:<8}(reset) (green){name}(reset) {message}"
+        fmt = fmt.replace("(black)", self.black + self.bold)
+        fmt = fmt.replace("(reset)", self.reset)
+        fmt = fmt.replace("(levelcolor)", log_color)
+        fmt = fmt.replace("(green)", self.green + self.bold)
+        formatter = logging.Formatter(fmt, "%Y-%m-%d %H:%M:%S", style="{")
         return formatter.format(record)
 
+
 def init_logger(log_name: str, file_name: str, log_level: str) -> logging.Logger:
-    logger = logging.getLogger(log_name)
-    logger.setLevel(log_level)
+    _logger = logging.getLogger(log_name)
+    _logger.setLevel(log_level)
 
     # Console handler
     console_handler = logging.StreamHandler()
@@ -46,7 +51,10 @@ def init_logger(log_name: str, file_name: str, log_level: str) -> logging.Logger
     file_handler.setFormatter(file_handler_formatter)
 
     # Add the handlers
-    logger.addHandler(console_handler)
-    logger.addHandler(file_handler)
+    _logger.addHandler(console_handler)
+    _logger.addHandler(file_handler)
 
-    return logger
+    return _logger
+
+logger = init_logger("discord_bot", LOG_PATH, LOG_LEVEL)
+show_config(config.config, logger)
