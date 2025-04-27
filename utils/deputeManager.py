@@ -73,15 +73,6 @@ class Depute:
             gp=gp,
         )
 
-
-    @classmethod
-    def from_json_by_ref(cls, data: dict, ref: str) -> Self | None:
-        data_ref: str = data["acteur"]["uid"]["#text"]
-        if data_ref == ref:
-            return Depute.from_json(data)
-        return None
-
-
     @classmethod
     def from_json_by_name(cls, data: dict, last_name: str, first_name: str | None = None) -> Self | None:
         def normalize_name(name: str) -> str:

@@ -5,12 +5,11 @@ from __future__ import annotations
 
 from typing import Optional
 
-import discord
 from discord.ext import commands
 from discord.ext.commands import Context
 from typing_extensions import Self
 
-from handlers.debugHandler import debugd_handler, debugn_handler, debugs_handler
+from handlers.debugHandler import debugd_handler, debugs_handler
 from utils.cogManager import ProtectedCog
 from utils.commandManager import protected_command
 from utils.utils import MODE, send_embeds
@@ -67,19 +66,6 @@ class DebugCommand(ProtectedCog, name="debug"):
             code_ref (str): The reference code of the scrutin.
         """
         await send_embeds(context, lambda: debugs_handler(code_ref))
-    @protected_command(
-        name="debugn",
-        description="Debug command.",
-    )
-    @debug_command()
-    async def debugn(self : Self, context: Context, user: discord.User) -> None:
-        """
-        TODO
-        """
-        ref_notifs = await self.bot.database.get_notifications(
-            user.id, context.guild.id
-        )
-        await send_embeds(context, lambda: debugn_handler(ref_notifs))
 
 async def setup(bot) -> None:
     """
