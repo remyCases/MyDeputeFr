@@ -3,7 +3,7 @@
 # This file is part of MyDeputeFr project from https://github.com/remyCases/MyDeputeFr.
 from __future__ import annotations
 
-from typing import Optional
+from typing import List, Optional
 
 import discord
 
@@ -13,6 +13,7 @@ from utils.deputeManager import Depute
 from utils.scrutinManager import Scrutin, ResultBallot
 from utils.utils import read_files_from_directory
 
+MAX_SIZE_EMBED = 3000
 
 def __depute_to_embed(depute: Depute) -> discord.Embed:
     """
@@ -297,20 +298,40 @@ def scr_handler(code_ref: str) -> discord.Embed:
         description=f"Je n'ai pas trouvé le scrutin {code_ref}."
     )
 
-def vote_by_ref_handler(scrutin: Scrutin, ref: str) -> discord.Embed:
+def vote_by_ref_handler(scrutins: List[Scrutin], ref: str) -> List[discord.Embed]:
     for data in read_files_from_directory(ACTEUR_FOLDER):
         if depute := Depute.from_json_by_ref(data, ref):
 
-            embed = __scrutin_to_embed(scrutin)
-            embed.title += f" - {depute.first_name} {depute.last_name}"
-            position = scrutin.depute_vote(depute)
-            vote = f":bust_in_silhouette: **Député** : {depute.first_name} {depute.last_name}\n" \
+            title = f"{depute.first_name} {depute.last_name}"
+            header_vote =  f":calendar: **Date**: {scrutins[0].dateScrutin}\n"\
+                f":bust_in_silhouette: **Député** : {depute.first_name} {depute.last_name}\n"\
                 f":round_pushpin: **Circoncription** : {depute.dep}-{depute.circo} ({depute.dep_name})\n"\
-                f":classical_building: **Groupe** : {depute.gp}\n" \
-                f":bar_chart: **Position** : {scrutin.depute_vote(depute).name.capitalize()} {__vote_emoticon(position.name)} \n"
-            embed.add_field(
-                name="Vote",
-                value=vote,
-            )
-            embed.set_thumbnail(url=depute.image)
-            return embed
+                f":classical_building: **Groupe** : {depute.gp}\n"
+
+            usable_len: int = MAX_SIZE_EMBED - len(header_vote)
+            vote: str = ""
+            embeds: List[discord.Embed] = []
+            for scrutin in scrutins:
+                position = scrutin.depute_vote(depute)
+                next_vote = f":bar_chart: **Scrutin nº{scrutin.ref}** : "\
+                      f"{scrutin.depute_vote(depute).name.capitalize()} {__vote_emoticon(position.name)}\n"
+                if len(next_vote) + len(vote) > usable_len:
+                    embeds.append(
+                        discord.Embed(
+                            title=title,
+                            description=header_vote + vote,
+                            color=DISCORD_EMBED_COLOR_MSG,
+                        ).set_thumbnail(url=depute.image)
+                    )
+                    vote = ""
+                vote += next_vote
+
+            if vote:
+                embeds.append(
+                    discord.Embed(
+                        title=title,
+                        description=header_vote + vote,
+                        color=DISCORD_EMBED_COLOR_MSG,
+                    ).set_thumbnail(url=depute.image)
+                )
+            return embeds

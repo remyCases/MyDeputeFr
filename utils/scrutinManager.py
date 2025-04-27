@@ -3,6 +3,7 @@
 # This file is part of MyDeputeFr project from https://github.com/remyCases/MyDeputeFr.
 from __future__ import annotations
 
+from datetime import datetime
 from enum import Enum
 from typing_extensions import Self
 
@@ -24,7 +25,7 @@ class ResultBallot(Enum):
 class Scrutin:
     ref: str
     titre: str
-    dateScrutin: str
+    dateScrutin: datetime
     sort: str
     nombreVotants: str
     nonVotant: str
@@ -38,7 +39,7 @@ class Scrutin:
     def from_json(cls, data: dict) -> Self:
         ref: str = data["scrutin"]["numero"]
         titre: str = data["scrutin"]["titre"]
-        dateScrutin: str = data["scrutin"]["dateScrutin"]
+        dateScrutin: datetime = datetime.strptime(data["scrutin"]["dateScrutin"], "%Y-%m-%d").date()
         sort: str = data["scrutin"]["sort"]["code"]
         nombreVotants: str = data["scrutin"]["syntheseVote"]["nombreVotants"]
         nonVotant: str = data["scrutin"]["syntheseVote"]["decompte"]["nonVotants"]

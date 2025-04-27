@@ -79,7 +79,14 @@ class DebugCommand(ProtectedCog, name="debug"):
         ref_notifs = await self.bot.database.get_notifications(
             user.id, context.guild.id
         )
-        await send_embeds(context, lambda: debugn_handler(ref_notifs))
+        if len(ref_notifs) == 0:
+            embed = discord.Embed(
+                description=f"No entry for {user.name} in {context.guild.name}.",
+                color=0xBEBEFE,
+            )
+            await context.send(embed=embed)
+        else:
+            await send_embeds(context, lambda: debugn_handler(ref_notifs))
 
 async def setup(bot) -> None:
     """

@@ -2,6 +2,7 @@
 # See LICENSE file for extended copyright information.
 # This file is part of MyDeputeFr project from https://github.com/remyCases/MyDeputeFr.
 
+from datetime import datetime
 from typing import List, Optional
 import discord
 from discord.ext.commands import Context
@@ -13,6 +14,9 @@ from utils.commandManager import protected_command
 from utils.deputeManager import Depute
 from utils.scrutinManager import Scrutin
 from utils.utils import read_files_from_directory
+
+MIN_DATE_CURRENT_MOTION = datetime(2023, 1, 1).date()
+
 
 class NotificationCommands(ProtectedCog):
     @protected_command(
@@ -42,22 +46,38 @@ class NotificationCommands(ProtectedCog):
                 color=0xBEBEFE,
             )
 
-        await context.send(embed=embed)
+            await context.send(embed=embed)
 
     @protected_command(
         name="unsub",
         description="TODO"
     )
-    async def unsub(self, context: Context) -> None:
+    async def unsub(self, context: Context, last_name: Optional[str] = None, first_name: Optional[str] = None) -> None:
 
-        await self.bot.database.remove_notifications(
-            context.author.id, context.guild.id
-        )
-        embed = discord.Embed(
-            description=f"**{context.author}** removes all notifications.",
-            color=0xBEBEFE,
-        )
-        await context.send(embed=embed)
+        if last_name:
+            deputes: List[Depute] = [
+                depute
+                for data in read_files_from_directory(ACTEUR_FOLDER)
+                if (depute := Depute.from_json_by_name(data, last_name, first_name))
+            ]
+            for depute in deputes:
+                await self.bot.database.remove_notifications(
+                    context.author.id, context.guild.id, depute.ref
+                )
+                embed = discord.Embed(
+                    description=f"**{context.author}** removes notifications for {depute.last_name} {depute.first_name}.",
+                    color=0xBEBEFE,
+                )
+                await context.send(embed=embed)
+        else:
+            await self.bot.database.remove_notifications(
+                context.author.id, context.guild.id
+            )
+            embed = discord.Embed(
+                description=f"**{context.author}** removes all notifications.",
+                color=0xBEBEFE,
+            )
+            await context.send(embed=embed)
 
     @protected_command(
         name="rcv",
@@ -69,12 +89,20 @@ class NotificationCommands(ProtectedCog):
             context.author.id, context.guild.id
         )
 
-        *_, last = read_files_from_directory(SCRUTINS_FOLDER)
-        scrutin = Scrutin.from_json(last)
+        last_scrutin_date = MIN_DATE_CURRENT_MOTION
+        scrutins: List[Scrutin] = []
+        for data in read_files_from_directory(SCRUTINS_FOLDER):
+            scrutin = Scrutin.from_json(data)
+            if scrutin.dateScrutin > last_scrutin_date:
+                last_scrutin_date = scrutin.dateScrutin
+                scrutins = [scrutin]
+            elif scrutin.dateScrutin == last_scrutin_date:
+                scrutins.append(scrutin)
 
         for ref in ref_notifs:
-            embed = vote_by_ref_handler(scrutin, ref)
-            await context.send(embed=embed)
+            embeds: List[discord.Embed] = vote_by_ref_handler(scrutins, ref)
+            for embed in embeds:
+                await context.send(embed=embed)
 
 
 async def setup(bot) -> None:

@@ -53,7 +53,7 @@ def read_files_from_directory(directory: Union[str, PathLike]) -> Generator[dict
         dict: The parsed JSON data from each file.
     """
     for file in os.listdir(directory):
-        file_path = os.path.join(directory, file)
+        file_path = directory / file
         try:
             with open(file_path, "r", encoding="utf-8") as f:
                 yield json.load(f)
