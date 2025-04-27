@@ -10,6 +10,7 @@ from logging import Logger
 from pathlib import Path
 from typing import List
 
+import aiosqlite
 import discord
 from discord import Intents
 from discord.ext import commands
@@ -18,6 +19,7 @@ from typing_extensions import Self
 
 from config.config import DISCORD_BOT_MODE, DISCORD_CMD_PREFIX, UPDATE_AT_LAUNCH
 from download.update import start_planning
+from utils.databaseManager import DatabaseManager
 from utils.utils import MODE
 
 
@@ -44,6 +46,12 @@ class DiscordBot(commands.Bot):
         # to handle blocking messages during updates
         self.update_lock: asyncio.Lock = asyncio.Lock()
         self.is_updating: bool = False
+
+    async def init_sqlite_db(self) -> None:
+        async with aiosqlite.connect("database/database.db") as db:
+            with open("database/schema.sql", encoding = "utf-8") as file:
+                await db.executescript(file.read())
+            await db.commit()
 
     async def load_cogs(self: Self) -> None:
         """
@@ -72,13 +80,16 @@ class DiscordBot(commands.Bot):
             f"Running on: {platform.system()} {platform.release()} ({os.name})"
         )
         self.logger.info("-------------------")
+        await self.init_sqlite_db()
         await self.load_cogs()
+        self.database = DatabaseManager(
+            connection=await aiosqlite.connect("database/database.db")
+        )
 
     async def on_ready(self: Self) -> None:
         self.loop.create_task(
             start_planning(log=self.logger, bot=self, upload_at_launch=UPDATE_AT_LAUNCH)
         )
-
 
     async def on_message(self: Self, message: discord.Message) -> None:
         """

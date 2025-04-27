@@ -149,7 +149,7 @@ def dep_handler(code_dep: str) -> discord.Embed:
     return error_handler(title="Député non trouvé", description=f"Je n'ai pas trouvé de députés dans le département {code_dep}.")
 
 
-def vote_handler(code_ref: str, last_name: str, first_name: Optional[str] = None) -> list[discord.Embed] | discord.Embed:
+def vote_by_name_handler(code_ref: str, last_name: str, first_name: Optional[str] = None) -> list[discord.Embed] | discord.Embed:
     """
     Return embed showing how a député voted in a scrutin.
 
@@ -297,3 +297,20 @@ def scr_handler(code_ref: str) -> discord.Embed:
         description=f"Je n'ai pas trouvé le scrutin {code_ref}."
     )
 
+def vote_by_ref_handler(scrutin: Scrutin, ref: str) -> discord.Embed:
+    for data in read_files_from_directory(ACTEUR_FOLDER):
+        if depute := Depute.from_json_by_ref(data, ref):
+
+            embed = __scrutin_to_embed(scrutin)
+            embed.title += f" - {depute.first_name} {depute.last_name}"
+            position = scrutin.depute_vote(depute)
+            vote = f":bust_in_silhouette: **Député** : {depute.first_name} {depute.last_name}\n" \
+                f":round_pushpin: **Circoncription** : {depute.dep}-{depute.circo} ({depute.dep_name})\n"\
+                f":classical_building: **Groupe** : {depute.gp}\n" \
+                f":bar_chart: **Position** : {scrutin.depute_vote(depute).name.capitalize()} {__vote_emoticon(position.name)} \n"
+            embed.add_field(
+                name="Vote",
+                value=vote,
+            )
+            embed.set_thumbnail(url=depute.image)
+            return embed
