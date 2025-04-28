@@ -1,17 +1,19 @@
 PYTHON=python
 ifeq ($(OS),Windows_NT)
-  BIN=.venv\Scripts
+  VENV=.venv
+  BIN=$(VENV)\Scripts
   PIP=$(BIN)\pip
   PYTEST=$(BIN)\pytest
 else
-  BIN=venv/bin
+  VENV=venv
+  BIN=$(VENV)/bin
   PIP=$(BIN)/pip
   PYTEST=$(BIN)/pytest
 endif
 
 # install
 install_venv:
-	$(PYTHON) -m venv --clear .venv
+	$(PYTHON) -m venv --clear $(VENV)
 
 install: install_venv
 	$(PIP) install --upgrade -r ./requirements.txt
