@@ -66,7 +66,7 @@ class NotificationCommands(ProtectedCog):
                     context.author.id, context.guild.id, depute.ref
                 )
                 embed = discord.Embed(
-                    description=f"**{context.author}** removes notifications for {depute.last_name} {depute.first_name}.",
+                    description=f"**{context.author}** a retiré les notification pour {depute.last_name} {depute.first_name}.",
                     color=0xBEBEFE,
                 )
                 await context.send(embed=embed)
@@ -75,7 +75,7 @@ class NotificationCommands(ProtectedCog):
                 context.author.id, context.guild.id
             )
             embed = discord.Embed(
-                description=f"**{context.author}** removes all notifications.",
+                description=f"**{context.author}** a retiré toutes notifications.",
                 color=0xBEBEFE,
             )
             await context.send(embed=embed)
