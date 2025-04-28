@@ -7,7 +7,7 @@ from typing import List, Optional
 import discord
 from discord.ext.commands import Context
 
-from config.config import ACTEUR_FOLDER, SCRUTINS_FOLDER
+from config.config import ACTEUR_FOLDER, DISCORD_EMBED_COLOR_MSG, SCRUTINS_FOLDER
 from handlers.commonHandler import error_handler
 from handlers.deputeHandler import vote_by_ref_handler
 from utils.cogManager import ProtectedCog
@@ -109,6 +109,24 @@ class NotificationCommands(ProtectedCog):
             embeds: List[discord.Embed] = vote_by_ref_handler(scrutins, ref)
             for embed in embeds:
                 await context.send(embed=embed)
+
+
+    @protected_command(
+        name="last",
+        description="TODO"
+    )
+    async def last(self, context: Context) -> None:
+
+        last_scrutin_date = MIN_DATE_CURRENT_MOTION
+        for data in read_files_from_directory(SCRUTINS_FOLDER):
+            scrutin = Scrutin.from_json(data)
+            last_scrutin_date = max(scrutin.dateScrutin, last_scrutin_date)
+
+        await context.send(embed=discord.Embed(
+            title="Dernier jour de scrutin",
+            description=f":calendar: **Date**: {last_scrutin_date}",
+            color=DISCORD_EMBED_COLOR_MSG,
+        ))
 
 
 async def setup(bot) -> None:
