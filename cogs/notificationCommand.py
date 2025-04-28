@@ -8,6 +8,7 @@ import discord
 from discord.ext.commands import Context
 
 from config.config import ACTEUR_FOLDER, SCRUTINS_FOLDER
+from handlers.commonHandler import error_handler
 from handlers.deputeHandler import vote_by_ref_handler
 from utils.cogManager import ProtectedCog
 from utils.commandManager import protected_command
@@ -88,6 +89,11 @@ class NotificationCommands(ProtectedCog):
         ref_notifs: List[str] = await self.bot.database.get_notifications(
             context.author.id, context.guild.id
         )
+
+        if not ref_notifs:
+            await context.send(embed=error_handler(
+                description=f"{context.author.name} n'est inscrit à aucun député."
+            ))
 
         last_scrutin_date = MIN_DATE_CURRENT_MOTION
         scrutins: List[Scrutin] = []
