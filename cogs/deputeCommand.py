@@ -1,4 +1,8 @@
+# Copyright (C) 2025 Rémy Cases
+# See LICENSE file for extended copyright information.
+# This file is part of MyDeputeFr project from https://github.com/remyCases/MyDeputeFr.
 from typing import Optional
+
 from discord.ext.commands import Context
 from typing_extensions import Self
 

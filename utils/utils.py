@@ -2,11 +2,13 @@
 # See LICENSE file for extended copyright information.
 # This file is part of MyDeputeFr project from https://github.com/remyCases/MyDeputeFr.
 
+import re
 from datetime import datetime, timedelta
 from enum import Enum
 from typing import Tuple, Callable
 
 from discord.ext.commands import Context
+from unidecode import unidecode
 
 
 class MODE(Enum):
@@ -61,6 +63,9 @@ def read_files_from_directory(directory: Union[str, PathLike]) -> Generator[dict
             print(f"Error reading {file}: {e}") # TODO fix to print to log and stdout
             continue
 
+
+def normalize_name(name: str) -> str:
+    return re.sub(r'[^a-z]', '', unidecode(name).lower())
 
 async def send_embeds(context: Context, handler : Callable):
     """

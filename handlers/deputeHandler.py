@@ -6,15 +6,17 @@ from __future__ import annotations
 from typing import Optional
 
 import discord
+from sqlalchemy import select
 
 from config.config import SCRUTINS_FOLDER, ACTEUR_FOLDER, DISCORD_EMBED_COLOR_MSG
+from db.db import session_scope
+from db.models import Depute as DeputeDB
 from handlers.commonHandler import error_handler
 from utils.deputeManager import Depute
 from utils.scrutinManager import Scrutin, ResultBallot
-from utils.utils import read_files_from_directory
+from utils.utils import read_files_from_directory, normalize_name
 
-
-def __depute_to_embed(depute: Depute) -> discord.Embed:
+def __depute_to_embed(depute: DeputeDB) -> discord.Embed:
     """
     Converts a Depute object into a Discord Embed message.
 
@@ -27,8 +29,8 @@ def __depute_to_embed(depute: Depute) -> discord.Embed:
     return discord.Embed(
         title=f":bust_in_silhouette: {depute.first_name} {depute.last_name}",
         description=(
-            f":round_pushpin: **Circoncription** : {depute.dep}-{depute.circo} ({depute.dep_name})\n"
-            f":classical_building: **Groupe** : {depute.gp}"
+            f":round_pushpin: **Circoncription** : {depute.circo.departement.code}-{depute.circo.code} ({depute.circo.departement.name})\n"
+            f":classical_building: **Groupe** : {depute.gp.name}"
         ),
         color=DISCORD_EMBED_COLOR_MSG,
         url=depute.url
@@ -83,14 +85,19 @@ def nom_handler(last_name: str, first_name: Optional[str] = None) -> list[discor
     Returns:
         list[discord.Embed]: A list of embeds with député info or an error message.
     """
-    deputes = [ depute for data in read_files_from_directory(ACTEUR_FOLDER)
-                if (depute := Depute.from_json_by_name(data, last_name, first_name)) ]
-    if len(deputes) > 0 :
-        deputes.sort(key=lambda x: x.first_name)
-        return [
-            __depute_to_embed(depute)
-            for depute in deputes
-        ]
+    with session_scope() as session:
+        stmt = select(DeputeDB).where(DeputeDB.last_name_normalize == normalize_name(last_name))
+
+        if first_name:
+            stmt = stmt.where(DeputeDB.first_name_normalize == normalize_name(first_name))
+
+        deputes = session.execute(stmt).scalars().all()
+
+        if deputes:
+            return [
+                __depute_to_embed(depute)
+                for depute in deputes
+            ]
     full_name = f"{first_name + ' ' if first_name else ''}{last_name}"
     return error_handler(
         title="Député non trouvé",
@@ -109,8 +116,15 @@ def ciro_handler(code_dep: str, code_circo: str) -> discord.Embed:
     Returns:
         discord.Embed: Embed with député info or error.
     """
-    for data in read_files_from_directory(ACTEUR_FOLDER):
-        if depute := Depute.from_json_by_circo(data, code_dep, code_circo):
+    with session_scope() as session:
+        stmt = (select(DeputeDB)
+                .where(DeputeDB.circo_departement_code == code_dep)
+                .where(DeputeDB.circo_code == code_circo)
+        )
+
+        depute = session.execute(stmt).scalar()
+
+        if depute:
             return __depute_to_embed(depute)
 
     return error_handler(
@@ -129,22 +143,26 @@ def dep_handler(code_dep: str) -> discord.Embed:
     Returns:
         discord.Embed: Embed with list of députés or error.
     """
-    deputes = [ depute for data in read_files_from_directory(ACTEUR_FOLDER)
-                if (depute := Depute.from_json_by_dep(data, code_dep)) ]
-
-    if len(deputes) > 0:
-        deputes.sort(key=lambda x: int(x.circo))
-        description = '\n'.join([
-            f":bust_in_silhouette: [{depute.first_name} {depute.last_name}]({depute.url}) — "
-            f":round_pushpin: **Circoncription** : {depute.dep}-{depute.circo} | "
-            f":classical_building: **Groupe** : {depute.gp}"
-            for depute in deputes
-        ])
-        return discord.Embed(
-            title=f":pushpin: Département {deputes[0].dep} ({deputes[0].dep_name})",
-            description=description,
-            color=DISCORD_EMBED_COLOR_MSG,
+    with session_scope() as session:
+        stmt = (select(DeputeDB)
+                .where(DeputeDB.circo_departement_code == code_dep)
+                .order_by(DeputeDB.circo_code)
         )
+
+        deputes = session.execute(stmt).scalars().all()
+
+        if deputes:
+            description = '\n'.join([
+                f":bust_in_silhouette: [{depute.first_name} {depute.last_name}]({depute.url}) — "
+                f":round_pushpin: **Circoncription** : {depute.circo.departement.code}-{depute.circo.code} | "
+                f":classical_building: **Groupe** : {depute.gp.name}"
+                for depute in deputes
+            ])
+            return discord.Embed(
+                title=f":pushpin: Département {deputes[0].circo.departement.code} ({deputes[0].circo.departement.name})",
+                description=description,
+                color=DISCORD_EMBED_COLOR_MSG,
+            )
 
     return error_handler(title="Député non trouvé", description=f"Je n'ai pas trouvé de députés dans le département {code_dep}.")
 
@@ -296,4 +314,3 @@ def scr_handler(code_ref: str) -> discord.Embed:
         title="Scrutin non trouvé",
         description=f"Je n'ai pas trouvé le scrutin {code_ref}."
     )
-

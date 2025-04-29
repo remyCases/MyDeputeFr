@@ -176,5 +176,9 @@ cython_debug/
 # vscode
 .vscode
 
-# Custom data folder
+# Ignore SQLite database files
+*.sqlite3
+*.db
+
+# Data directory
 data/*

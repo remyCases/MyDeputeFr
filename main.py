@@ -10,11 +10,14 @@ import discord
 
 from config.config import DISCORD_TOKEN, LOG_PATH, LOG_LEVEL, show_config
 import config.config
+from db.db import init_db
 from logger.logger import init_logger
 from utils.botManager import DiscordBot
 
 logger = init_logger("discord_bot", LOG_PATH, LOG_LEVEL)
 show_config(config.config, logger)
+
+init_db()
 
 intents = discord.Intents.default()
 intents.message_content = True
