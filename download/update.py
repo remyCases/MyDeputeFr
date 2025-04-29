@@ -79,8 +79,11 @@ async def update(log: Logger, bot):
     async with bot.update_lock:
         try:
             await update_async(log)
-        except Exception:
-            pass
+        finally:
+            # Signal that the update is complete and notifications should be scheduled
+            bot.update_completed_event.set()
+            # Reset the event for next cycle
+            bot.update_completed_event.clear()
 
 async def start_planning(log: Logger, bot, upload_at_launch: bool) -> None:
     """

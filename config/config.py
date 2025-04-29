@@ -2,6 +2,7 @@
 # See LICENSE file for extended copyright information.
 # This file is part of MyDeputeFr project from https://github.com/remyCases/MyDeputeFr.
 
+from datetime import datetime
 import os
 from collections.abc import Callable
 from logging import Logger
@@ -62,6 +63,9 @@ UPDATE_URL_DOWNLOAD_ACTEUR_ORGANE = __load_env(
 UPDATE_HOUR = __load_env("UPDATE_HOUR", lambda: "08:00:00")  # Default update time
 UPDATE_AT_LAUNCH = __load_env("UPDATE_AT_LAUNCH", lambda: "TRUE").upper() in ("TRUE", "1", "T")  # Enable updates at launch
 UPDATE_PROGRESS_SECOND = int(__load_env("UPDATE_DOWNLOAD_PROGRESS_SECOND", lambda: "2")) # Download progress update in second, if 0 is disabled
+
+NOTIF_HOUR = __load_env("NOTIF_HOUR", lambda: "12:00:00")  # Default update time
+MIN_DATE_CURRENT_MOTION = datetime(2023, 1, 1).date()
 
 # Folders to save json data
 ACTEUR_FOLDER = Path(__load_env("ACTEUR_FOLDER", lambda: "data/acteur"))

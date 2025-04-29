@@ -2,12 +2,11 @@
 # See LICENSE file for extended copyright information.
 # This file is part of MyDeputeFr project from https://github.com/remyCases/MyDeputeFr.
 
-from datetime import datetime
 from typing import List, Optional
 import discord
 from discord.ext.commands import Context
 
-from config.config import ACTEUR_FOLDER, DISCORD_EMBED_COLOR_MSG, SCRUTINS_FOLDER
+from config.config import ACTEUR_FOLDER, DISCORD_EMBED_COLOR_MSG, SCRUTINS_FOLDER, MIN_DATE_CURRENT_MOTION
 from handlers.commonHandler import error_handler
 from handlers.deputeHandler import vote_by_ref_handler
 from utils.cogManager import ProtectedCog
@@ -15,8 +14,6 @@ from utils.commandManager import protected_command
 from utils.deputeManager import Depute
 from utils.scrutinManager import Scrutin
 from utils.utils import read_files_from_directory
-
-MIN_DATE_CURRENT_MOTION = datetime(2023, 1, 1).date()
 
 
 class NotificationCommands(ProtectedCog):
@@ -34,7 +31,7 @@ class NotificationCommands(ProtectedCog):
 
         for depute in deputes:
             result :bool = await self.bot.database.add_notification(
-                context.author.id, context.guild.id, depute.ref
+                context.author.id,  depute.ref
             )
 
             if result:
@@ -63,7 +60,7 @@ class NotificationCommands(ProtectedCog):
             ]
             for depute in deputes:
                 await self.bot.database.remove_notifications(
-                    context.author.id, context.guild.id, depute.ref
+                    context.author.id, depute.ref
                 )
                 embed = discord.Embed(
                     description=f"**{context.author}** a retiré les notification pour {depute.last_name} {depute.first_name}.",
@@ -72,7 +69,7 @@ class NotificationCommands(ProtectedCog):
                 await context.send(embed=embed)
         else:
             await self.bot.database.remove_notifications(
-                context.author.id, context.guild.id
+                context.author.id
             )
             embed = discord.Embed(
                 description=f"**{context.author}** a retiré toutes notifications.",
@@ -87,7 +84,7 @@ class NotificationCommands(ProtectedCog):
     async def rcv(self, context: Context) -> None:
 
         ref_notifs: List[str] = await self.bot.database.get_notifications(
-            context.author.id, context.guild.id
+            context.author.id
         )
 
         if not ref_notifs:

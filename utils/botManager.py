@@ -22,6 +22,7 @@ from typing_extensions import Self
 from config.config import DISCORD_BOT_MODE, DISCORD_CMD_PREFIX, UPDATE_AT_LAUNCH, DATABASE_FOLDER
 from download.update import start_planning
 from utils.databaseManager import DatabaseManager
+from utils.notificationManager import notification_task
 from utils.utils import MODE
 
 
@@ -48,6 +49,9 @@ class DiscordBot(commands.Bot):
 
         # to handle blocking messages during updates
         self.update_lock: asyncio.Lock = asyncio.Lock()
+
+        # event to handle notifications after updates
+        self.update_completed_event: asyncio.Event = asyncio.Event()
 
     async def init_file_date(self) -> None:
         contents: str = "2023-01-01"
@@ -107,6 +111,13 @@ class DiscordBot(commands.Bot):
     async def on_ready(self: Self) -> None:
         self.loop.create_task(
             start_planning(log=self.logger, bot=self, upload_at_launch=UPDATE_AT_LAUNCH)
+        )
+        self.loop.create_task(
+            notification_task(
+                logger=self.logger,
+                event=self.update_completed_event,
+                database=self.database,
+                getter=self.get_user)
         )
 
     async def on_message(self: Self, message: discord.Message) -> None:
