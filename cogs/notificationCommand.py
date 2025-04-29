@@ -123,7 +123,7 @@ class NotificationCommands(ProtectedCog):
             last_scrutin_date = max(scrutin.dateScrutin, last_scrutin_date)
 
         await context.send(embed=discord.Embed(
-            title="Dernier jour de scrutin",
+            title="Dernier jour de scrutin dans notre base de données",
             description=f":calendar: **Date**: {last_scrutin_date}",
             color=DISCORD_EMBED_COLOR_MSG,
         ))
