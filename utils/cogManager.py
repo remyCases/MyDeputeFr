@@ -28,7 +28,7 @@ def not_updating():
     def decorator(func: T) -> T:
         @wraps(func)
         async def wrapper(cog: ProtectedCog, context: Context, *args, **kwargs):
-            if cog.bot.update_lock.locked() or cog.bot.is_updating:
+            if cog.bot.update_lock.locked():
                 await context.send(
                     "Le bot est en cours de mise à jour. Service temporairement indisponible."
                 )

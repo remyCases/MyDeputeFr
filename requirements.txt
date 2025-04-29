@@ -6,3 +6,4 @@ schedule
 unidecode
 typing-extensions
 aiosqlite
+aiofiles

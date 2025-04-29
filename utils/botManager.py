@@ -8,16 +8,18 @@ import platform
 import time
 from logging import Logger
 from pathlib import Path
-from typing import List
+from typing import List, Union
+from datetime import datetime
 
 import aiosqlite
+import aiofiles
 import discord
 from discord import Intents
 from discord.ext import commands
 from discord.ext.commands import Context
 from typing_extensions import Self
 
-from config.config import DISCORD_BOT_MODE, DISCORD_CMD_PREFIX, UPDATE_AT_LAUNCH
+from config.config import DISCORD_BOT_MODE, DISCORD_CMD_PREFIX, UPDATE_AT_LAUNCH, DATABASE_FOLDER
 from download.update import start_planning
 from utils.databaseManager import DatabaseManager
 from utils.utils import MODE
@@ -39,18 +41,33 @@ class DiscordBot(commands.Bot):
             help_command=None,
         )
         self.logger: Logger = logger
-        self.database = None
+        self.database: Union[DatabaseManager | None] = None
+        self.last_date: Union[datetime | None] = None
         self.bot_prefix: str = DISCORD_CMD_PREFIX
         self.mode: MODE = DISCORD_BOT_MODE
 
         # to handle blocking messages during updates
         self.update_lock: asyncio.Lock = asyncio.Lock()
-        self.is_updating: bool = False
+
+    async def init_file_date(self) -> None:
+        contents: str = "2023-01-01"
+        try:
+            async with aiofiles.open(DATABASE_FOLDER / "saved", mode="r", encoding="utf-8") as f:
+                contents = await f.read()
+        except FileNotFoundError:
+            async with aiofiles.open(DATABASE_FOLDER / "saved", mode="w", encoding="utf-8") as f:
+                await f.write(contents)
+
+        try:
+            self.last_date = datetime.strptime(contents, "%Y-%m-%d").date()
+        except ValueError as e:
+            raise e
+
 
     async def init_sqlite_db(self) -> None:
-        async with aiosqlite.connect("database/database.db") as db:
-            with open("database/schema.sql", encoding = "utf-8") as file:
-                await db.executescript(file.read())
+        async with aiosqlite.connect(DATABASE_FOLDER / "database.db") as db:
+            async with aiofiles.open(DATABASE_FOLDER / "schema.sql", encoding="utf-8") as file:
+                await db.executescript(await file.read())
             await db.commit()
 
     async def load_cogs(self: Self) -> None:
@@ -80,10 +97,11 @@ class DiscordBot(commands.Bot):
             f"Running on: {platform.system()} {platform.release()} ({os.name})"
         )
         self.logger.info("-------------------")
+        await self.init_file_date()
         await self.init_sqlite_db()
         await self.load_cogs()
         self.database = DatabaseManager(
-            connection=await aiosqlite.connect("database/database.db")
+            connection=await aiosqlite.connect(DATABASE_FOLDER / "database.db")
         )
 
     async def on_ready(self: Self) -> None:

@@ -77,11 +77,10 @@ async def update_async(log: Logger) -> bool:
 async def update(log: Logger, bot):
     """Async version of update ot make it compatible with asyncio"""
     async with bot.update_lock:
-        bot.is_updating = True
         try:
             await update_async(log)
-        finally:
-            bot.is_updating = False
+        except Exception:
+            pass
 
 async def start_planning(log: Logger, bot, upload_at_launch: bool) -> None:
     """

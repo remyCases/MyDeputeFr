@@ -14,7 +14,7 @@ class GeneralCommands(ProtectedCog):
     async def status(self, context) -> None:
         """Basic command to check if the bot is updating or available"""
 
-        if self.bot.is_updating:
+        if self.bot.update_lock.locked():
             embed = discord.Embed(
                 title=":red_circle: Indisponible",
                 description="Le bot est en cours de mise à jour.",

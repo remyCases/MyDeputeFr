@@ -63,10 +63,12 @@ UPDATE_HOUR = __load_env("UPDATE_HOUR", lambda: "08:00:00")  # Default update ti
 UPDATE_AT_LAUNCH = __load_env("UPDATE_AT_LAUNCH", lambda: "TRUE").upper() in ("TRUE", "1", "T")  # Enable updates at launch
 UPDATE_PROGRESS_SECOND = int(__load_env("UPDATE_DOWNLOAD_PROGRESS_SECOND", lambda: "2")) # Download progress update in second, if 0 is disabled
 
-# Folders
-ACTEUR_FOLDER = Path(__load_env("ACTEUR_FOLDER", lambda: "data/acteur"))  # Path to "acteur" folder
-ORGANE_FOLDER = Path(__load_env("ORGANE_FOLDER", lambda: "data/organe"))  # Path to "organe" folder
-SCRUTINS_FOLDER = Path(__load_env("SCRUTINS_FOLDER", lambda: "data/scrutins"))  # Path to "scrutins" folder
+# Folders to save json data
+ACTEUR_FOLDER = Path(__load_env("ACTEUR_FOLDER", lambda: "data/acteur"))
+ORGANE_FOLDER = Path(__load_env("ORGANE_FOLDER", lambda: "data/organe"))
+SCRUTINS_FOLDER = Path(__load_env("SCRUTINS_FOLDER", lambda: "data/scrutins"))
+# Folder for persistent data
+DATABASE_FOLDER = Path(__load_env("DATABASE_FOLDER", lambda: "database"))
 
 # Logs
 LOG_PATH = __load_env("LOG_PATH", lambda: "discord.log")  # Path to the log file
