@@ -31,7 +31,7 @@ async def notification_task(logger: Logger, event: asyncio.Event, database: Data
         # Calculate time to wait before sending notifications
         target_time, seconds_until_target = compute_time_for_notifications(NOTIF_HOUR)
 
-        logger.info("Update planed at %s in %.2f seconds.", target_time, seconds_until_target)
+        logger.info("Notifications planed at %s in %.2f seconds.", target_time, seconds_until_target)
         if seconds_until_target > 0:
             await asyncio.sleep(seconds_until_target)
 
