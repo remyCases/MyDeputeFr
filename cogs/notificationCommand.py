@@ -31,7 +31,7 @@ class NotificationCommands(ProtectedCog):
 
         for depute in deputes:
             result :bool = await self.bot.database.add_notification(
-                context.author.id,  depute.ref
+                context.author.id, depute.ref
             )
 
             if result:

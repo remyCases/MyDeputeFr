@@ -76,9 +76,7 @@ class DebugCommand(ProtectedCog, name="debug"):
         """
         TODO
         """
-        ref_notifs = await self.bot.database.get_notifications(
-            user.id, context.guild.id
-        )
+        ref_notifs = await self.bot.database.get_notifications(user.id)
         if len(ref_notifs) == 0:
             embed = discord.Embed(
                 description=f"No entry for {user.name} in {context.guild.name}.",

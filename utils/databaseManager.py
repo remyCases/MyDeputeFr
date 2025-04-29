@@ -28,7 +28,7 @@ class DatabaseManager:
                 return False
 
             await self.connection.execute(
-                "INSERT INTO notification(id, user_id, depute_ref) VALUES (?, ?, ?, ?)",
+                "INSERT INTO notification(id, user_id, depute_ref) VALUES (?, ?, ?)",
                 (
                     1,
                     user_id,
