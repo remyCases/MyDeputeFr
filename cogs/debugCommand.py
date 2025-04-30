@@ -13,6 +13,7 @@ from typing_extensions import Self
 from handlers.debugHandler import debugd_handler, debugn_handler, debugs_handler
 from utils.cogManager import ProtectedCog
 from utils.commandManager import protected_command
+from utils.notificationManager import send_notifications
 from utils.utils import MODE, send_embeds
 
 
@@ -85,6 +86,16 @@ class DebugCommand(ProtectedCog, name="debug"):
             await context.send(embed=embed)
         else:
             await send_embeds(context, lambda: debugn_handler(ref_notifs))
+    @protected_command(
+        name="simn",
+        description="Debug command.",
+    )
+    @debug_command()
+    async def simn(self : Self, __context: Context) -> None:
+        """
+        TODO
+        """
+        await send_notifications(self.bot.database, self.bot.get_user)
 
 async def setup(bot) -> None:
     """
