@@ -79,6 +79,7 @@ def sample_valid_depute_dataclass():
         last_name="Durand",
         first_name="Claire",
         dep="75",
+        dep_name="Paris",
         circo="1",
         gp_ref="GP001",
         gp="Groupe Test"
@@ -103,6 +104,7 @@ def sample_valid_depute_json():
                             "causeMandat": "élections générales",
                             "lieu": {
                                 "numDepartement": "75",
+                                "departement": "Paris",
                                 "numCirco": "1"
                             }
                         }
@@ -138,6 +140,7 @@ def sample_missing_organe_depute_json():
                             "causeMandat": "élections générales",
                             "lieu": {
                                 "numDepartement": "75",
+                                "departement": "Paris",
                                 "numCirco": "1"
                             }
                         }
@@ -173,6 +176,7 @@ def sample_invalid_depute_json():
                             "causeMandat": "élections générales",
                             "lieu": {
                                 "numDepartement": "75",
+                                "departement": "Paris",
                                 "numCirco": "1"
                             }
                         }

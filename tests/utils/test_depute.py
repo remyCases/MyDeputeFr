@@ -5,9 +5,63 @@
 import json
 from unittest.mock import call, mock_open, patch
 
+import pytest
+
 from tests.utils.conftest import sample_gp_data
 from utils.deputeManager import Depute
 
+# Sample JSON data mimicking structure from your Depute.from_json
+sample_depute_data = {
+    "acteur": {
+        "uid": {"#text": "PA123456"},
+        "etatCivil": {
+            "ident": {
+                "nom": "Dupont",
+                "prenom": "Jean"
+            }
+        },
+        "mandats": {
+            "mandat": [
+                {
+                    "election": {
+                        "causeMandat": "élections générales",
+                        "lieu": {
+                            "numDepartement": "75",
+                            "departement": "Paris",
+                            "numCirco": "1"
+                        }
+                    }
+                },
+                {
+                    "typeOrgane": "GP",
+                    "organes": {
+                        "organeRef": "ORG123"
+                    }
+                }
+            ]
+        }
+    }
+}
+
+sample_gp_data = {
+    "organe": {
+        "libelle": "Groupe Test"
+    }
+}
+
+
+@pytest.fixture
+def mocked_gp_file():
+    m_open = mock_open(read_data=json.dumps(sample_gp_data))
+    with patch("builtins.open", m_open):
+        yield m_open
+
+
+@pytest.fixture
+def mocked_organe_folder(tmp_path):
+    test_folder = tmp_path / "organes"
+    test_folder.mkdir()
+    return test_folder
 
 @patch('builtins.open', mock_open(read_data=json.dumps(sample_gp_data)))
 def test_from_json(
@@ -244,7 +298,7 @@ def test_to_string(
     mock_bot):
 
     depute = Depute.from_json(sample_valid_depute_json)
-    expected = "Jean Dupont député élu.e de la circonscription 75-1 appartenant au groupe Groupe Test."
+    expected = "Jean Dupont député élu.e de la circonscription 75-1 (Paris) appartenant au groupe Groupe Test."
 
     # Assertions result
     assert depute.to_string() == expected

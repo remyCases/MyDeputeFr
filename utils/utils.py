@@ -2,12 +2,14 @@
 # See LICENSE file for extended copyright information.
 # This file is part of MyDeputeFr project from https://github.com/remyCases/MyDeputeFr.
 
-import json
 import os
+import json
 from datetime import datetime, timedelta
 from enum import Enum
 from os import PathLike
-from typing import Tuple, Generator
+from typing import Tuple, Generator, Callable
+
+from discord.ext.commands import Context
 
 
 class MODE(Enum):
@@ -55,3 +57,19 @@ def read_files_from_directory(directory: PathLike) -> Generator[dict, None, None
         except (OSError, json.JSONDecodeError) as e:
             print(f"Error reading {file}: {e}") # TODO fix to print to log and stdout
             continue
+
+
+async def send_embeds(context: Context, handler : Callable):
+    """
+    Send a list of embeds to the context.
+
+    Parameters:
+        context (Context): The context in which to send the embeds.
+        handler: A function that returns a list of embeds or an embed.
+    """
+    embeds_or_embed = handler()
+    if isinstance(embeds_or_embed, list):
+        for embed in embeds_or_embed:
+            await context.send(embed=embed)
+    else:
+        await context.send(embed=embeds_or_embed)
