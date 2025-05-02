@@ -1,8 +1,8 @@
 # Copyright (C) 2025 Rémy Cases
 # See LICENSE file for extended copyright information.
 # This file is part of MyDeputeFr project from https://github.com/remyCases/MyDeputeFr.
-import threading
-from unittest.mock import MagicMock
+import asyncio
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
@@ -13,10 +13,10 @@ def mock_log():
     _mock_log = MagicMock()
     return _mock_log
 
-@pytest.fixture(scope="session")
+@pytest.fixture
 def mock_bot():
-    mock_bot = MagicMock()
-    mock_bot.bot.update_lock = MagicMock(spec=threading.Lock)
-    mock_bot.bot.update_lock.locked.return_value = False
-    mock_bot.bot.is_updating = False
-    return mock_bot
+    bot = MagicMock()
+    bot.update_lock = AsyncMock()
+    bot.update_lock.__aenter__.return_value = bot.update_lock
+    bot.update_lock.__aexit__.return_value = None
+    return bot

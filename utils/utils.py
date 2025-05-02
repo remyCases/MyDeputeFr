@@ -2,14 +2,13 @@
 # See LICENSE file for extended copyright information.
 # This file is part of MyDeputeFr project from https://github.com/remyCases/MyDeputeFr.
 
-from datetime import datetime, timedelta
-import json
-from os import PathLike
 import os
+import json
+from datetime import datetime, timedelta
+from os import PathLike
 from typing import Callable, Tuple, Generator
 
 from discord.ext.commands import Context
-
 from logger.logger import logger
 
 
@@ -45,6 +44,7 @@ def read_files_from_directory(directory: PathLike) -> Generator[dict, None, None
         dict: The parsed JSON data from each file.
     """
     for file in os.listdir(directory):
+        file_path = directory / file
         file_path = directory / file
         try:
             with open(file_path, "r", encoding="utf-8") as f:

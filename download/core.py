@@ -52,12 +52,12 @@ async def download_file_async(url: str, file_path: Path) -> None:
         try:
             async with session.get(url) as response:
                 response.raise_for_status()
-                logger.info("Downloading %s to %s", url, file_path)
                 content_length = response.headers.get("content-length", 0)
                 chunk_size: int = 4096
                 nb_chunks_wrote: int = 0
                 last_show: datetime | None = None
                 with open(file_path, "wb") as f:
+                    logger.info("Downloading %s to %s", url, file_path)
                     while True:
                         chunk = await response.content.read(chunk_size)
                         if not chunk:
@@ -72,6 +72,9 @@ async def download_file_async(url: str, file_path: Path) -> None:
         except aiohttp.ClientResponseError:
             logger.error("Invalid response from %s", url)
             raise
+        except FileNotFoundError:
+            logger.error("Invalid path %s", file_path)
+            raise
 
     logger.info("Download done")
 
@@ -85,8 +88,15 @@ def unzip_file(path: Path, dst_folder: Path) -> None :
         dst_folder (Path) : The path of the destination folder.
     """
     logger.info("Unzipping file %s to %s", path, dst_folder)
-    with zipfile.ZipFile(path, "r") as zip_ref:
-        zip_ref.extractall(dst_folder)
+    try:
+        with zipfile.ZipFile(path, "r") as zip_ref:
+            zip_ref.extractall(dst_folder)
+    except zipfile.BadZipFile:
+        logger.error("%s is not a correct Zip File.", path)
+        raise
+    except FileNotFoundError:
+        logger.error("%s does not exist.", path)
+        raise
     logger.info("Unzip done")
 
 async def unzip_file_async(path: Path, dst_folder: Path) -> None:
@@ -101,7 +111,7 @@ async def unzip_file_async(path: Path, dst_folder: Path) -> None:
     with ThreadPoolExecutor() as pool:
         await loop.run_in_executor(
             pool,
-            lambda: unzip_file(path, dst_folder)
+            unzip_file, path, dst_folder
         )
 
 def moving_folder(src_folder: Path, dst_folder: Path) -> None:
@@ -114,8 +124,12 @@ def moving_folder(src_folder: Path, dst_folder: Path) -> None:
     """
     logger.info("Moving file from %s to %s", src_folder, dst_folder)
 
-    shutil.rmtree(dst_folder, ignore_errors=True)
-    shutil.move(src_folder, dst_folder)
+    try:
+        shutil.rmtree(dst_folder, ignore_errors=True)
+        shutil.move(src_folder, dst_folder)
+    except FileNotFoundError:
+        logger.error("%s and/or %s does not exist", src_folder, dst_folder)
+        raise
 
     logger.info("Move file done")
 
@@ -131,5 +145,5 @@ async def moving_folder_async(src_folder: Path, dst_folder: Path) -> None:
     with ThreadPoolExecutor() as pool:
         await loop.run_in_executor(
             pool,
-            lambda: moving_folder(src_folder, dst_folder)
+            moving_folder, src_folder, dst_folder
         )

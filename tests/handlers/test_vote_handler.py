@@ -49,7 +49,7 @@ def test_vote_handler_success(_mock_depute, _mock_scrutin, _mock_listdir, name, 
 @patch('utils.scrutinManager.Scrutin.from_json_by_ref', return_value=mock_scrutin())
 @patch('utils.deputeManager.Depute.from_json_by_name', return_value=mock_depute())
 @patch('builtins.open', mock_open(read_data='{}'))
-def test_vote_handler_success(_mock_depute, _mock_scrutin, _mock_listdir, last_name, first_name, code_ref):
+def test_vote_handler_first_name_success(_mock_depute, _mock_scrutin, _mock_listdir, last_name, first_name, code_ref):
     embeds = vote_handler(code_ref, last_name, first_name)
 
     assert isinstance(embeds, list)
