@@ -2,9 +2,12 @@
 # See LICENSE file for extended copyright information.
 # This file is part of MyDeputeFr project from https://github.com/remyCases/MyDeputeFr.
 
+import os
+import json
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Tuple, Callable
+from os import PathLike
+from typing import Tuple, Generator, Callable
 
 from discord.ext.commands import Context
 
@@ -13,6 +16,7 @@ class MODE(Enum):
     """Define the mode of the bot"""
     DEBUG = 0
     RELEASE = 1
+
 
 def compute_time_for_update(update_hour: str) -> Tuple[datetime, float]:
     """Return the seconds for the next update"""
@@ -34,14 +38,7 @@ def compute_time_for_update(update_hour: str) -> Tuple[datetime, float]:
     return target_time, (target_time - now).total_seconds()
 
 
-
-
-import os
-import json
-from typing import Generator, Union
-from os import PathLike
-
-def read_files_from_directory(directory: Union[str, PathLike]) -> Generator[dict, None, None]:
+def read_files_from_directory(directory: PathLike) -> Generator[dict, None, None]:
     """
     Reads and yields the JSON data of each file in a given directory.
     Skips files that cannot be read or parsed.
@@ -53,7 +50,7 @@ def read_files_from_directory(directory: Union[str, PathLike]) -> Generator[dict
         dict: The parsed JSON data from each file.
     """
     for file in os.listdir(directory):
-        file_path = os.path.join(directory, file)
+        file_path = directory / file
         try:
             with open(file_path, "r", encoding="utf-8") as f:
                 yield json.load(f)
