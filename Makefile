@@ -4,11 +4,13 @@ ifeq ($(OS),Windows_NT)
   BIN=$(VENV)\Scripts
   PIP=$(BIN)\pip
   PYTEST=$(BIN)\pytest
+  MYPY=$(BIN)\mypy
 else
   VENV=venv
   BIN=$(VENV)/bin
   PIP=$(BIN)/pip
   PYTEST=$(BIN)/pytest
+  MYPY=$(BIN)/mypy
 endif
 
 # install
@@ -22,6 +24,13 @@ install: install_venv
 install_dev: install_venv
 	$(PIP) install --upgrade -r ./requirements-dev.txt
 
-# test
+# unit testing
 test:
 	$(PYTEST) -v
+
+# type annotations
+mypy:
+	$(MYPY) . --strict
+
+# unit testing + type checking
+check: test mypy
