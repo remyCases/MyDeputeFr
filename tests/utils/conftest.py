@@ -2,12 +2,30 @@
 # See LICENSE file for extended copyright information.
 # This file is part of MyDeputeFr project from https://github.com/remyCases/MyDeputeFr.
 
-from unittest.mock import mock_open, patch
+from pathlib import Path
+from typing import Collection, Dict, Iterator, List, Union
+from unittest.mock import MagicMock, mock_open, patch
 import json
 import pytest
 
 from utils.deputeManager import Depute
 
+
+JSON_DEPUTE = Dict[
+    str, Dict[str, Union[
+            Dict[str, str],
+            Dict[str, Dict[str, str]],
+            Dict[str, List[object]]
+            ]]]
+
+JSON_SCRUTIN = Dict[
+    str, Dict[str, Union[
+            str,
+            Dict[str, str],
+            Dict[str, Dict[str, str]],
+            Dict[str, Collection[str]],
+            Dict[str, Dict[str, Dict[str, List[Dict[str, Collection[str]]]]]]
+            ]]]
 
 sample_gp_data = {
     "organe": {
@@ -17,21 +35,21 @@ sample_gp_data = {
 
 
 @pytest.fixture
-def mocked_gp_file():
-    m_open = mock_open(read_data=json.dumps(sample_gp_data))
+def mocked_gp_file() -> Iterator[MagicMock]:
+    m_open: MagicMock = mock_open(read_data=json.dumps(sample_gp_data))
     with patch("builtins.open", m_open):
         yield m_open
 
 
 @pytest.fixture
-def mocked_organe_folder(tmp_path):
-    test_folder = tmp_path / "organes"
+def mocked_organe_folder(tmp_path: Path) -> Path:
+    test_folder: Path = tmp_path / "organes"
     test_folder.mkdir()
     return test_folder
 
 
 @pytest.fixture
-def sample_scrutin_data_json():
+def sample_scrutin_data_json() -> JSON_SCRUTIN:
     return {
         "scrutin": {
             "numero": "1001",
@@ -72,7 +90,7 @@ def sample_scrutin_data_json():
 
 
 @pytest.fixture
-def sample_valid_depute_dataclass():
+def sample_valid_depute_dataclass() -> Depute:
     """Sample dataclass Depute"""
     return Depute(
         ref="PA456",
@@ -86,7 +104,7 @@ def sample_valid_depute_dataclass():
     )
 
 @pytest.fixture
-def sample_valid_depute_json():
+def sample_valid_depute_json() -> JSON_DEPUTE:
     """Sample JSON data mimicking structure from your Depute.from_json"""
     return {
         "acteur": {
@@ -121,7 +139,7 @@ def sample_valid_depute_json():
     }
 
 @pytest.fixture
-def sample_missing_organe_depute_json():
+def sample_missing_organe_depute_json() -> JSON_DEPUTE:
     """Sample JSON data mimicking structure from your Depute.from_json
     with a missing organe field"""
     return {
@@ -157,7 +175,7 @@ def sample_missing_organe_depute_json():
     }
 
 @pytest.fixture
-def sample_invalid_depute_json():
+def sample_invalid_depute_json() -> JSON_DEPUTE:
     """Sample JSON data mimicking structure from your Depute.from_json
     with a missing organe field"""
     return {

@@ -4,7 +4,6 @@
 from __future__ import annotations
 
 import json
-import os
 import re
 
 from attrs import define
@@ -12,6 +11,7 @@ from typing_extensions import Self
 from unidecode import unidecode
 
 from config.config import ORGANE_FOLDER
+from logger.logger import logger
 
 ELECTION = "\u00e9lections g\u00e9n\u00e9rales"
 
@@ -66,11 +66,11 @@ class Depute:
                 with open(organe_file, "r", encoding="utf-8") as g:
                     gp: str = json.load(g)["organe"]["libelle"]
             except OSError:
-                print(f"The file {organe_file} was not found.")
+                logger.warning("Cannot find the organe file %s for %s", gp_ref, ref)
                 gp = ""
                 gp_ref = ""
         else:
-            print("The file was not found.")
+            logger.warning("%s does not have any organe reference.", ref)
 
         return cls(
             ref=ref,

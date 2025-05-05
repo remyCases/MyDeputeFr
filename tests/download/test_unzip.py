@@ -4,7 +4,8 @@
 
 import os
 from pathlib import Path
-from unittest.mock import call, patch
+from typing import Tuple
+from unittest.mock import call, patch, MagicMock
 import zipfile
 
 import pytest
@@ -14,9 +15,9 @@ from download.core import unzip_file, unzip_file_async
 
 @patch("download.core.logger")
 def test_unzip_file_success(
-        valid_zip,
-        mock_log,
-        mock_bot):
+        mock_log: MagicMock,
+        valid_zip: Tuple[Path, Path],
+        mock_bot: MagicMock) -> None:
 
     """Test a correct unzipping"""
     # Get the zip file path and destination folder
@@ -29,12 +30,12 @@ def test_unzip_file_success(
     unzip_file(zip_path, dst_folder)
 
     # Check if the file has been extracted
-    extracted_file_path = dst_folder / "test.txt"
+    extracted_file_path: Path = dst_folder / "test.txt"
     assert os.path.exists(extracted_file_path), "Extracted file not found in destination folder"
 
     # Check the content of the extracted file
     with open(extracted_file_path, "r", encoding="utf-8") as f:
-        content = f.read()
+        content: str = f.read()
     assert content == "This is a test file.", "Content of extracted file is incorrect"
 
     # Assertions logs
@@ -53,26 +54,26 @@ def test_unzip_file_success(
 
 @patch("download.core.logger")
 def test_unzip_file_bad_zip(
-        tmpdir,
-        mock_log,
-        mock_bot):
+        mock_log: MagicMock,
+        tmp_path: Path,
+        mock_bot: MagicMock) -> None:
 
     """Test unzipping an invalid file"""
     # Create an invalid zip file (not actually a zip file)
-    bad_zip_path = tmpdir / "bad.zip"
+    bad_zip_path: Path = tmp_path / "bad.zip"
     with open(bad_zip_path, "w", encoding="utf-8") as f:
         f.write("This is not a zip file.")
 
         # Call the unzip function and expect it to raise an exception
         with pytest.raises(zipfile.BadZipFile):
-            unzip_file(Path(bad_zip_path), Path(tmpdir))
+            unzip_file(bad_zip_path, tmp_path)
 
     # Assertions logs
     mock_log.info.assert_has_calls([
-        call("Unzipping file %s to %s", Path(bad_zip_path), Path(tmpdir)),
+        call("Unzipping file %s to %s", bad_zip_path, tmp_path),
     ])
     mock_log.error.assert_has_calls([
-        call("%s is not a correct Zip File.", Path(bad_zip_path))
+        call("%s is not a correct Zip File.", bad_zip_path)
     ])
     mock_log.warning.assert_not_called()
 
@@ -82,25 +83,26 @@ def test_unzip_file_bad_zip(
     mock_bot.update_lock.__aexit__.assert_not_called()
 
 
+@patch("download.core.logger")
 def test_unzip_file_file_not_found(
-    tmpdir,
-    mock_log,
-    mock_bot):
+    mock_log: MagicMock,
+    tmp_path: Path,
+    mock_bot: MagicMock) -> None:
 
     """Test unzipping an non existent file"""
     # Simulate a FileNotFoundError by providing a non-existent file path
-    non_existent_zip_path = tmpdir / "non_existent.zip"
+    non_existent_zip_path: Path = tmp_path / "non_existent.zip"
 
     # Call the unzip function and expect it to raise an exception
     with pytest.raises(FileNotFoundError):
-        unzip_file(Path(non_existent_zip_path), Path(tmpdir))
+        unzip_file(non_existent_zip_path, tmp_path)
 
     # Assertions logs
     mock_log.info.assert_has_calls([
-        call("Unzipping file %s to %s", Path(non_existent_zip_path), Path(tmpdir)),
+        call("Unzipping file %s to %s", non_existent_zip_path, tmp_path),
     ])
     mock_log.error.assert_has_calls([
-        call("%s does not exist.", Path(non_existent_zip_path))
+        call("%s does not exist.", non_existent_zip_path)
     ])
     mock_log.warning.assert_not_called()
 
@@ -111,22 +113,20 @@ def test_unzip_file_file_not_found(
 
 
 @pytest.mark.asyncio
+@patch("download.core.logger")
 @patch("download.core.unzip_file", return_value=None)
 async def test_unzip_file_async_success(
-    mock_unzip_file,
-    valid_zip,
-    mock_log,
-    mock_bot):
+    mock_unzip_file: MagicMock,
+    mock_log: MagicMock,
+    valid_zip: Tuple[Path, Path],
+    mock_bot: MagicMock) -> None:
 
     """Test a correct unzipping"""
     # Get the zip file path and destination folder
     zip_path, dst_folder = valid_zip
 
     # Call the unzip function
-    result = await unzip_file_async(zip_path, dst_folder)
-
-    # Assertions return
-    assert result is None, "unzip should success"
+    await unzip_file_async(zip_path, dst_folder)
 
     # Assertions subfunctions
     mock_unzip_file.assert_has_calls([
@@ -145,26 +145,27 @@ async def test_unzip_file_async_success(
 
 
 @pytest.mark.asyncio
+@patch("download.core.logger")
 @patch("download.core.unzip_file", side_effect=Exception("Unzip failure"))
 async def test_unzip_file_async_failure(
-    mock_unzip_file,
-    tmpdir,
-    mock_log,
-    mock_bot):
+    mock_unzip_file: MagicMock,
+    mock_log: MagicMock,
+    tmp_path: Path,
+    mock_bot: MagicMock) -> None:
 
     """Test unzipping an invalid file"""
     # Create an invalid zip file (not actually a zip file)
-    bad_zip_path: Path = tmpdir / "bad.zip"
+    bad_zip_path: Path = tmp_path / "bad.zip"
     with open(bad_zip_path, "w", encoding="utf-8") as f:
         f.write("This is not a zip file.")
 
     # Call the unzip function and expect it to raise an exception
     with pytest.raises(Exception):
-        await unzip_file_async(bad_zip_path, tmpdir)
+        await unzip_file_async(bad_zip_path, tmp_path)
 
     # Assertions subfunctions
     mock_unzip_file.assert_has_calls([
-        call(bad_zip_path, tmpdir)
+        call(bad_zip_path, tmp_path)
     ])
 
     # Assertions logs

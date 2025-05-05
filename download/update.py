@@ -24,12 +24,12 @@ def show_error_on_exception(msg: str, exception: Exception) -> None:
     logger.error("Error : %s", str(exception))
     logger.error("=== Update failed ===")
 
-async def update_scrutins(download_temp: str, zip_temp: str) -> None:
+async def update_scrutins(download_temp: Path, zip_temp: Path) -> None:
     """
     Update the data folder with fresh data from UPDATE_URL_DOWNLOAD_SCRUTINS.
     """
     # Download File to zip download folder
-    zip_file_scrutins: Path = Path(download_temp) / "data_scrutins.zip"
+    zip_file_scrutins: Path = download_temp / "data_scrutins.zip"
     try:
         await download_file_async(UPDATE_URL_DOWNLOAD_SCRUTINS, zip_file_scrutins)
     except Exception as e:
@@ -39,7 +39,7 @@ async def update_scrutins(download_temp: str, zip_temp: str) -> None:
     await asyncio.sleep(0.1)
 
     # Unzip File to zip temp folder
-    zip_temp_scrutins: Path = Path(zip_temp) / "scrutins"
+    zip_temp_scrutins: Path = zip_temp / "scrutins"
     try:
         await unzip_file_async(zip_file_scrutins, zip_temp_scrutins)
     except Exception as e:
@@ -56,12 +56,12 @@ async def update_scrutins(download_temp: str, zip_temp: str) -> None:
         show_error_on_exception("moving folder failed", e)
         raise e
 
-async def update_acteur_organe(download_temp: str, zip_temp: str) -> None:
+async def update_acteur_organe(download_temp: Path, zip_temp: Path) -> None:
     """
     Update the data folder with fresh data from UPDATE_URL_DOWNLOAD_ACTEUR_ORGANE.
     """
     # Download File to zip download folder
-    zip_file_acteur_organe: Path = Path(download_temp) / "data_acteur_organe.zip"
+    zip_file_acteur_organe: Path = download_temp / "data_acteur_organe.zip"
     try:
         await download_file_async(UPDATE_URL_DOWNLOAD_ACTEUR_ORGANE, zip_file_acteur_organe)
     except Exception as e:
@@ -71,7 +71,7 @@ async def update_acteur_organe(download_temp: str, zip_temp: str) -> None:
     await asyncio.sleep(0.1)
 
     # Unzip File to zip temp folder
-    zip_temp_acteur_organe: Path = Path(zip_temp) / "acteur_organe"
+    zip_temp_acteur_organe: Path = zip_temp / "acteur_organe"
     try:
         await unzip_file_async(zip_file_acteur_organe, zip_temp_acteur_organe)
     except Exception as e:
@@ -104,14 +104,16 @@ async def update_async(is_update_acteur_organe: bool) -> None:
     logger.info("=== Update starting ===")
 
     with tempfile.TemporaryDirectory() as download_temp, tempfile.TemporaryDirectory() as zip_temp:
+        download_path: Path = Path(download_temp)
+        zip_path: Path = Path(zip_temp)
         try:
-            await update_scrutins(download_temp, zip_temp)
+            await update_scrutins(download_path, zip_path)
         except Exception as e:
             logger.error("=== Update scrutins failed ===")
             raise e
         try:
             if is_update_acteur_organe:
-                await update_acteur_organe(download_temp, zip_temp)
+                await update_acteur_organe(download_path, zip_path)
         except Exception as e:
             logger.error("=== Update acteur and organe failed ===")
             raise e
@@ -129,7 +131,7 @@ async def update(bot: DiscordBot, is_update_acteur_organe: bool = True) -> None:
         finally:
             bot.is_updating = False
 
-async def start_planning(bot: DiscordBot, upload_at_launch: bool, max_iterations=None) -> None:
+async def start_planning(bot: DiscordBot, upload_at_launch: bool, *, max_iterations=None) -> None:
     """
     Start update scheduler to update data every UPDATE_HOUR.
 

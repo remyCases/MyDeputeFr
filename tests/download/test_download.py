@@ -6,7 +6,7 @@ import hashlib
 import os
 from pathlib import Path
 import tempfile
-from unittest.mock import call, patch
+from unittest.mock import call, patch, MagicMock
 
 import aiohttp
 import pytest
@@ -15,22 +15,21 @@ from download.core import download_file_async
 
 
 @pytest.mark.asyncio
-@patch("download.core.show_progress", return_value=None)
 @patch("download.core.logger")
+@patch("download.core.show_progress")
 async def test_download(
-    mock_log,
-    mock_bot):
+    mock_show_progress: MagicMock,
+    mock_log: MagicMock,
+    mock_bot: MagicMock) -> None:
     """Test a valid download"""
 
     # Setup
-    url = "https://proof.ovh.net/files/1Mb.dat"
+    url: str = "https://proof.ovh.net/files/1Mb.dat"
+    mock_show_progress.return_value = None # No print
 
     with tempfile.TemporaryDirectory() as download_temp:
-        file_path = Path(download_temp) / "data.dat"
-        result = await download_file_async(url, file_path)
-
-        # Assertions return
-        assert result is None, "Download should succeed"
+        file_path: Path = Path(download_temp) / "data.dat"
+        await download_file_async(url, file_path)
 
         # Assertions request
         assert os.path.getsize(file_path) == 1048576, "Invalid size"
@@ -53,18 +52,20 @@ async def test_download(
 
 
 @pytest.mark.asyncio
-@patch("download.core.show_progress", return_value=None)
 @patch("download.core.logger")
+@patch("download.core.show_progress")
 async def test_download_invalid_url(
-    mock_log,
-    mock_bot):
+    mock_show_progress: MagicMock,
+    mock_log: MagicMock,
+    mock_bot: MagicMock) -> None:
     """Test a download using an invalid url"""
 
     # Setup
-    url = "https:////proof.ovh.net/files/1Mb.dat"
+    url: str = "https:////proof.ovh.net/files/1Mb.dat"
+    mock_show_progress.return_value = None # No print
 
     with tempfile.TemporaryDirectory() as download_temp:
-        file_path = Path(download_temp) / "data.dat"
+        file_path: Path = Path(download_temp) / "data.dat"
 
         # Assertion exception
         with pytest.raises(aiohttp.InvalidURL):
@@ -84,18 +85,20 @@ async def test_download_invalid_url(
 
 
 @pytest.mark.asyncio
-@patch("download.core.show_progress", return_value=None)
 @patch("download.core.logger")
+@patch("download.core.show_progress")
 async def test_download_client_connection_error(
-    mock_log,
-    mock_bot):
+    mock_show_progress: MagicMock,
+    mock_log: MagicMock,
+    mock_bot: MagicMock) -> None:
     """Test a download using a valid url but from an nonexistent domaine"""
 
     # Setup
-    url = "https://proof.ovh.error/files/1Mb.dat"
+    url: str = "https://proof.ovh.error/files/1Mb.dat"
+    mock_show_progress.return_value = None # No print
 
     with tempfile.TemporaryDirectory() as download_temp:
-        file_path = Path(download_temp) / "data.dat"
+        file_path: Path = Path(download_temp) / "data.dat"
 
         # Assertion exception
         with pytest.raises(aiohttp.ClientConnectionError):
@@ -115,18 +118,20 @@ async def test_download_client_connection_error(
 
 
 @pytest.mark.asyncio
-@patch("download.core.show_progress", return_value=None)
 @patch("download.core.logger")
+@patch("download.core.show_progress")
 async def test_download_client_response_error(
-    mock_log,
-    mock_bot):
+    mock_show_progress: MagicMock,
+    mock_log: MagicMock,
+    mock_bot: MagicMock) -> None:
     """Test a download using a valid url but for an nonexistent page"""
 
     # Setup
-    url = "https://proof.ovh.net/files/invalid"
+    url: str = "https://proof.ovh.net/files/invalid"
+    mock_show_progress.return_value = None # No print
 
     with tempfile.TemporaryDirectory() as download_temp:
-        file_path = Path(download_temp) / "data.dat"
+        file_path: Path = Path(download_temp) / "data.dat"
 
         # Assertion exception
         with pytest.raises(aiohttp.ClientResponseError):
@@ -146,16 +151,18 @@ async def test_download_client_response_error(
 
 
 @pytest.mark.asyncio
-@patch("download.core.show_progress", return_value=None)
 @patch("download.core.logger")
+@patch("download.core.show_progress")
 async def test_download_invalid_path(
-    mock_log,
-    mock_bot):
+    mock_show_progress: MagicMock,
+    mock_log: MagicMock,
+    mock_bot: MagicMock) -> None:
     """Test to download in a non existent folder"""
 
     # Setup
-    url = "https://proof.ovh.net/files/1Mb.dat"
-    file_path = Path("/do/not/exist") / "data.dat"
+    url: str = "https://proof.ovh.net/files/1Mb.dat"
+    file_path: Path = Path("/do/not/exist") / "data.dat"
+    mock_show_progress.return_value = None # No print
 
         # Assertion exception
     with pytest.raises(FileNotFoundError) :
