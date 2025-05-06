@@ -42,7 +42,7 @@ class NotificationCommands(ProtectedCog):
 
             embed = discord.Embed(
                 description=description,
-                color=0xBEBEFE,
+                color=DISCORD_EMBED_COLOR_MSG,
             )
 
             await context.send(embed=embed)
@@ -65,7 +65,7 @@ class NotificationCommands(ProtectedCog):
                 )
                 embed = discord.Embed(
                     description=f"**{context.author}** a retiré les notification pour {depute.last_name} {depute.first_name}.",
-                    color=0xBEBEFE,
+                    color=DISCORD_EMBED_COLOR_MSG,
                 )
                 await context.send(embed=embed)
         else:
@@ -74,7 +74,7 @@ class NotificationCommands(ProtectedCog):
             )
             embed = discord.Embed(
                 description=f"**{context.author}** a retiré toutes notifications.",
-                color=0xBEBEFE,
+                color=DISCORD_EMBED_COLOR_MSG,
             )
             await context.send(embed=embed)
 

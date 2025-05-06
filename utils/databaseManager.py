@@ -77,10 +77,7 @@ class DatabaseManager:
         )
         async with rows as cursor:
             result = await cursor.fetchall()
-            result_list = []
-            for row in result:
-                result_list.append(row[0])
-            return result_list
+            return [row[0] for row in result]
 
 
     async def get_users(self) -> List[str]:
@@ -92,7 +89,4 @@ class DatabaseManager:
         )
         async with rows as cursor:
             result = await cursor.fetchall()
-            result_list = []
-            for row in result:
-                result_list.append(row[0])
-            return result_list
+            return [row[0] for row in result]
