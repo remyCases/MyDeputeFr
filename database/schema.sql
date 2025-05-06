@@ -1,0 +1,6 @@
+CREATE TABLE IF NOT EXISTS `notification` (
+  `id` INTEGER NOT NULL,
+  `user_id` TEXT NOT NULL,
+  `depute_ref` TEXT NOT NULL,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);

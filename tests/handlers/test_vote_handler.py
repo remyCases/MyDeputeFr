@@ -3,10 +3,10 @@ import pytest
 from discord import Embed
 
 from common.config import DISCORD_EMBED_COLOR_MSG, DISCORD_EMBED_COLOR_ERR
-from handlers.deputeHandler import vote_handler
+from handlers.deputeHandler import vote_by_name_handler
 
 
-def mock_depute():
+def mock_depute() -> MagicMock:
     depute = MagicMock()
     depute.first_name = "Alice"
     depute.last_name = "Martin"
@@ -16,7 +16,7 @@ def mock_depute():
     return depute
 
 
-def mock_scrutin():
+def mock_scrutin() -> MagicMock:
     scrutin = MagicMock()
     scrutin.ref = "123"
     scrutin.sort = "adopté"
@@ -25,22 +25,29 @@ def mock_scrutin():
     return scrutin
 
 
-
 @pytest.mark.parametrize("name, code_ref", [("Martin", "123")])
 @patch('os.listdir', return_value=["data.json"])
 @patch('utils.scrutinManager.Scrutin.from_json_by_ref', return_value=mock_scrutin())
 @patch('utils.deputeManager.Depute.from_json_by_name', return_value=mock_depute())
 @patch('builtins.open', mock_open(read_data='{}'))
-def test_vote_handler_success(_mock_depute, _mock_scrutin, _mock_listdir, name, code_ref):
-    embeds = vote_handler(code_ref, name)
+def test_vote_by_name_handler_success(
+    _mock_depute: MagicMock, 
+    _mock_scrutin: MagicMock, 
+    _mock_listdir: MagicMock, 
+    name: str, 
+    code_ref: str) -> None:
+    embeds = vote_by_name_handler(code_ref, name)
 
     assert isinstance(embeds, list)
     assert len(embeds) == 1
     embed = embeds[0]
     assert isinstance(embed, Embed)
+    assert embed.title is not None
     assert "Scrutin nº123" in embed.title
+    assert embed.description is not None
     assert ":calendar: **Date**: 2025-04-01" in embed.description
-    assert int(embed.color) == DISCORD_EMBED_COLOR_MSG
+    assert embed.colour is not None
+    assert int(embed.colour) == DISCORD_EMBED_COLOR_MSG
 
 
 
@@ -49,16 +56,25 @@ def test_vote_handler_success(_mock_depute, _mock_scrutin, _mock_listdir, name, 
 @patch('utils.scrutinManager.Scrutin.from_json_by_ref', return_value=mock_scrutin())
 @patch('utils.deputeManager.Depute.from_json_by_name', return_value=mock_depute())
 @patch('builtins.open', mock_open(read_data='{}'))
-def test_vote_handler_first_name_success(_mock_depute, _mock_scrutin, _mock_listdir, last_name, first_name, code_ref):
-    embeds = vote_handler(code_ref, last_name, first_name)
+def test_vote_handler_first_name_success(
+    _mock_depute: MagicMock, 
+    _mock_scrutin: MagicMock, 
+    _mock_listdir: MagicMock, 
+    last_name: str, 
+    first_name: str, 
+    code_ref: str) -> None:
+    embeds = vote_by_name_handler(code_ref, last_name, first_name)
 
     assert isinstance(embeds, list)
     assert len(embeds) == 1
     embed = embeds[0]
     assert isinstance(embed, Embed)
+    assert embed.title is not None
     assert "Scrutin nº123" in embed.title
+    assert embed.description is not None
     assert ":calendar: **Date**: 2025-04-01" in embed.description
-    assert int(embed.color) == DISCORD_EMBED_COLOR_MSG
+    assert embed.colour is not None
+    assert int(embed.colour) == DISCORD_EMBED_COLOR_MSG
 
 
 @pytest.mark.parametrize("name, code_ref", [("Martin", "999")])
@@ -66,12 +82,21 @@ def test_vote_handler_first_name_success(_mock_depute, _mock_scrutin, _mock_list
 @patch('utils.scrutinManager.Scrutin.from_json_by_ref', return_value=None)
 @patch('utils.deputeManager.Depute.from_json_by_name', return_value=mock_depute())
 @patch('builtins.open', mock_open(read_data='{}'))
-def test_vote_handler_scrutin_not_found(_mock_listdir, _mock_from_json_by_ref, _mock_from_json_by_name, name, code_ref):
-    embed = vote_handler(code_ref, name)
+def test_vote_by_name_handler_scrutin_not_found(
+    _mock_listdir: MagicMock, 
+    _mock_from_json_by_ref: MagicMock, 
+    _mock_from_json_by_name: MagicMock, 
+    name: str, 
+    code_ref: str) -> None:
+    embed = vote_by_name_handler(code_ref, name)
 
+    assert isinstance(embed, Embed)
+    assert embed.title is not None
     assert embed.title == "Scrutin non trouvé"
+    assert embed.description is not None
     assert f"Je n'ai pas trouvé le scrutin {code_ref}." in embed.description
-    assert int(embed.color) == DISCORD_EMBED_COLOR_ERR
+    assert embed.colour is not None
+    assert int(embed.colour) == DISCORD_EMBED_COLOR_ERR
 
 
 @pytest.mark.parametrize("name, code_ref", [("Inconnu", "123")])
@@ -79,12 +104,21 @@ def test_vote_handler_scrutin_not_found(_mock_listdir, _mock_from_json_by_ref, _
 @patch('utils.scrutinManager.Scrutin.from_json_by_ref', return_value=mock_scrutin())
 @patch('utils.deputeManager.Depute.from_json_by_name', return_value=None)
 @patch('builtins.open', mock_open(read_data='{}'))
-def test_vote_handler_depute_not_found(_mock_listdir, _mock_from_json_by_ref, _mock_from_json_by_name, name, code_ref):
-    embed = vote_handler(code_ref, name)
+def test_vote_by_name_handler_depute_not_found(
+    _mock_listdir: MagicMock, 
+    _mock_from_json_by_ref: MagicMock,
+    _mock_from_json_by_name: MagicMock, 
+    name: str, 
+    code_ref: str) -> None:
+    embed = vote_by_name_handler(code_ref, name)
 
+    assert isinstance(embed, Embed)
+    assert embed.title is not None
     assert embed.title == "Député non trouvé"
+    assert embed.description is not None
     assert f"Je n'ai pas trouvé le député {name}." in embed.description
-    assert int(embed.color) == DISCORD_EMBED_COLOR_ERR
+    assert embed.colour is not None
+    assert int(embed.colour) == DISCORD_EMBED_COLOR_ERR
 
 
 @pytest.mark.parametrize("name, code_ref", [("Inconnu", "999")])
@@ -92,12 +126,21 @@ def test_vote_handler_depute_not_found(_mock_listdir, _mock_from_json_by_ref, _m
 @patch('utils.scrutinManager.Scrutin.from_json_by_ref', return_value=None)
 @patch('utils.deputeManager.Depute.from_json_by_name', return_value=None)
 @patch('builtins.open', mock_open(read_data='{}'))
-def test_vote_handler_both_not_found(_mock_listdir, _mock_from_json_by_ref, _mock_from_json_by_name, name, code_ref):
-    embed = vote_handler(code_ref, name)
+def test_vote_by_name_handler_both_not_found(
+    _mock_listdir: MagicMock, 
+    _mock_from_json_by_ref: MagicMock, 
+    _mock_from_json_by_name: MagicMock, 
+    name: str, 
+    code_ref: str) -> None:
+    embed = vote_by_name_handler(code_ref, name)
 
+    assert isinstance(embed, Embed)
+    assert embed.title is not None
     assert embed.title == "Député et scrutin non trouvé"
+    assert embed.description is not None
     assert f"Je n'ai trouvé ni le député {name}, ni le scrutin {code_ref}." == embed.description
-    assert int(embed.color) == DISCORD_EMBED_COLOR_ERR
+    assert embed.colour is not None
+    assert int(embed.colour) == DISCORD_EMBED_COLOR_ERR
 
 
 @pytest.mark.parametrize("name, code_ref", [("Martin", "123")])
@@ -105,10 +148,16 @@ def test_vote_handler_both_not_found(_mock_listdir, _mock_from_json_by_ref, _moc
 @patch('utils.scrutinManager.Scrutin.from_json_by_ref', side_effect=lambda data, code_ref: mock_scrutin())
 @patch('utils.deputeManager.Depute.from_json_by_name', side_effect=lambda data, name: mock_depute())
 @patch('builtins.open', mock_open(read_data='not json'))
-def test_vote_handler_malformed_json(_mock_listdir, _mock_from_json_by_ref, _mock_from_json_by_name, name, code_ref):
-    embed = vote_handler(code_ref, name)
+def test_vote_by_name_handler_malformed_json(
+    _mock_listdir: MagicMock, 
+    _mock_from_json_by_ref: MagicMock, 
+    _mock_from_json_by_name: MagicMock, 
+    name: str, 
+    code_ref: str) -> None:
+    embed = vote_by_name_handler(code_ref, name)
 
     assert isinstance(embed, Embed)
     assert embed.title == "Député et scrutin non trouvé"
     assert f"Je n'ai trouvé ni le député {name}, ni le scrutin {code_ref}." == embed.description
-    assert int(embed.color) == DISCORD_EMBED_COLOR_ERR
+    assert embed.colour is not None
+    assert int(embed.colour) == DISCORD_EMBED_COLOR_ERR

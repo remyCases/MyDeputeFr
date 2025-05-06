@@ -2,9 +2,9 @@
 # See LICENSE file for extended copyright information.
 # This file is part of MyDeputeFr project from https://github.com/remyCases/MyDeputeFr.
 
+from datetime import datetime
 from enum import Enum
 import os
-from collections.abc import Callable
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -43,6 +43,7 @@ DISCORD_BOT_MODE = MODE[__load_env("DISCORD_BOT_MODE", "RELEASE").upper()]
 DISCORD_EMBED_COLOR_MSG =  int(__load_env("DISCORD_EMBED_COLOR", "0x367588"), 16)
 DISCORD_EMBED_COLOR_ERR =  int(__load_env("DISCORD_EMBED_COLOR_ERR", "0xE02B2B"), 16)
 DISCORD_EMBED_COLOR_DEBUG =  int(__load_env("DISCORD_EMBED_COLOR_DEBUG", "0xFFFFFF"), 16)
+DISCORD_EMBED_COLOR_STATUS =  int(__load_env("DISCORD_EMBED_COLOR_STATUS", "0x367588"), 16)
 
 # Updates
 UPDATE_URL_DOWNLOAD_SCRUTINS = __load_env(
@@ -57,10 +58,15 @@ UPDATE_HOUR = __load_env("UPDATE_HOUR", "08:00:00")  # Default update time
 UPDATE_AT_LAUNCH = __load_env("UPDATE_AT_LAUNCH", "TRUE").upper() in ("TRUE", "1", "T")  # Enable updates at launch
 UPDATE_PROGRESS_SECOND = int(__load_env("UPDATE_DOWNLOAD_PROGRESS_SECOND", "2")) # Download progress update in second, if 0 is disabled
 
+NOTIF_HOUR = __load_env("NOTIF_HOUR", "12:00:00")  # Default update time
+MIN_DATE_CURRENT_MOTION = datetime(2023, 1, 1).date()
+
 # Folders
 ACTEUR_FOLDER = Path(__load_env("ACTEUR_FOLDER", "data/acteur"))  # Path to "acteur" folder
 ORGANE_FOLDER = Path(__load_env("ORGANE_FOLDER", "data/organe"))  # Path to "organe" folder
 SCRUTINS_FOLDER = Path(__load_env("SCRUTINS_FOLDER", "data/scrutins"))  # Path to "scrutins" folder
+# Folder for persistent data
+DATABASE_FOLDER = Path(__load_env("DATABASE_FOLDER", "database"))
 
 # Logs
 LOG_PATH = __load_env("LOG_PATH", "discord.log")  # Path to the log file

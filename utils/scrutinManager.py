@@ -3,8 +3,9 @@
 # This file is part of MyDeputeFr project from https://github.com/remyCases/MyDeputeFr.
 from __future__ import annotations
 
+from datetime import date, datetime
 from enum import Enum
-from typing_extensions import Self
+from typing import Optional
 
 from attrs import define
 
@@ -24,7 +25,7 @@ class ResultBallot(Enum):
 class Scrutin:
     ref: str
     titre: str
-    dateScrutin: str
+    dateScrutin: date
     sort: str
     nombreVotants: str
     nonVotant: str
@@ -35,10 +36,10 @@ class Scrutin:
     groupes: dict
 
     @classmethod
-    def from_json(cls, data: dict) -> Self:
+    def from_json(cls, data: dict) -> Scrutin:
         ref: str = data["scrutin"]["numero"]
         titre: str = data["scrutin"]["titre"]
-        dateScrutin: str = data["scrutin"]["dateScrutin"]
+        dateScrutin: date = datetime.strptime(data["scrutin"]["dateScrutin"], "%Y-%m-%d").date()
         sort: str = data["scrutin"]["sort"]["code"]
         nombreVotants: str = data["scrutin"]["syntheseVote"]["nombreVotants"]
         nonVotant: str = data["scrutin"]["syntheseVote"]["decompte"]["nonVotants"]
@@ -114,14 +115,14 @@ class Scrutin:
         )
     
     @classmethod
-    def from_json_by_ref(cls, data: dict, code_ref: str) -> Self | None:
+    def from_json_by_ref(cls, data: dict, code_ref: str) -> Optional[Scrutin]:
         ref: str = data["scrutin"]["numero"]
         if ref != code_ref:
             return None
         return Scrutin.from_json(data)
 
 
-    def result(self, depute: Depute) -> ResultBallot | None:
+    def result(self, depute: Depute) -> Optional[ResultBallot]:
         for gp_ref, groupe in self.groupes.items():
             if depute.gp_ref != gp_ref:
                 continue
@@ -139,6 +140,7 @@ class Scrutin:
                 return ResultBallot.ABSTENTION
 
             return ResultBallot.ABSENT
+        return None
 
 
     def to_string(self) -> str:
@@ -150,7 +152,7 @@ class Scrutin:
                 f"Contre: {self.contre}\n" \
                 f"Abstentions: {self.abstention}"
 
-    def to_string_depute(self, depute: Depute) -> str | None:
+    def to_string_depute(self, depute: Depute) -> Optional[str]:
         if self.result(depute) == ResultBallot.ABSENT:
             res = "absent"
         elif self.result(depute) == ResultBallot.NONVOTANT:
@@ -167,5 +169,5 @@ class Scrutin:
         return f"{depute.to_string()[:-1]} a voté **{res}** lors scrutin {self.ref} {self.sort} du {self.dateScrutin} concernant {self.titre}"
 
 
-    def depute_vote(self, depute: Depute) -> ResultBallot:
+    def depute_vote(self, depute: Depute) -> Optional[ResultBallot]:
         return self.result(depute)

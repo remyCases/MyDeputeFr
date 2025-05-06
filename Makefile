@@ -5,18 +5,20 @@ ifeq ($(OS),Windows_NT)
   PIP=$(BIN)\pip
   PYTEST=$(BIN)\pytest
   MYPY=$(BIN)\mypy
+  VENV_PYTHON = $(BIN)\$(PYTHON)
 else
   VENV=venv
   BIN=$(VENV)/bin
   PIP=$(BIN)/pip
   PYTEST=$(BIN)/pytest
   MYPY=$(BIN)/mypy
+  VENV_PYTHON = $(BIN)/$(PYTHON)
 endif
 
 # install
 install_venv:
 	$(PYTHON) -m venv --clear $(VENV)
-	$(BIN)\$(PYTHON) -m pip install --upgrade pip
+	$(VENV_PYTHON) -m pip install --upgrade pip
 
 install: install_venv
 	$(PIP) install --upgrade -r ./requirements.txt

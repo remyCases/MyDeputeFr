@@ -7,7 +7,7 @@ from handlers.deputeHandler import stat_handler
 from utils.scrutinManager import ResultBallot
 
 
-def mock_depute(first_name="Nora", last_name="Lemoine", circo="1"):
+def mock_depute(first_name: str="Nora", last_name: str="Lemoine", circo: str="1") -> MagicMock:
     depute = MagicMock()
     depute.first_name = first_name
     depute.last_name = last_name
@@ -21,7 +21,7 @@ def mock_depute(first_name="Nora", last_name="Lemoine", circo="1"):
     return depute
 
 
-def make_mock_scrutin(result: ResultBallot):
+def make_mock_scrutin(result: ResultBallot) -> MagicMock:
     scrutin = MagicMock()
     scrutin.result.return_value = result
     scrutin.to_string_depute.return_value = f"Vote: {result.name}"
@@ -37,7 +37,10 @@ def make_mock_scrutin(result: ResultBallot):
 @patch('utils.deputeManager.Depute.from_json_by_name',
        side_effect=[mock_depute()])
 @patch('builtins.open', mock_open(read_data='{}'))
-def test_stat_handler_found(_mock_from_json_by_name, _mock_scrutin, _mock_listdir):
+def test_stat_handler_found(
+    _mock_from_json_by_name: MagicMock, 
+    _mock_scrutin: MagicMock, 
+    _mock_listdir: MagicMock) -> None:
     embeds = stat_handler("Lemoine", "Nora")
 
     assert isinstance(embeds, list)
@@ -46,33 +49,47 @@ def test_stat_handler_found(_mock_from_json_by_name, _mock_scrutin, _mock_listdi
     assert isinstance(embed, Embed)
     assert embed.title == ":bust_in_silhouette: Nora Lemoine"
     assert embed.fields[0].name == "Statistiques de vote"
+    assert embed.fields[0].value is not None
     assert ":green_circle: Pour" in embed.fields[0].value
     assert ":red_circle: Contre" in embed.fields[0].value
     assert ":white_circle: Abstention" in embed.fields[0].value
-    assert int(embed.color) == DISCORD_EMBED_COLOR_MSG
+    assert embed.colour is not None
+    assert int(embed.colour) == DISCORD_EMBED_COLOR_MSG
 
 
 @pytest.mark.parametrize("last_name", ["Perdu"])
 @patch('os.listdir', return_value=["depute.json"])
 @patch('utils.deputeManager.Depute.from_json_by_name', return_value=None)
 @patch('builtins.open', mock_open(read_data='{}'))
-def test_stat_handler_depute_not_found(_mock_from_json_by_name, _mock_listdir, last_name):
+def test_stat_handler_depute_not_found(
+    _mock_from_json_by_name: MagicMock, 
+    _mock_listdir: MagicMock,
+    last_name: str) -> None:
     embed = stat_handler(last_name)
 
+    assert isinstance(embed, Embed)
     assert embed.title == "Député non trouvé"
+    assert embed.description is not None
     assert f"Je n'ai pas trouvé le député {last_name}." in embed.description
-    assert int(embed.color) == DISCORD_EMBED_COLOR_ERR
+    assert embed.colour is not None
+    assert int(embed.colour) == DISCORD_EMBED_COLOR_ERR
 
 
 @pytest.mark.parametrize("last_name", ["Lemoine"])
 @patch('os.listdir', return_value=[])
 @patch('utils.deputeManager.Depute.from_json_by_name', return_value=None)
-def test_stat_handler_no_files(_mock_from_json_by_name, _mock_listdir, last_name):
+def test_stat_handler_no_files(
+    _mock_from_json_by_name: MagicMock, 
+    _mock_listdir: MagicMock, 
+    last_name: str) -> None:
     embed = stat_handler(last_name)
 
+    assert isinstance(embed, Embed)
     assert embed.title == "Député non trouvé"
+    assert embed.description is not None
     assert f"Je n'ai pas trouvé le député {last_name}." in embed.description
-    assert int(embed.color) == DISCORD_EMBED_COLOR_ERR
+    assert embed.colour is not None
+    assert int(embed.colour) == DISCORD_EMBED_COLOR_ERR
 
 
 @pytest.mark.parametrize("last_name", ["Lemoine"])
@@ -80,9 +97,16 @@ def test_stat_handler_no_files(_mock_from_json_by_name, _mock_listdir, last_name
 @patch('utils.scrutinManager.Scrutin.from_json', side_effect=[make_mock_scrutin(ResultBallot.NONVOTANT)])
 @patch('utils.deputeManager.Depute.from_json_by_name', side_effect=[mock_depute()])
 @patch('builtins.open', mock_open(read_data='not json'))
-def test_stat_handler_malformed_json(_mock_from_json_by_name, _mock_scrutin, _mock_listdir, last_name):
+def test_stat_handler_malformed_json(
+    _mock_from_json_by_name: MagicMock, 
+    _mock_scrutin: MagicMock, 
+    _mock_listdir: MagicMock, 
+    last_name: str) -> None:
     embed = stat_handler(last_name)
 
+    assert isinstance(embed, Embed)
     assert embed.title == "Député non trouvé"
+    assert embed.description is not None
     assert f"Je n'ai pas trouvé le député {last_name}." in embed.description
-    assert int(embed.color) == DISCORD_EMBED_COLOR_ERR
+    assert embed.colour is not None
+    assert int(embed.colour) == DISCORD_EMBED_COLOR_ERR

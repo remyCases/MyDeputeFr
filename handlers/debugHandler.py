@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from typing import Optional
+from typing import List, Optional
 
 import discord
 
@@ -15,13 +15,13 @@ from utils.scrutinManager import Scrutin
 from utils.utils import read_files_from_directory
 
 
-def debugd_handler(last_name: str, first_name: Optional[str] = None) -> list[discord.Embed]:
+def debugd_handler(last_name: str, first_name: Optional[str] = None) -> List[discord.Embed]:
     """
     Return an embed with debug info of a député by name.
 
     Parameters:
         last_name (str): The last_name of the député to search.
-        first_name (str | None): The optional first name of the député.
+        first_name (Optional[str]): The optional first name of the député.
     """
     deputes = [ depute for data in read_files_from_directory(ACTEUR_FOLDER)
                 if (depute := Depute.from_json_by_name(data, last_name, first_name)) ]
@@ -59,3 +59,21 @@ def debugs_handler(code_ref: str) -> discord.Embed:
             return embed
 
     return error_handler(description=f"Je n'ai pas trouvé le scrutin {code_ref}.")
+
+def debugn_handler(ref_notifs: List[str]) -> List[discord.Embed]:
+    """
+    Return an embed with debug info of a scrutin by code reference.
+
+    Parameters:
+        code_ref (str): The reference code of the scrutin.
+    """
+    embeds: List[discord.Embed] = []
+    for depute_id in ref_notifs:
+        for data in read_files_from_directory(ACTEUR_FOLDER):
+            if depute := Depute.from_json_by_ref(data, depute_id):
+                embeds.append(discord.Embed(
+                    title=depute_id,
+                    description=depute,
+                    color=DISCORD_EMBED_COLOR_DEBUG,
+                ))
+    return embeds

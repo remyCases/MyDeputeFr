@@ -7,17 +7,22 @@ import os
 import platform
 import time
 from pathlib import Path
-from typing import List
+from typing import Any, List, Optional
+from datetime import date, datetime
 
+import aiosqlite
+import aiofiles
 import discord
 from discord import Intents
 from discord.ext import commands
-from discord.ext.commands import Context
 from typing_extensions import Self
 
 from common.logger import logger
-from common.config import DISCORD_BOT_MODE, DISCORD_CMD_PREFIX, UPDATE_AT_LAUNCH, MODE
+from common.config import DATABASE_FOLDER, DISCORD_BOT_MODE, DISCORD_CMD_PREFIX, UPDATE_AT_LAUNCH, MODE
 from download.update import start_planning
+from utils.databaseManager import DatabaseManager
+from utils.notificationManager import notification_task
+from utils.types import ContextT
 
 
 class DiscordBot(commands.Bot):
@@ -35,20 +40,44 @@ class DiscordBot(commands.Bot):
             intents=intents,
             help_command=None,
         )
-        self.database = None
+        self.database: Optional[DatabaseManager] = None
+        self.last_date: Optional[date] = None
         self.bot_prefix: str = DISCORD_CMD_PREFIX
         self.mode: MODE = DISCORD_BOT_MODE
 
         # to handle blocking messages during updates
         self.update_lock: asyncio.Lock = asyncio.Lock()
-        self.is_updating: bool = False
+
+        # event to handle notifications after updates
+        self.update_completed_event: asyncio.Event = asyncio.Event()
+
+    async def init_file_date(self) -> None:
+        contents: str = "2023-01-01"
+        try:
+            async with aiofiles.open(DATABASE_FOLDER / "saved", mode="r", encoding="utf-8") as f:
+                contents = await f.read()
+        except FileNotFoundError:
+            async with aiofiles.open(DATABASE_FOLDER / "saved", mode="w", encoding="utf-8") as f:
+                await f.write(contents)
+
+        try:
+            self.last_date = datetime.strptime(contents, "%Y-%m-%d").date()
+        except ValueError as e:
+            raise e
+
+
+    async def init_sqlite_db(self) -> None:
+        async with aiosqlite.connect(DATABASE_FOLDER / "database.db") as db:
+            async with aiofiles.open(DATABASE_FOLDER / "schema.sql", encoding="utf-8") as file:
+                await db.executescript(await file.read())
+            await db.commit()
 
     async def load_cogs(self: Self) -> None:
         """
         The code in this function is executed whenever the bot will start.
         """
         for file in os.listdir(Path("cogs")):
-            if file.endswith(".py"):
+            if file.endswith(".py") and "__init__" not in file:
                 extension: str = file[:-3]
                 try:
                     await self.load_extension(f"cogs.{extension}")
@@ -70,7 +99,12 @@ class DiscordBot(commands.Bot):
             "Running on: %s %s (%s)", platform.system(), platform.release(), os.name
         )
         logger.info("-------------------")
+        await self.init_file_date()
+        await self.init_sqlite_db()
         await self.load_cogs()
+        self.database = DatabaseManager(
+            connection=await aiosqlite.connect(DATABASE_FOLDER / "database.db")
+        )
 
     async def on_ready(self: Self) -> None:
         """
@@ -81,7 +115,12 @@ class DiscordBot(commands.Bot):
         self.loop.create_task(
             start_planning(bot=self, upload_at_launch=UPDATE_AT_LAUNCH)
         )
-
+        self.loop.create_task(
+            notification_task(
+                event=self.update_completed_event,
+                database=self.database,
+                getter=self.get_user)
+        )
 
     async def on_message(self: Self, message: discord.Message) -> None:
         """
@@ -110,7 +149,7 @@ class DiscordBot(commands.Bot):
             message.id, message.author, message.channel, duration
         )
 
-    async def on_command_completion(self: Self, context: Context) -> None:
+    async def on_command_completion(self: Self, context: ContextT) -> None:
         """
         The code in this event is executed every time a normal command has been *successfully* executed.
 
@@ -131,7 +170,7 @@ class DiscordBot(commands.Bot):
                 executed_command, context.author, context.author.id
             )
 
-    async def on_command_error(self, context: Context, error) -> None:
+    async def on_command_error(self, context: ContextT, error: Any) -> None:
         """
         The code in this event is executed every time a normal valid command catches an error.
 

@@ -5,11 +5,11 @@
 import os
 import json
 from datetime import datetime, timedelta
-from os import PathLike
-from typing import Callable, Tuple, Generator
+from pathlib import Path
+from typing import Iterator, Tuple, Callable
 
-from discord.ext.commands import Context
 from common.logger import logger
+from utils.types import ContextT
 
 
 def compute_time_for_update(update_hour: str) -> Tuple[datetime, float]:
@@ -32,13 +32,33 @@ def compute_time_for_update(update_hour: str) -> Tuple[datetime, float]:
     return target_time, (target_time - now).total_seconds()
 
 
-def read_files_from_directory(directory: PathLike) -> Generator[dict, None, None]:
+def compute_time_for_notifications(update_hour: str) -> Tuple[datetime, float]:
+    """Return the seconds for the next notifications"""
+    try:
+        update_time: datetime = datetime.strptime(update_hour, "%H:%M:%S")
+    except ValueError as e:
+        raise e
+
+    now: datetime = datetime.now()
+    target_time: datetime = now.replace(
+        hour=update_time.hour,
+        minute=update_time.minute,
+        second=update_time.second,
+        microsecond=0
+    )
+    if now >= target_time:
+        return now, 0.0
+
+    return target_time, (target_time - now).total_seconds()
+
+
+def read_files_from_directory(directory: Path) -> Iterator[dict]:
     """
     Reads and yields the JSON data of each file in a given directory.
     Skips files that cannot be read or parsed.
 
     Parameters:
-        directory PathLike: The directory containing the files to be read.
+        directory (Path): The directory containing the files to be read.
 
     Yields:
         dict: The parsed JSON data from each file.
@@ -54,12 +74,12 @@ def read_files_from_directory(directory: PathLike) -> Generator[dict, None, None
             continue
 
 
-async def send_embeds(context: Context, handler : Callable):
+async def send_embeds(context: ContextT, handler : Callable) -> None:
     """
     Send a list of embeds to the context.
 
     Parameters:
-        context (Context): The context in which to send the embeds.
+        context (ContextT): The context in which to send the embeds.
         handler: A function that returns a list of embeds or an embed.
     """
     embeds_or_embed = handler()
