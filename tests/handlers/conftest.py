@@ -2,16 +2,15 @@
 # See LICENSE file for extended copyright information.
 # This file is part of MyDeputeFr project from https://github.com/remyCases/MyDeputeFr.
 
-import os
 import pathlib
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import pytest
 
-DATA_TEST = os.path.join(pathlib.Path(__file__).parent.resolve(), "..", "data", "2024-04-07")
-DATA_TEST_SCRUTINS= os.path.join(DATA_TEST, 'scrutins')
-DATA_TEST_ACTEUR = os.path.join(DATA_TEST, 'acteur')
-DATA_TEST_ORGANE = os.path.join(DATA_TEST, 'organe')
+DATA_TEST = pathlib.Path(__file__).parent.resolve() / ".." / "data" / "2024-04-07"
+DATA_TEST_SCRUTINS = DATA_TEST / 'scrutins'
+DATA_TEST_ACTEUR = DATA_TEST / 'acteur'
+DATA_TEST_ORGANE = DATA_TEST / 'organe'
 
 @pytest.fixture()
 def mock_folder_paths():

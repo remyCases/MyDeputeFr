@@ -2,7 +2,7 @@
 # See LICENSE file for extended copyright information.
 # This file is part of MyDeputeFr project from https://github.com/remyCases/MyDeputeFr.
 
-from config.config import DISCORD_EMBED_COLOR_ERR
+from common.config import DISCORD_EMBED_COLOR_ERR
 import discord
 
 def error_handler(title: str = "Erreur", description: str = "Une erreur inconnue est survenu") -> discord.Embed:
