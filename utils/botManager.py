@@ -15,8 +15,8 @@ from discord.ext import commands
 from discord.ext.commands import Context
 from typing_extensions import Self
 
-from logger.logger import logger
-from config.config import DISCORD_BOT_MODE, DISCORD_CMD_PREFIX, UPDATE_AT_LAUNCH, MODE
+from common.logger import logger
+from common.config import DISCORD_BOT_MODE, DISCORD_CMD_PREFIX, UPDATE_AT_LAUNCH, MODE
 from download.update import start_planning
 
 

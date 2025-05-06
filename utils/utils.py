@@ -9,7 +9,7 @@ from os import PathLike
 from typing import Callable, Tuple, Generator
 
 from discord.ext.commands import Context
-from logger.logger import logger
+from common.logger import logger
 
 
 def compute_time_for_update(update_hour: str) -> Tuple[datetime, float]:

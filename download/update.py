@@ -8,12 +8,12 @@ from pathlib import Path
 import tempfile
 from typing import TYPE_CHECKING
 
-from config.config import UPDATE_HOUR, UPDATE_URL_DOWNLOAD_SCRUTINS,    \
+from common.config import UPDATE_HOUR, UPDATE_URL_DOWNLOAD_SCRUTINS,    \
     UPDATE_URL_DOWNLOAD_ACTEUR_ORGANE, SCRUTINS_FOLDER, ACTEUR_FOLDER,  \
     ORGANE_FOLDER
 from download.core import download_file_async, moving_folder_async, unzip_file_async
 from utils.utils import compute_time_for_update
-from logger.logger import logger
+from common.logger import logger
 
 if TYPE_CHECKING:
     from utils.botManager import DiscordBot

@@ -8,7 +8,7 @@ Version: 6.3.0
 
 import discord
 
-from config.config import DISCORD_TOKEN
+from common.config import DISCORD_TOKEN
 from utils.botManager import DiscordBot
 
 intents = discord.Intents.default()

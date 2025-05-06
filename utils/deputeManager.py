@@ -10,8 +10,8 @@ from attrs import define
 from typing_extensions import Self
 from unidecode import unidecode
 
-from config.config import ORGANE_FOLDER
-from logger.logger import logger
+from common.config import ORGANE_FOLDER
+from common.logger import logger
 
 ELECTION = "\u00e9lections g\u00e9n\u00e9rales"
 

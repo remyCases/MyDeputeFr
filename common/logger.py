@@ -5,9 +5,10 @@
 import logging
 from types import ModuleType
 from typing import List
+from typing_extensions import Self
 
-import config.config
-from config.config import LOG_LEVEL, LOG_PATH, __HIDE_VAL_IN_LOG
+import common.config
+from common.config import LOG_LEVEL, LOG_PATH, __HIDE_VAL_IN_LOG
 
 class LoggingFormatter(logging.Formatter):
     black = "\x1b[30m"
@@ -27,18 +28,18 @@ class LoggingFormatter(logging.Formatter):
         logging.CRITICAL: red + bold,
     }
 
-    def format(self, record):
-        log_color = self.COLORS[record.levelno]
-        fmt = "(black){asctime}(reset) (levelcolor){levelname:<8}(reset) (green){name}(reset) {message}"
+    def format(self: Self, record: logging.LogRecord) -> str:
+        log_color: str = self.COLORS[record.levelno]
+        fmt: str = "(black){asctime}(reset) (levelcolor){levelname:<8}(reset) (green){name}(reset) {message}"
         fmt = fmt.replace("(black)", self.black + self.bold)
         fmt = fmt.replace("(reset)", self.reset)
         fmt = fmt.replace("(levelcolor)", log_color)
         fmt = fmt.replace("(green)", self.green + self.bold)
-        formatter = logging.Formatter(fmt, "%Y-%m-%d %H:%M:%S", style="{")
+        formatter: logging.Formatter = logging.Formatter(fmt, "%Y-%m-%d %H:%M:%S", style="{")
         return formatter.format(record)
 
 
-def show_config(module: ModuleType, _logger: logging.Logger, hide_list: List[str]):
+def show_config(module: ModuleType, _logger: logging.Logger, hide_list: List[str]) -> None:
     """Displays the attributes of a module, ignoring certain sensitive values."""
     for name, val in module.__dict__.items():
         if not callable(val) and not isinstance(val, ModuleType) and not name.startswith("_"):
@@ -70,4 +71,4 @@ def init_logger(log_name: str, file_name: str, log_level: str) -> logging.Logger
     return _logger
 
 logger: logging.Logger = init_logger("discord_bot", LOG_PATH, LOG_LEVEL)
-show_config(config.config, logger, __HIDE_VAL_IN_LOG)
+show_config(common.config, logger, __HIDE_VAL_IN_LOG)

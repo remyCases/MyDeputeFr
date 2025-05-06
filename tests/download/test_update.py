@@ -8,7 +8,7 @@ from unittest.mock import call, patch, MagicMock
 
 import pytest
 
-from config import config
+from common import config
 from download.update import start_planning, update, \
     update_async, update_scrutins, update_acteur_organe
 

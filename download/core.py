@@ -13,8 +13,8 @@ from pathlib import Path
 
 import aiohttp
 
-from config.config import UPDATE_PROGRESS_SECOND
-from logger.logger import logger
+from common.config import UPDATE_PROGRESS_SECOND
+from common.logger import logger
 
 
 def show_progress(
