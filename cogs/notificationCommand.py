@@ -36,9 +36,9 @@ class NotificationCommands(ProtectedCog):
             )
 
             if result:
-                description=f"**{context.author}** wants notifications for {depute.last_name} {depute.first_name}."
+                description=f"**{context.author}** veut suivre {depute.last_name} {depute.first_name}."
             else:
-                description=f"**{context.author}** has already notifications for {depute.last_name} {depute.first_name}."
+                description=f"**{context.author}** suit déjà {depute.last_name} {depute.first_name}."
 
             embed = discord.Embed(
                 description=description,
@@ -90,7 +90,7 @@ class NotificationCommands(ProtectedCog):
 
         if not ref_notifs:
             await context.send(embed=error_handler(
-                description=f"{context.author.name} n'est inscrit à aucun député."
+                description=f"**{context.author.name}** n'est inscrit à aucun député."
             ))
 
         last_scrutin_date = MIN_DATE_CURRENT_MOTION
@@ -106,7 +106,12 @@ class NotificationCommands(ProtectedCog):
         for ref in ref_notifs:
             embeds: List[discord.Embed] = vote_by_ref_handler(scrutins, ref)
             for embed in embeds:
-                await context.send(embed=embed)
+                await context.author.send(embed=embed)
+
+        await context.send(embed=discord.Embed(
+            description=f"Réponse envoyée à **{context.author.name}** par message privé.",
+            color=DISCORD_EMBED_COLOR_MSG,
+        ))
 
 
     @protected_command(

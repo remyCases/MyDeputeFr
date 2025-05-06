@@ -4,6 +4,7 @@
 
 import discord
 from discord.ext import commands
+from common.config import DISCORD_EMBED_COLOR_STATUS
 from utils.botManager import DiscordBot
 from utils.cogManager import ProtectedCog
 from utils.types import ContextT
@@ -20,13 +21,13 @@ class GeneralCommands(ProtectedCog):
             embed = discord.Embed(
                 title=":red_circle: Indisponible",
                 description="Le bot est en cours de mise à jour.",
-                color=0x367588,
+                color=DISCORD_EMBED_COLOR_STATUS,
             )
         else:
             embed = discord.Embed(
                 title=":green_circle: Disponible",
                 description="Le bot est disponible.",
-                color=0x367588,
+                color=DISCORD_EMBED_COLOR_STATUS,
             )
 
         await context.send(embed=embed)

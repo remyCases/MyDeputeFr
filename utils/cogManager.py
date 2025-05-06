@@ -7,10 +7,12 @@ from __future__ import annotations
 from functools import wraps
 from typing import Callable, Optional, cast
 
+import discord
 from discord.ext import commands
 from discord.ext.commands._types import Coro
 from typing_extensions import Self, Concatenate
 
+from common.config import DISCORD_EMBED_COLOR_STATUS
 from utils.botManager import DiscordBot
 from utils.types import P, T, ContextT
 
@@ -33,9 +35,10 @@ def not_updating() -> Callable[[PCommandCallback[ContextT, P, T]], PCommandCallb
         @wraps(func)
         async def wrapper(cog: ProtectedCog, context: ContextT, *args, **kwargs) -> Optional[T]:
             if cog.bot.update_lock.locked():
-                await context.send(
-                    "Le bot est en cours de mise à jour. Service temporairement indisponible."
-                )
+                await context.send(embed=discord.Embed(
+                    description="Le bot est en cours de mise à jour. Service temporairement indisponible.",
+                    color=DISCORD_EMBED_COLOR_STATUS
+                ))
                 return None
 
             return await func(cog, context, *args, **kwargs)
