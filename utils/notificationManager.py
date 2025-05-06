@@ -10,7 +10,7 @@ from typing import Callable, List, Union
 
 import discord
 
-from config.config import NOTIF_HOUR, SCRUTINS_FOLDER, MIN_DATE_CURRENT_MOTION
+from common.config import NOTIF_HOUR, SCRUTINS_FOLDER, MIN_DATE_CURRENT_MOTION
 from handlers.deputeHandler import vote_by_ref_handler
 from utils.databaseManager import DatabaseManager
 from utils.scrutinManager import Scrutin

@@ -6,7 +6,6 @@ import asyncio
 import os
 import platform
 import time
-from logging import Logger
 from pathlib import Path
 from typing import List, Union
 from datetime import datetime
@@ -19,20 +18,20 @@ from discord.ext import commands
 from discord.ext.commands import Context
 from typing_extensions import Self
 
-from config.config import DISCORD_BOT_MODE, DISCORD_CMD_PREFIX, UPDATE_AT_LAUNCH, DATABASE_FOLDER
+from common.logger import logger
+from common.config import DISCORD_BOT_MODE, DISCORD_CMD_PREFIX, UPDATE_AT_LAUNCH, MODE
 from download.update import start_planning
 from utils.databaseManager import DatabaseManager
 from utils.notificationManager import notification_task
-from utils.utils import MODE
 
 
 class DiscordBot(commands.Bot):
-    def __init__(self: Self, intents: Intents, logger: Logger) -> None:
+    def __init__(self: Self, intents: Intents) -> None:
         """
         This creates custom bot variables so that we can access these variables in cogs more easily.
 
         For example, The logger is available using the following code:
-        - self.logger # In this class
+        - logger # In this class
         - bot.logger # In this file
         - self.bot.logger # In cogs
         """
@@ -41,7 +40,6 @@ class DiscordBot(commands.Bot):
             intents=intents,
             help_command=None,
         )
-        self.logger: Logger = logger
         self.database: Union[DatabaseManager | None] = None
         self.last_date: Union[datetime | None] = None
         self.bot_prefix: str = DISCORD_CMD_PREFIX
@@ -83,24 +81,24 @@ class DiscordBot(commands.Bot):
                 extension: str = file[:-3]
                 try:
                     await self.load_extension(f"cogs.{extension}")
-                    self.logger.info(f"Loaded extension '{extension}'")
+                    logger.info("Loaded extension '%s'", extension)
                 except Exception as e:
                     exception = f"{type(e).__name__}: {e}"
-                    self.logger.error(
-                        f"Failed to load extension {extension}\n{exception}"
+                    logger.error(
+                        "Failed to load extension %s\n%s", extension, exception
                     )
 
     async def setup_hook(self: Self) -> None:
         """
         This will just be executed when the bot starts the first time.
         """
-        self.logger.info(f"Logged in as {self.user.name} in {self.mode} mode")
-        self.logger.info(f"discord.py API version: {discord.__version__}")
-        self.logger.info(f"Python version: {platform.python_version()}")
-        self.logger.info(
-            f"Running on: {platform.system()} {platform.release()} ({os.name})"
+        logger.info("Logged in as %s in %s mode", self.user.name, self.mode)
+        logger.info("discord.py API version: %s", discord.__version__)
+        logger.info("Python version: %s", platform.python_version())
+        logger.info(
+            "Running on: %s %s (%s)", platform.system(), platform.release(), os.name
         )
-        self.logger.info("-------------------")
+        logger.info("-------------------")
         await self.init_file_date()
         await self.init_sqlite_db()
         await self.load_cogs()
@@ -115,7 +113,7 @@ class DiscordBot(commands.Bot):
         Create a task to handle updates.
         """
         self.loop.create_task(
-            start_planning(log=self.logger, bot=self, upload_at_launch=UPDATE_AT_LAUNCH)
+            start_planning(bot=self, upload_at_launch=UPDATE_AT_LAUNCH)
         )
         self.loop.create_task(
             notification_task(
@@ -134,20 +132,22 @@ class DiscordBot(commands.Bot):
         """
 
         if message.author == self.user or message.author.bot:
-            self.logger.debug(
-                f"Ignored bot message (ID: {message.id}) from {message.author} in #{message.channel}"
+            logger.debug(
+                "Ignored bot message (ID: %s) from %s in #%s", 
+                message.id, message.author, message.channel
             )
             return
-        self.logger.info(
-            f"Received message (ID : {message.id}) from {message.author} in #{message.channel}: \"{message.content}\""
+        logger.info(
+            "Received message (ID : %s) from %s in #%s: \"%s\"", 
+            message.id, message.author, message.channel, message.content
         )
         start = time.perf_counter()
         await self.process_commands(message)
         end = time.perf_counter()
         duration = (end - start) * 1000
-        self.logger.debug(
-            f"Processed message (ID : {message.id}) from {message.author} in #{message.channel} "
-            f"in {duration:.2f} ms"
+        logger.debug(
+            "Processed message (ID : %s) from %s in #%s in %.2f ms",
+            message.id, message.author, message.channel, duration
         )
 
     async def on_command_completion(self: Self, context: Context) -> None:
@@ -160,13 +160,13 @@ class DiscordBot(commands.Bot):
         split: List[str] = full_command_name.split(" ")
         executed_command: str = str(split[0])
         if context.guild is not None:
-            self.logger.info(
+            logger.info(
                 "Executed %s command in %s (ID: %s) by %s (ID: %s)",
                 executed_command, context.guild.name, context.guild.id,
                 context.author, context.author.id
             )
         else:
-            self.logger.info(
+            logger.info(
                 "Executed %s command by %s (ID: %s) in DMs",
                 executed_command, context.author, context.author.id
             )
@@ -193,11 +193,12 @@ class DiscordBot(commands.Bot):
             )
             await context.send(embed=embed)
             if context.guild:
-                self.logger.warning(
-                    f"{context.author} (ID: {context.author.id}) tried to execute an owner only command in the guild {context.guild.name} (ID: {context.guild.id}), but the user is not an owner of the bot."
+                logger.warning(
+                    "%s (ID: %s) tried to execute an owner only command in the guild %s (ID: %s), but the user is not an owner of the bot.",
+                    context.author, context.author.id, context.guild.name, context.guild.id
                 )
             else:
-                self.logger.warning(
+                logger.warning(
                     "%s (ID: %s) tried to execute an owner only command in the bot's DMs, \
                         but the user is not an owner of the bot.",
                     context.author, context.author.id

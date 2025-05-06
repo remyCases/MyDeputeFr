@@ -2,7 +2,7 @@ from unittest.mock import patch, MagicMock, mock_open
 import pytest
 from discord import Embed
 
-from config.config import DISCORD_EMBED_COLOR_MSG, DISCORD_EMBED_COLOR_ERR
+from common.config import DISCORD_EMBED_COLOR_MSG, DISCORD_EMBED_COLOR_ERR
 from handlers.deputeHandler import vote_by_name_handler
 
 

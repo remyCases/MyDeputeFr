@@ -7,7 +7,7 @@ from typing import List, Optional
 
 import discord
 
-from config.config import SCRUTINS_FOLDER, ACTEUR_FOLDER, DISCORD_EMBED_COLOR_MSG
+from common.config import SCRUTINS_FOLDER, ACTEUR_FOLDER, DISCORD_EMBED_COLOR_MSG
 from handlers.commonHandler import error_handler
 from utils.deputeManager import Depute
 from utils.scrutinManager import Scrutin, ResultBallot

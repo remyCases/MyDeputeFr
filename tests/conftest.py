@@ -10,7 +10,8 @@ pytest_plugins = ['pytest_asyncio']
 
 @pytest.fixture
 def mock_log():
-    return MagicMock()
+    _mock_log = MagicMock()
+    return _mock_log
 
 @pytest.fixture
 def mock_bot():

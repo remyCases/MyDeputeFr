@@ -8,7 +8,7 @@ from typing import List, Optional
 
 import discord
 
-from config.config import ACTEUR_FOLDER, SCRUTINS_FOLDER, DISCORD_EMBED_COLOR_DEBUG
+from common.config import ACTEUR_FOLDER, SCRUTINS_FOLDER, DISCORD_EMBED_COLOR_DEBUG
 from handlers.commonHandler import error_handler
 from utils.deputeManager import Depute
 from utils.scrutinManager import Scrutin

@@ -10,11 +10,12 @@ from discord.ext import commands
 from discord.ext.commands import Context
 from typing_extensions import Self
 
+from common.config import MODE
 from handlers.debugHandler import debugd_handler, debugn_handler, debugs_handler
 from utils.cogManager import ProtectedCog
 from utils.commandManager import protected_command
 from utils.notificationManager import send_notifications
-from utils.utils import MODE, send_embeds
+from utils.utils import send_embeds
 
 
 def debug_command():

@@ -5,17 +5,11 @@
 import os
 import json
 from datetime import datetime, timedelta
-from enum import Enum
 from os import PathLike
 from typing import Iterator, Tuple, Callable
 
 from discord.ext.commands import Context
-
-
-class MODE(Enum):
-    """Define the mode of the bot"""
-    DEBUG = 0
-    RELEASE = 1
+from common.logger import logger
 
 
 def compute_time_for_update(update_hour: str) -> Tuple[datetime, float]:
@@ -64,18 +58,19 @@ def read_files_from_directory(directory: PathLike) -> Iterator[dict]:
     Skips files that cannot be read or parsed.
 
     Parameters:
-        directory (str | PathLike): The directory containing the files to be read.
+        directory PathLike: The directory containing the files to be read.
 
     Yields:
         dict: The parsed JSON data from each file.
     """
     for file in os.listdir(directory):
         file_path = directory / file
+        file_path = directory / file
         try:
             with open(file_path, "r", encoding="utf-8") as f:
                 yield json.load(f)
         except (OSError, json.JSONDecodeError) as e:
-            print(f"Error reading {file}: {e}") # TODO fix to print to log and stdout
+            logger.error("Error reading %s: %s", file, e)
             continue
 
 
