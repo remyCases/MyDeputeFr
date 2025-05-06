@@ -1,10 +1,10 @@
 from typing import Optional
-from discord.ext.commands import Context
-from typing_extensions import Self
 
 from handlers.deputeHandler import scr_handler, stat_handler, vote_by_name_handler, dep_handler, ciro_handler, nom_handler
+from utils.botManager import DiscordBot
 from utils.cogManager import ProtectedCog
 from utils.commandManager import protected_command
+from utils.types import ContextT
 from utils.utils import send_embeds
 
 
@@ -17,12 +17,12 @@ class DeputeCommand(ProtectedCog, name="depute"):
         name="nom",
         description="Affiche les informations d'un député en fonction de son nom.",
     )
-    async def nom(self: Self, context: Context, last_name: str, first_name: Optional[str] = None) -> None:
+    async def nom(self, context: ContextT, last_name: str, first_name: Optional[str] = None) -> None:
         """
         Display information about a député by name.
 
         Parameters:
-            context (Context): The context of the command.
+            context (ContextT): The context of the command.
             last_name (str): The last name of the député.
             first_name (Optional[str]): The optional first name of the député.
         """
@@ -32,12 +32,12 @@ class DeputeCommand(ProtectedCog, name="depute"):
         name="stat",
         description="Affiches les statistiques de votes pour un député.",
     )
-    async def stat(self: Self, context: Context, last_name: str, first_name: Optional[str] = None) -> None:
+    async def stat(self, context: ContextT, last_name: str, first_name: Optional[str] = None) -> None:
         """
         Display voting statistics for a député.
 
         Parameters:
-            context (Context): The context of the command.
+            context (ContextT): The context of the command.
             last_name (str): The last name of the député.
             first_name (Optional[str]): The optional first name of the député.
         """
@@ -47,12 +47,12 @@ class DeputeCommand(ProtectedCog, name="depute"):
         name="dep",
         description="Affiche la liste des députés dans un département.",
     )
-    async def dep(self: Self, context: Context, code_dep: str) -> None:
+    async def dep(self, context: ContextT, code_dep: str) -> None:
         """
         Display députés for a given department.
 
         Parameters:
-            context (Context): The context of the command.
+            context (ContextT): The context of the command.
             code_dep (str): Department code.
         """
         await send_embeds(context, lambda: dep_handler(code_dep))
@@ -61,12 +61,12 @@ class DeputeCommand(ProtectedCog, name="depute"):
         name="circo",
         description="Affiche le député associé à une circonscription.",
     )
-    async def circo(self: Self, context: Context, code_dep: str, code_circo: str) -> None:
+    async def circo(self, context: ContextT, code_dep: str, code_circo: str) -> None:
         """
         Display a député by department and circonscription.
 
         Parameters:
-            context (Context): The context of the command.
+            context (ContextT): The context of the command.
             code_dep (str): Department code.
             code_circo (str): Circonscription code.
         """
@@ -76,12 +76,12 @@ class DeputeCommand(ProtectedCog, name="depute"):
         name="scr",
         description="Affiche les informations d'un scrutin.",
     )
-    async def scr(self: Self, context: Context, code_ref: str) -> None:
+    async def scr(self, context: ContextT, code_ref: str) -> None:
         """
         Display info about a scrutin.
 
         Parameters:
-            context (Context): The context of the command.
+            context (ContextT): The context of the command.
             code_ref (str): Reference of the scrutin.
         """
         await send_embeds(context, lambda: scr_handler(code_ref))
@@ -90,19 +90,19 @@ class DeputeCommand(ProtectedCog, name="depute"):
         name="vote",
         description="Affiche les informations pour un vote d'un député pour un un scrutin.",
     )
-    async def vote(self: Self, context: Context, code_ref: str, last_name: str, first_name: Optional[str] = None) -> None:
+    async def vote(self, context: ContextT, code_ref: str, last_name: str, first_name: Optional[str] = None) -> None:
         """
         Display how a député voted in a scrutin.
 
         Parameters:
-            context (Context): The context of the command.
+            context (ContextT): The context of the command.
             code_ref (str): Reference of the scrutin.
             last_name (str): The last name of the député.
             first_name (Optional[str]): The optional first name of the député.
         """
         await send_embeds(context, lambda: vote_by_name_handler(code_ref, last_name, first_name))
 
-async def setup(bot) -> None:
+async def setup(bot: DiscordBot) -> None:
     """
     Setup function to add DeputeCommand cog to bot.
 

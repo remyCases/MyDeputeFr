@@ -3,7 +3,7 @@
 # This file is part of MyDeputeFr project from https://github.com/remyCases/MyDeputeFr.
 from __future__ import annotations
 
-from typing import List, Optional, Union
+from typing import Dict, List, Optional, Union
 
 import discord
 
@@ -36,7 +36,7 @@ def __depute_to_embed(depute: Depute) -> discord.Embed:
     ).set_thumbnail(url=depute.image)
 
 
-def __scrutin_to_embed(scrutin):
+def __scrutin_to_embed(scrutin: Scrutin) -> discord.Embed:
     title = f":ballot_box: Scrutin nº{scrutin.ref}"
     motion = f":calendar: **Date**: {scrutin.dateScrutin}\n" \
              f":page_with_curl: **Texte**: {scrutin.titre.capitalize()}\n" \
@@ -72,6 +72,7 @@ def __vote_emoticon(k: str) -> str:
         "nonvotant": ":exclamation:",
         "absent": ":orange_circle:",
     }.get(k, "")
+
 
 def nom_handler(last_name: str, first_name: Optional[str] = None) -> Union[List[discord.Embed], discord.Embed]:
     """
@@ -166,7 +167,7 @@ def vote_by_name_handler(code_ref: str, last_name: str, first_name: Optional[str
         depute for x in read_files_from_directory(ACTEUR_FOLDER) if (depute := Depute.from_json_by_name(x, last_name, first_name))
     ]
     scrutin : Optional[Scrutin] = next(
-        (scrutin for x in read_files_from_directory(SCRUTINS_FOLDER) if (scrutin := Scrutin.from_json_by_ref(x, code_ref))),
+        (scr for x in read_files_from_directory(SCRUTINS_FOLDER) if (scr := Scrutin.from_json_by_ref(x, code_ref))),
         None
     )
     if scrutin and len(deputes) > 0:
@@ -211,8 +212,8 @@ def stat_handler(last_name: str, first_name: Optional[str] = None) -> list[disco
         discord.Embed: Embed showing statistics or error.
     """
 
-    def update_stat(stat: dict[str, int], scrutin: Scrutin, depute: Depute):
-        result = scrutin.result(depute)
+    def update_stat(stat: Dict[str, int], scrutin: Scrutin, depute: Depute) -> None:
+        result: Optional[ResultBallot] = scrutin.result(depute)
         if result == ResultBallot.ABSENT:
             stat["absent"] += 1
         elif result == ResultBallot.NONVOTANT:
@@ -223,7 +224,6 @@ def stat_handler(last_name: str, first_name: Optional[str] = None) -> list[disco
             stat["contre"] += 1
         elif result == ResultBallot.ABSTENTION:
             stat["abstention"] += 1
-
 
     deputes = [
         depute
@@ -298,7 +298,9 @@ def scr_handler(code_ref: str) -> discord.Embed:
         description=f"Je n'ai pas trouvé le scrutin {code_ref}."
     )
 
+
 def vote_by_ref_handler(scrutins: List[Scrutin], ref: str) -> List[discord.Embed]:
+    embeds: List[discord.Embed] = []
     for data in read_files_from_directory(ACTEUR_FOLDER):
         if depute := Depute.from_json_by_ref(data, ref):
 
@@ -310,7 +312,6 @@ def vote_by_ref_handler(scrutins: List[Scrutin], ref: str) -> List[discord.Embed
 
             usable_len: int = MAX_SIZE_EMBED - len(header_vote)
             vote: str = ""
-            embeds: List[discord.Embed] = []
             for scrutin in scrutins:
                 position = scrutin.depute_vote(depute)
                 next_vote = f":bar_chart: **Scrutin nº{scrutin.ref}** : "\
@@ -334,4 +335,5 @@ def vote_by_ref_handler(scrutins: List[Scrutin], ref: str) -> List[discord.Embed
                         color=DISCORD_EMBED_COLOR_MSG,
                     ).set_thumbnail(url=depute.image)
                 )
-            return embeds
+            break
+    return embeds

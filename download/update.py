@@ -6,7 +6,7 @@ from __future__ import annotations
 import asyncio
 from pathlib import Path
 import tempfile
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from common.config import UPDATE_HOUR, UPDATE_URL_DOWNLOAD_SCRUTINS,    \
     UPDATE_URL_DOWNLOAD_ACTEUR_ORGANE, SCRUTINS_FOLDER, ACTEUR_FOLDER,  \
@@ -133,7 +133,7 @@ async def update(bot: DiscordBot, is_update_acteur_organe: bool = True) -> None:
             # Reset the event for next cycle
             bot.update_completed_event.clear()
 
-async def start_planning(bot: DiscordBot, upload_at_launch: bool, *, max_iterations=None) -> None:
+async def start_planning(bot: DiscordBot, upload_at_launch: bool, *, max_iterations: Optional[int] = None) -> None:
     """
     Start update scheduler to update data every UPDATE_HOUR.
 

@@ -3,29 +3,14 @@
 # This file is part of MyDeputeFr project from https://github.com/remyCases/MyDeputeFr.
 
 from pathlib import Path
-from typing import Collection, Dict, Iterator, List, Union
+from typing import Iterator
 from unittest.mock import MagicMock, mock_open, patch
 import json
 import pytest
 
 from utils.deputeManager import Depute
+from utils.types import JSON_DEPUTE, JSON_SCRUTIN
 
-
-JSON_DEPUTE = Dict[
-    str, Dict[str, Union[
-            Dict[str, str],
-            Dict[str, Dict[str, str]],
-            Dict[str, List[object]]
-            ]]]
-
-JSON_SCRUTIN = Dict[
-    str, Dict[str, Union[
-            str,
-            Dict[str, str],
-            Dict[str, Dict[str, str]],
-            Dict[str, Collection[str]],
-            Dict[str, Dict[str, Dict[str, List[Dict[str, Collection[str]]]]]]
-            ]]]
 
 sample_gp_data = {
     "organe": {

@@ -7,9 +7,9 @@ from typing import Optional
 from unittest.mock import MagicMock
 import pytest
 
-from tests.utils.conftest import JSON_SCRUTIN
 from utils.deputeManager import Depute
 from utils.scrutinManager import Scrutin, ResultBallot
+from utils.types import JSON_SCRUTIN
 
 
 def test_from_json(

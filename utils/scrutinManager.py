@@ -122,7 +122,7 @@ class Scrutin:
         return Scrutin.from_json(data)
 
 
-    def result(self, depute: Depute) -> ResultBallot:
+    def result(self, depute: Depute) -> Optional[ResultBallot]:
         for gp_ref, groupe in self.groupes.items():
             if depute.gp_ref != gp_ref:
                 continue
@@ -140,6 +140,7 @@ class Scrutin:
                 return ResultBallot.ABSTENTION
 
             return ResultBallot.ABSENT
+        return None
 
 
     def to_string(self) -> str:
@@ -168,5 +169,5 @@ class Scrutin:
         return f"{depute.to_string()[:-1]} a voté **{res}** lors scrutin {self.ref} {self.sort} du {self.dateScrutin} concernant {self.titre}"
 
 
-    def depute_vote(self, depute: Depute) -> ResultBallot:
+    def depute_vote(self, depute: Depute) -> Optional[ResultBallot]:
         return self.result(depute)

@@ -6,8 +6,9 @@ import json
 from typing import Optional
 from unittest.mock import MagicMock, call, mock_open, patch
 
-from tests.utils.conftest import JSON_DEPUTE, sample_gp_data
+from tests.utils.conftest import sample_gp_data
 from utils.deputeManager import Depute
+from utils.types import JSON_DEPUTE
 
 
 @patch("utils.deputeManager.logger")

@@ -4,18 +4,17 @@
 
 from __future__ import annotations
 
-from typing import Any, Callable, ClassVar, TYPE_CHECKING, Union
+from typing import Any, Callable, ClassVar, Union
 
 from discord import app_commands
-from discord.ext.commands import Context, core, _types
-from discord.ext.commands.hybrid import HybridCommand, CogT, P, T
+from discord.ext.commands import core
+from discord.ext.commands.hybrid import HybridCommand
 from discord.utils import MISSING
 from typing_extensions import Self
 
-from utils.cogManager import not_updating
+from utils.types import P, T, CogT, ContextT
+from utils.cogManager import not_updating, PCommandCallback
 
-if TYPE_CHECKING:
-    from discord.ext.commands.hybrid import CommandCallback
 
 class ProtectedCommand(HybridCommand[CogT, P, T]):
     """A class that is a protected during updates version of hybrid commands."""
@@ -23,7 +22,7 @@ class ProtectedCommand(HybridCommand[CogT, P, T]):
 
     def __init__(
         self: Self,
-        func: CommandCallback[CogT, Context[Any], P, T],
+        func: PCommandCallback[ContextT, P, T],
         /,
         *,
         name: Union[str, app_commands.locale_str] = MISSING,
@@ -40,7 +39,7 @@ def protected_command(
     *,
     with_app_command: bool = True,
     **attrs: Any,
-) -> Callable[[CommandCallback[CogT, _types.ContextT, P, T]], ProtectedCommand[CogT, P, T]]:
+) -> Callable[[PCommandCallback[ContextT, P, T]], ProtectedCommand[CogT, P, T]]:
     """
     A decorator that transforms a function into a :class:`.ProtectedCommand`.
 
@@ -61,7 +60,7 @@ def protected_command(
         If the function is not a coroutine or is already a command.
     """
 
-    def decorator(func: CommandCallback[CogT, _types.ContextT, P, T]) -> ProtectedCommand[CogT, P, T]:
+    def decorator(func: PCommandCallback[ContextT, P, T]) -> ProtectedCommand[CogT, P, T]:
         if isinstance(func, core.Command):
             raise TypeError("Callback is already a command.")
         return ProtectedCommand(func,

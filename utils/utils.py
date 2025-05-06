@@ -8,8 +8,8 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Iterator, Tuple, Callable
 
-from discord.ext.commands import Context
 from common.logger import logger
+from utils.types import ContextT
 
 
 def compute_time_for_update(update_hour: str) -> Tuple[datetime, float]:
@@ -74,12 +74,12 @@ def read_files_from_directory(directory: Path) -> Iterator[dict]:
             continue
 
 
-async def send_embeds(context: Context, handler : Callable) -> None:
+async def send_embeds(context: ContextT, handler : Callable) -> None:
     """
     Send a list of embeds to the context.
 
     Parameters:
-        context (Context): The context in which to send the embeds.
+        context (ContextT): The context in which to send the embeds.
         handler: A function that returns a list of embeds or an embed.
     """
     embeds_or_embed = handler()

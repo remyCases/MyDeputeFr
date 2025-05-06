@@ -4,15 +4,16 @@
 
 from typing import List, Optional
 import discord
-from discord.ext.commands import Context
 
 from common.config import ACTEUR_FOLDER, DISCORD_EMBED_COLOR_MSG, SCRUTINS_FOLDER, MIN_DATE_CURRENT_MOTION
 from handlers.commonHandler import error_handler
 from handlers.deputeHandler import vote_by_ref_handler
+from utils.botManager import DiscordBot
 from utils.cogManager import ProtectedCog
 from utils.commandManager import protected_command
 from utils.deputeManager import Depute
 from utils.scrutinManager import Scrutin
+from utils.types import ContextT
 from utils.utils import read_files_from_directory
 
 
@@ -21,7 +22,7 @@ class NotificationCommands(ProtectedCog):
         name="sub",
         description="TODO"
     )
-    async def sub(self, context: Context, last_name: str, first_name: Optional[str] = None) -> None:
+    async def sub(self, context: ContextT, last_name: str, first_name: Optional[str] = None) -> None:
 
         deputes: List[Depute] = [
             depute
@@ -50,7 +51,7 @@ class NotificationCommands(ProtectedCog):
         name="unsub",
         description="TODO"
     )
-    async def unsub(self, context: Context, last_name: Optional[str] = None, first_name: Optional[str] = None) -> None:
+    async def unsub(self, context: ContextT, last_name: Optional[str] = None, first_name: Optional[str] = None) -> None:
 
         if last_name:
             deputes: List[Depute] = [
@@ -81,7 +82,7 @@ class NotificationCommands(ProtectedCog):
         name="rcv",
         description="TODO"
     )
-    async def rcv(self, context: Context) -> None:
+    async def rcv(self, context: ContextT) -> None:
 
         ref_notifs: List[str] = await self.bot.database.get_notifications(
             context.author.id
@@ -112,7 +113,7 @@ class NotificationCommands(ProtectedCog):
         name="last",
         description="TODO"
     )
-    async def last(self, context: Context) -> None:
+    async def last(self, context: ContextT) -> None:
 
         last_scrutin_date = MIN_DATE_CURRENT_MOTION
         for data in read_files_from_directory(SCRUTINS_FOLDER):
@@ -126,5 +127,5 @@ class NotificationCommands(ProtectedCog):
         ))
 
 
-async def setup(bot) -> None:
+async def setup(bot: DiscordBot) -> None:
     await bot.add_cog(NotificationCommands(bot))

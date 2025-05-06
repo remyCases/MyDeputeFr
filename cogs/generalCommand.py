@@ -4,14 +4,16 @@
 
 import discord
 from discord.ext import commands
+from utils.botManager import DiscordBot
 from utils.cogManager import ProtectedCog
+from utils.types import ContextT
 
 class GeneralCommands(ProtectedCog):
     @commands.hybrid_command(
         name="status",
         description="Affiche le statut du bot."
     )
-    async def status(self, context) -> None:
+    async def status(self, context: ContextT) -> None:
         """Basic command to check if the bot is updating or available"""
 
         if self.bot.update_lock.locked():
@@ -29,5 +31,5 @@ class GeneralCommands(ProtectedCog):
 
         await context.send(embed=embed)
 
-async def setup(bot) -> None:
+async def setup(bot: DiscordBot) -> None:
     await bot.add_cog(GeneralCommands(bot))

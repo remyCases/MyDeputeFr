@@ -7,18 +7,19 @@ from typing import Optional
 
 import discord
 from discord.ext import commands
-from discord.ext.commands import Context
-from typing_extensions import Self
+from discord.ext.commands._types import Check
 
 from common.config import MODE
 from handlers.debugHandler import debugd_handler, debugn_handler, debugs_handler
+from utils.botManager import DiscordBot
 from utils.cogManager import ProtectedCog
 from utils.commandManager import protected_command
 from utils.notificationManager import send_notifications
+from utils.types import ContextT
 from utils.utils import send_embeds
 
 
-def debug_command():
+def debug_command() -> Check[ContextT]:
     """
     Decorator to allow command only in DEBUG mode.
 
@@ -26,7 +27,7 @@ def debug_command():
         Callable: The command decorator to apply.
     """
 
-    async def predicate(ctx: Context):
+    async def predicate(ctx: ContextT) -> bool:
         if ctx.bot.mode != MODE.DEBUG:
             await ctx.send("Commande non disponible en mode release.")
             return False
@@ -45,7 +46,7 @@ class DebugCommand(ProtectedCog, name="debug"):
         description="Debug command.",
     )
     @debug_command()
-    async def debugd(self: Self, context: Context, last_name: str, first_name: Optional[str] = None) -> None:
+    async def debugd(self, context: ContextT, last_name: str, first_name: Optional[str] = None) -> None:
         """
         Show debug info for a député by name.
 
@@ -60,12 +61,12 @@ class DebugCommand(ProtectedCog, name="debug"):
         description="Debug command.",
     )
     @debug_command()
-    async def debugs(self : Self, context: Context, code_ref: str) -> None:
+    async def debugs(self, context: ContextT, code_ref: str) -> None:
         """
         Show debug info for a scrutin by code reference.
 
         Parameters:
-            context (Context): The context of the command.
+            context (ContextT): The context of the command.
             code_ref (str): The reference code of the scrutin.
         """
         await send_embeds(context, lambda: debugs_handler(code_ref))
@@ -74,7 +75,7 @@ class DebugCommand(ProtectedCog, name="debug"):
         description="Debug command.",
     )
     @debug_command()
-    async def debugn(self : Self, context: Context, user: discord.User) -> None:
+    async def debugn(self, context: ContextT, user: discord.User) -> None:
         """
         TODO
         """
@@ -92,13 +93,13 @@ class DebugCommand(ProtectedCog, name="debug"):
         description="Debug command.",
     )
     @debug_command()
-    async def simn(self : Self, __context: Context) -> None:
+    async def simn(self, __context: ContextT) -> None:
         """
         TODO
         """
         await send_notifications(self.bot.database, self.bot.get_user)
 
-async def setup(bot) -> None:
+async def setup(bot: DiscordBot) -> None:
     """
     Setup function to add DebugCommand cog to bot.
 

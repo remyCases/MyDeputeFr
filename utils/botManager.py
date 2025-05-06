@@ -7,7 +7,7 @@ import os
 import platform
 import time
 from pathlib import Path
-from typing import List, Optional
+from typing import Any, List, Optional
 from datetime import date, datetime
 
 import aiosqlite
@@ -15,7 +15,6 @@ import aiofiles
 import discord
 from discord import Intents
 from discord.ext import commands
-from discord.ext.commands import Context
 from typing_extensions import Self
 
 from common.logger import logger
@@ -23,6 +22,7 @@ from common.config import DATABASE_FOLDER, DISCORD_BOT_MODE, DISCORD_CMD_PREFIX,
 from download.update import start_planning
 from utils.databaseManager import DatabaseManager
 from utils.notificationManager import notification_task
+from utils.types import ContextT
 
 
 class DiscordBot(commands.Bot):
@@ -77,7 +77,7 @@ class DiscordBot(commands.Bot):
         The code in this function is executed whenever the bot will start.
         """
         for file in os.listdir(Path("cogs")):
-            if file.endswith(".py"):
+            if file.endswith(".py") and "__init__" not in file:
                 extension: str = file[:-3]
                 try:
                     await self.load_extension(f"cogs.{extension}")
@@ -149,7 +149,7 @@ class DiscordBot(commands.Bot):
             message.id, message.author, message.channel, duration
         )
 
-    async def on_command_completion(self: Self, context: Context) -> None:
+    async def on_command_completion(self: Self, context: ContextT) -> None:
         """
         The code in this event is executed every time a normal command has been *successfully* executed.
 
@@ -170,7 +170,7 @@ class DiscordBot(commands.Bot):
                 executed_command, context.author, context.author.id
             )
 
-    async def on_command_error(self, context: Context, error) -> None:
+    async def on_command_error(self, context: ContextT, error: Any) -> None:
         """
         The code in this event is executed every time a normal valid command catches an error.
 
