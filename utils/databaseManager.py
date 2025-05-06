@@ -2,7 +2,7 @@
 # See LICENSE file for extended copyright information.
 # This file is part of MyDeputeFr project from https://github.com/remyCases/MyDeputeFr.
 
-from typing import List, Union
+from typing import List, Optional
 import aiosqlite
 
 
@@ -40,7 +40,7 @@ class DatabaseManager:
             return True
 
 
-    async def remove_notifications(self, user_id: int, depute_ref: Union[str, None] = None) -> None:
+    async def remove_notifications(self, user_id: int, depute_ref: Optional[str] = None) -> None:
         """
         This function will remove all notifications stored for a user.
 

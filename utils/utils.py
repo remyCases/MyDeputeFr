@@ -5,7 +5,7 @@
 import os
 import json
 from datetime import datetime, timedelta
-from os import PathLike
+from pathlib import Path
 from typing import Iterator, Tuple, Callable
 
 from discord.ext.commands import Context
@@ -52,13 +52,13 @@ def compute_time_for_notifications(update_hour: str) -> Tuple[datetime, float]:
     return target_time, (target_time - now).total_seconds()
 
 
-def read_files_from_directory(directory: PathLike) -> Iterator[dict]:
+def read_files_from_directory(directory: Path) -> Iterator[dict]:
     """
     Reads and yields the JSON data of each file in a given directory.
     Skips files that cannot be read or parsed.
 
     Parameters:
-        directory PathLike: The directory containing the files to be read.
+        directory (Path): The directory containing the files to be read.
 
     Yields:
         dict: The parsed JSON data from each file.
@@ -74,7 +74,7 @@ def read_files_from_directory(directory: PathLike) -> Iterator[dict]:
             continue
 
 
-async def send_embeds(context: Context, handler : Callable):
+async def send_embeds(context: Context, handler : Callable) -> None:
     """
     Send a list of embeds to the context.
 

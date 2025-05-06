@@ -51,7 +51,7 @@ class DebugCommand(ProtectedCog, name="debug"):
 
         Parameters:
             last_name (str): The last name of the député.
-            first_name (str | None): The optional first name of the député.
+            first_name (Optional[str]): The optional first name of the député.
         """
         await send_embeds(context, lambda: debugd_handler(last_name, first_name))
 

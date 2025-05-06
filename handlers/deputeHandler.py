@@ -3,7 +3,7 @@
 # This file is part of MyDeputeFr project from https://github.com/remyCases/MyDeputeFr.
 from __future__ import annotations
 
-from typing import List, Optional
+from typing import List, Optional, Union
 
 import discord
 
@@ -73,7 +73,7 @@ def __vote_emoticon(k: str) -> str:
         "absent": ":orange_circle:",
     }.get(k, "")
 
-def nom_handler(last_name: str, first_name: Optional[str] = None) -> list[discord.Embed] | discord.Embed:
+def nom_handler(last_name: str, first_name: Optional[str] = None) -> Union[List[discord.Embed], discord.Embed]:
     """
     Retrieve embeds with député information based on the given name.
 
@@ -150,7 +150,7 @@ def dep_handler(code_dep: str) -> discord.Embed:
     return error_handler(title="Député non trouvé", description=f"Je n'ai pas trouvé de députés dans le département {code_dep}.")
 
 
-def vote_by_name_handler(code_ref: str, last_name: str, first_name: Optional[str] = None) -> list[discord.Embed] | discord.Embed:
+def vote_by_name_handler(code_ref: str, last_name: str, first_name: Optional[str] = None) -> Union[List[discord.Embed], discord.Embed]:
     """
     Return embed showing how a député voted in a scrutin.
 
@@ -165,7 +165,7 @@ def vote_by_name_handler(code_ref: str, last_name: str, first_name: Optional[str
     deputes = [
         depute for x in read_files_from_directory(ACTEUR_FOLDER) if (depute := Depute.from_json_by_name(x, last_name, first_name))
     ]
-    scrutin : Scrutin | None = next(
+    scrutin : Optional[Scrutin] = next(
         (scrutin for x in read_files_from_directory(SCRUTINS_FOLDER) if (scrutin := Scrutin.from_json_by_ref(x, code_ref))),
         None
     )

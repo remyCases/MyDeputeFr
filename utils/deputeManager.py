@@ -5,9 +5,9 @@ from __future__ import annotations
 
 import json
 import re
+from typing import Optional
 
 from attrs import define
-from typing_extensions import Self
 from unidecode import unidecode
 
 from common.config import ORGANE_FOLDER
@@ -29,7 +29,7 @@ class Depute:
     gp: str
 
     @classmethod
-    def from_json(cls, data: dict) -> Self:
+    def from_json(cls, data: dict) -> Depute:
         """Convert json data into a Depute dataclass"""
 
         ref: str = data["acteur"]["uid"]["#text"]
@@ -37,7 +37,7 @@ class Depute:
         first_name: str = data["acteur"]["etatCivil"]["ident"]["prenom"]
         mandats: dict = data["acteur"]["mandats"]["mandat"]
 
-        elec: str = ""
+        elec: Optional[str] = ""
         gp_ref: str = ""
         gp: str = ""
         dep: str = ""
@@ -64,7 +64,7 @@ class Depute:
             organe_file = ORGANE_FOLDER / f"{gp_ref}.json"
             try:
                 with open(organe_file, "r", encoding="utf-8") as g:
-                    gp: str = json.load(g)["organe"]["libelle"]
+                    gp = json.load(g)["organe"]["libelle"]
             except OSError:
                 logger.warning("Cannot find the organe file %s for %s", gp_ref, ref)
                 gp = ""
@@ -85,7 +85,7 @@ class Depute:
 
 
     @classmethod
-    def from_json_by_ref(cls, data: dict, ref: str) -> Self | None:
+    def from_json_by_ref(cls, data: dict, ref: str) -> Optional[Depute]:
         data_ref: str = data["acteur"]["uid"]["#text"]
         if data_ref == ref:
             return Depute.from_json(data)
@@ -93,7 +93,7 @@ class Depute:
 
 
     @classmethod
-    def from_json_by_name(cls, data: dict, last_name: str, first_name: str | None = None) -> Self | None:
+    def from_json_by_name(cls, data: dict, last_name: str, first_name: Optional[str] = None) -> Optional[Depute]:
         """Return a Depute dataclass if input json matches the given name"""
         def normalize_name(name: str) -> str:
             return re.sub(r'[^a-z]', '', unidecode(name).lower())
@@ -105,7 +105,7 @@ class Depute:
         return None
 
     @classmethod
-    def from_json_by_dep(cls, data: dict, code_dep: str) -> Self | None:
+    def from_json_by_dep(cls, data: dict, code_dep: str) -> Optional[Depute]:
         """Return a Depute dataclass if input json matches the given administrative division"""
 
         mandats: dict = data["acteur"]["mandats"]["mandat"]
@@ -124,7 +124,7 @@ class Depute:
         return Depute.from_json(data)
 
     @classmethod
-    def from_json_by_circo(cls, data: dict, code_dep: str, code_circo: str) -> Self | None:
+    def from_json_by_circo(cls, data: dict, code_dep: str, code_circo: str) -> Optional[Depute]:
         """Return a Depute dataclass if input json matches the given admin and sub-admin division"""
 
         mandats: dict = data["acteur"]["mandats"]["mandat"]

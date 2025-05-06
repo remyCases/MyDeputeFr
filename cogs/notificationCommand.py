@@ -6,7 +6,7 @@ from typing import List, Optional
 import discord
 from discord.ext.commands import Context
 
-from config.config import ACTEUR_FOLDER, DISCORD_EMBED_COLOR_MSG, SCRUTINS_FOLDER, MIN_DATE_CURRENT_MOTION
+from common.config import ACTEUR_FOLDER, DISCORD_EMBED_COLOR_MSG, SCRUTINS_FOLDER, MIN_DATE_CURRENT_MOTION
 from handlers.commonHandler import error_handler
 from handlers.deputeHandler import vote_by_ref_handler
 from utils.cogManager import ProtectedCog

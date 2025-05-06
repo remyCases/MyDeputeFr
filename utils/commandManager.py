@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Callable, ClassVar, TYPE_CHECKING
+from typing import Any, Callable, ClassVar, TYPE_CHECKING, Union
 
 from discord import app_commands
 from discord.ext.commands import Context, core, _types
@@ -26,8 +26,8 @@ class ProtectedCommand(HybridCommand[CogT, P, T]):
         func: CommandCallback[CogT, Context[Any], P, T],
         /,
         *,
-        name: str | app_commands.locale_str = MISSING,
-        description: str | app_commands.locale_str = MISSING,
+        name: Union[str, app_commands.locale_str] = MISSING,
+        description: Union[str, app_commands.locale_str] = MISSING,
         **kwargs: Any,
     ) -> None:
         super().__init__(not_updating()(func),
@@ -36,7 +36,7 @@ class ProtectedCommand(HybridCommand[CogT, P, T]):
                          **kwargs)
 
 def protected_command(
-    name: str | app_commands.locale_str = MISSING,
+    name: Union[str, app_commands.locale_str] = MISSING,
     *,
     with_app_command: bool = True,
     **attrs: Any,

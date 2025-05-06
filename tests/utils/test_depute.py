@@ -3,7 +3,7 @@
 # This file is part of MyDeputeFr project from https://github.com/remyCases/MyDeputeFr.
 
 import json
-from typing import Union
+from typing import Optional
 from unittest.mock import MagicMock, call, mock_open, patch
 
 from tests.utils.conftest import JSON_DEPUTE, sample_gp_data
@@ -116,7 +116,7 @@ def test_from_json_by_name_match(
     sample_valid_depute_json: JSON_DEPUTE,
     mock_bot: MagicMock) -> None:
 
-    depute: Union[Depute, None] = Depute.from_json_by_name(sample_valid_depute_json, "Dupont")
+    depute: Optional[Depute] = Depute.from_json_by_name(sample_valid_depute_json, "Dupont")
 
     # Assertions result
     assert depute is not None
@@ -139,7 +139,7 @@ def test_from_json_by_name_no_match(
     sample_valid_depute_json: JSON_DEPUTE,
     mock_bot: MagicMock) -> None:
 
-    depute: Union[Depute, None] = Depute.from_json_by_name(sample_valid_depute_json, "Durand")
+    depute: Optional[Depute] = Depute.from_json_by_name(sample_valid_depute_json, "Durand")
 
     # Assertions result
     assert depute is None
@@ -162,7 +162,7 @@ def test_from_json_by_dep_match(
     sample_valid_depute_json: JSON_DEPUTE,
     mock_bot: MagicMock) -> None:
 
-    depute: Union[Depute, None] = Depute.from_json_by_dep(sample_valid_depute_json, "75")
+    depute: Optional[Depute] = Depute.from_json_by_dep(sample_valid_depute_json, "75")
 
     # Assertions result
     assert depute is not None
@@ -185,7 +185,7 @@ def test_from_json_by_dep_no_match(
     sample_valid_depute_json: JSON_DEPUTE,
     mock_bot: MagicMock) -> None:
 
-    depute: Union[Depute, None] = Depute.from_json_by_dep(sample_valid_depute_json, "13")
+    depute: Optional[Depute] = Depute.from_json_by_dep(sample_valid_depute_json, "13")
 
     # Assertions result
     assert depute is None
@@ -208,7 +208,7 @@ def test_from_json_by_circo_match(
     sample_valid_depute_json: JSON_DEPUTE,
     mock_bot: MagicMock) -> None:
 
-    depute: Union[Depute, None] = Depute.from_json_by_circo(sample_valid_depute_json, "75", "1")
+    depute: Optional[Depute] = Depute.from_json_by_circo(sample_valid_depute_json, "75", "1")
 
     # Assertions result
     assert depute is not None
@@ -232,7 +232,7 @@ def test_from_json_by_circo_no_match(
     sample_valid_depute_json: JSON_DEPUTE,
     mock_bot: MagicMock) -> None:
 
-    depute: Union[Depute, None] = Depute.from_json_by_circo(sample_valid_depute_json, "75", "3")
+    depute: Optional[Depute] = Depute.from_json_by_circo(sample_valid_depute_json, "75", "3")
 
     # Assertions result
     assert depute is None

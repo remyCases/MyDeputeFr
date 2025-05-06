@@ -6,6 +6,7 @@ from __future__ import annotations
 import asyncio
 import os
 import shutil
+from typing import Optional
 import zipfile
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
@@ -19,10 +20,10 @@ from common.logger import logger
 
 def show_progress(
         p_url: str,
-        p_content_length: int | None,
+        p_content_length: Optional[int],
         p_chunk_size: int,
         p_nb_chunks_wrote: int,
-        p_last_show: datetime | None) -> datetime:
+        p_last_show: Optional[datetime]) -> datetime:
     """Show progress of download in log"""
     now = datetime.now()
     update_second = UPDATE_PROGRESS_SECOND
@@ -55,7 +56,7 @@ async def download_file_async(url: str, file_path: Path) -> None:
                 content_length = response.headers.get("content-length", 0)
                 chunk_size: int = 4096
                 nb_chunks_wrote: int = 0
-                last_show: datetime | None = None
+                last_show: Optional[datetime] = None
                 with open(file_path, "wb") as f:
                     logger.info("Downloading %s to %s", url, file_path)
                     while True:

@@ -3,7 +3,7 @@
 # This file is part of MyDeputeFr project from https://github.com/remyCases/MyDeputeFr.
 
 from datetime import datetime
-from typing import Union
+from typing import Optional
 from unittest.mock import MagicMock
 import pytest
 
@@ -43,7 +43,7 @@ def test_from_json_by_ref_match(
     sample_scrutin_data_json: JSON_SCRUTIN,
     mock_bot: MagicMock) -> None:
 
-    scrutin: Union[Scrutin, None] = Scrutin.from_json_by_ref(sample_scrutin_data_json, "1001")
+    scrutin: Optional[Scrutin] = Scrutin.from_json_by_ref(sample_scrutin_data_json, "1001")
 
     # Assertions result
     assert scrutin is not None
@@ -65,7 +65,7 @@ def test_from_json_by_ref_no_match(
     sample_scrutin_data_json: JSON_SCRUTIN,
     mock_bot: MagicMock) -> None:
 
-    scrutin: Union[Scrutin, None] = Scrutin.from_json_by_ref(sample_scrutin_data_json, "9999")
+    scrutin: Optional[Scrutin] = Scrutin.from_json_by_ref(sample_scrutin_data_json, "9999")
 
     # Assertions result
     assert scrutin is None
@@ -88,7 +88,7 @@ def test_result_pour(
     mock_bot: MagicMock) -> None:
 
     scrutin: Scrutin = Scrutin.from_json(sample_scrutin_data_json)
-    result: Union[ResultBallot, None] = scrutin.result(sample_valid_depute_dataclass)
+    result: Optional[ResultBallot] = scrutin.result(sample_valid_depute_dataclass)
 
     # Assertions result
     assert result == ResultBallot.POUR
@@ -129,7 +129,7 @@ def test_result_variants(
         gp="Groupe Test"
     )
     scrutin: Scrutin = Scrutin.from_json(sample_scrutin_data_json)
-    result: Union[ResultBallot, None] = scrutin.result(depute)
+    result: Optional[ResultBallot] = scrutin.result(depute)
 
     # Assertions result
     assert result == expected_result
@@ -176,7 +176,7 @@ def test_to_string_depute_pour(
     mock_bot: MagicMock) -> None:
 
     scrutin: Scrutin = Scrutin.from_json(sample_scrutin_data_json)
-    msg: Union[str, None] = scrutin.to_string_depute(sample_valid_depute_dataclass)
+    msg: Optional[str] = scrutin.to_string_depute(sample_valid_depute_dataclass)
 
     # Assertions result
     assert msg is not None
@@ -210,7 +210,7 @@ def test_to_string_depute_absent(
         gp_ref="GP001",
         gp="Groupe Test"
     )
-    msg: Union[str, None] = scrutin.to_string_depute(depute)
+    msg: Optional[str] = scrutin.to_string_depute(depute)
 
     # Assertions result
     assert msg is not None

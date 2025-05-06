@@ -5,11 +5,11 @@
 
 
 import asyncio
-from logging import Logger
-from typing import Callable, List, Union
+from typing import Callable, List, Optional
 
 import discord
 
+from common.logger import logger
 from common.config import NOTIF_HOUR, SCRUTINS_FOLDER, MIN_DATE_CURRENT_MOTION
 from handlers.deputeHandler import vote_by_ref_handler
 from utils.databaseManager import DatabaseManager
@@ -17,7 +17,7 @@ from utils.scrutinManager import Scrutin
 from utils.utils import compute_time_for_notifications, read_files_from_directory
 
 
-async def notification_task(logger: Logger, event: asyncio.Event, database: DatabaseManager, getter: Callable[[int], Union[discord.User, None]]):
+async def notification_task(event: asyncio.Event, database: DatabaseManager, getter: Callable[[int], Optional[discord.User]]) -> None:
     """Task that sends notifications to users after updates, later in the day."""
     logger.info("Starting notification task")
 
@@ -41,7 +41,7 @@ async def notification_task(logger: Logger, event: asyncio.Event, database: Data
         await send_notifications(database, getter)
 
 
-async def send_notifications(database: DatabaseManager, getter: Callable[[int], Union[discord.User, None]]):
+async def send_notifications(database: DatabaseManager, getter: Callable[[int], Optional[discord.User]]) -> None:
 
     last_scrutin_date = MIN_DATE_CURRENT_MOTION
     scrutins: List[Scrutin] = []
@@ -60,7 +60,10 @@ async def send_notifications(database: DatabaseManager, getter: Callable[[int], 
 
     for user_id in user_ids:
         user = getter(int(user_id))
-        ref_notifs: List[str] = await database.get_notifications(user)
+        if user is None:
+            continue
+
+        ref_notifs: List[str] = await database.get_notifications(user.id)
         if not ref_notifs: # TODO check, abnormal behaviour
             continue
 

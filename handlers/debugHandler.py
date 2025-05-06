@@ -21,7 +21,7 @@ def debugd_handler(last_name: str, first_name: Optional[str] = None) -> List[dis
 
     Parameters:
         last_name (str): The last_name of the député to search.
-        first_name (str | None): The optional first name of the député.
+        first_name (Optional[str]): The optional first name of the député.
     """
     deputes = [ depute for data in read_files_from_directory(ACTEUR_FOLDER)
                 if (depute := Depute.from_json_by_name(data, last_name, first_name)) ]

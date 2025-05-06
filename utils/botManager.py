@@ -7,8 +7,8 @@ import os
 import platform
 import time
 from pathlib import Path
-from typing import List, Union
-from datetime import datetime
+from typing import List, Optional
+from datetime import date, datetime
 
 import aiosqlite
 import aiofiles
@@ -19,7 +19,7 @@ from discord.ext.commands import Context
 from typing_extensions import Self
 
 from common.logger import logger
-from common.config import DISCORD_BOT_MODE, DISCORD_CMD_PREFIX, UPDATE_AT_LAUNCH, MODE
+from common.config import DATABASE_FOLDER, DISCORD_BOT_MODE, DISCORD_CMD_PREFIX, UPDATE_AT_LAUNCH, MODE
 from download.update import start_planning
 from utils.databaseManager import DatabaseManager
 from utils.notificationManager import notification_task
@@ -40,8 +40,8 @@ class DiscordBot(commands.Bot):
             intents=intents,
             help_command=None,
         )
-        self.database: Union[DatabaseManager | None] = None
-        self.last_date: Union[datetime | None] = None
+        self.database: Optional[DatabaseManager] = None
+        self.last_date: Optional[date] = None
         self.bot_prefix: str = DISCORD_CMD_PREFIX
         self.mode: MODE = DISCORD_BOT_MODE
 
@@ -117,7 +117,6 @@ class DiscordBot(commands.Bot):
         )
         self.loop.create_task(
             notification_task(
-                logger=self.logger,
                 event=self.update_completed_event,
                 database=self.database,
                 getter=self.get_user)
