@@ -3,15 +3,20 @@
 # This file is part of MyDeputeFr project from https://github.com/remyCases/MyDeputeFr.
 
 import os
+from pathlib import Path
+from unittest.mock import call, patch
 import zipfile
 
 import pytest
 
-from download.core import unzip_file_async
+from download.core import unzip_file, unzip_file_async
 
 
-@pytest.mark.asyncio
-async def test_unzip_file_success(valid_zip, mock_log):
+def test_unzip_file_success(
+        valid_zip,
+        mock_log,
+        mock_bot):
+
     """Test a correct unzipping"""
     # Get the zip file path and destination folder
     zip_path, dst_folder = valid_zip
@@ -20,11 +25,7 @@ async def test_unzip_file_success(valid_zip, mock_log):
     os.makedirs(dst_folder, exist_ok=True)
 
     # Call the unzip function
-    await unzip_file_async(mock_log, zip_path, dst_folder)
-
-    # Check logs
-    mock_log.info.assert_any_call("Unzipping file %s to %s", zip_path, dst_folder)
-    mock_log.info.assert_any_call("Unzip done")
+    unzip_file(mock_log, Path(zip_path), Path(dst_folder))
 
     # Check if the file has been extracted
     extracted_file_path = os.path.join(dst_folder, "test.txt")
@@ -35,8 +36,118 @@ async def test_unzip_file_success(valid_zip, mock_log):
         content = f.read()
     assert content == "This is a test file.", "Content of extracted file is incorrect"
 
+    # Assertions logs
+    mock_log.info.assert_has_calls([
+        call("Unzipping file %s to %s", Path(zip_path), Path(dst_folder)),
+        call("Unzip done"),
+    ])
+    mock_log.error.assert_not_called()
+    mock_log.warning.assert_not_called()
+
+    # Assertions bot
+    mock_bot.assert_not_called()
+    mock_bot.update_lock.__aenter__.assert_not_called()
+    mock_bot.update_lock.__aexit__.assert_not_called()
+
+
+def test_unzip_file_bad_zip(
+        tmpdir,
+        mock_log,
+        mock_bot):
+
+    """Test unzipping an invalid file"""
+    # Create an invalid zip file (not actually a zip file)
+    bad_zip_path = tmpdir.join("bad.zip")
+    with open(bad_zip_path, "w", encoding="utf-8") as f:
+        f.write("This is not a zip file.")
+
+        # Call the unzip function and expect it to raise an exception
+        with pytest.raises(zipfile.BadZipFile):
+            unzip_file(mock_log, Path(bad_zip_path), Path(tmpdir))
+
+    # Assertions logs
+    mock_log.info.assert_has_calls([
+        call("Unzipping file %s to %s", Path(bad_zip_path), Path(tmpdir)),
+    ])
+    mock_log.error.assert_has_calls([
+        call("%s is not a correct Zip File.", Path(bad_zip_path))
+    ])
+    mock_log.warning.assert_not_called()
+
+    # Assertions bot
+    mock_bot.assert_not_called()
+    mock_bot.update_lock.__aenter__.assert_not_called()
+    mock_bot.update_lock.__aexit__.assert_not_called()
+
+
+def test_unzip_file_file_not_found(
+    tmpdir,
+    mock_log,
+    mock_bot):
+
+    """Test unzipping an non existent file"""
+    # Simulate a FileNotFoundError by providing a non-existent file path
+    non_existent_zip_path = tmpdir.join("non_existent.zip")
+
+    # Call the unzip function and expect it to raise an exception
+    with pytest.raises(FileNotFoundError):
+        unzip_file(mock_log, Path(non_existent_zip_path), Path(tmpdir))
+
+    # Assertions logs
+    mock_log.info.assert_has_calls([
+        call("Unzipping file %s to %s", Path(non_existent_zip_path), Path(tmpdir)),
+    ])
+    mock_log.error.assert_has_calls([
+        call("%s does not exist.", Path(non_existent_zip_path))
+    ])
+    mock_log.warning.assert_not_called()
+
+    # Assertions bot
+    mock_bot.assert_not_called()
+    mock_bot.update_lock.__aenter__.assert_not_called()
+    mock_bot.update_lock.__aexit__.assert_not_called()
+
 @pytest.mark.asyncio
-async def test_unzip_file_bad_zip(tmpdir, mock_log):
+@patch("download.core.unzip_file", return_value=None)
+async def test_unzip_file_async_success(
+    mock_unzip_file,
+    valid_zip,
+    mock_log,
+    mock_bot):
+
+    """Test a correct unzipping"""
+    # Get the zip file path and destination folder
+    zip_path, dst_folder = valid_zip
+
+    # Call the unzip function
+    result = await unzip_file_async(mock_log, Path(zip_path), Path(dst_folder))
+
+    # Assertions return
+    assert result is None, "unzip should success"
+
+    # Assertions subfunctions
+    mock_unzip_file.assert_has_calls([
+        call(mock_log, Path(zip_path), Path(dst_folder))
+    ])
+
+    # Assertions logs
+    mock_log.info.assert_not_called()
+    mock_log.error.assert_not_called()
+    mock_log.warning.assert_not_called()
+
+    # Assertions bot
+    mock_bot.assert_not_called()
+    mock_bot.update_lock.__aenter__.assert_not_called()
+    mock_bot.update_lock.__aexit__.assert_not_called()
+
+@pytest.mark.asyncio
+@patch("download.core.unzip_file", side_effect=Exception("Unzip failure"))
+async def test_unzip_file_async_failure(
+    mock_unzip_file,
+    tmpdir,
+    mock_log,
+    mock_bot):
+
     """Test unzipping an invalid file"""
     # Create an invalid zip file (not actually a zip file)
     bad_zip_path = tmpdir.join("bad.zip")
@@ -44,15 +155,20 @@ async def test_unzip_file_bad_zip(tmpdir, mock_log):
         f.write("This is not a zip file.")
 
     # Call the unzip function and expect it to raise an exception
-    with pytest.raises(zipfile.BadZipFile):
-        await unzip_file_async(mock_log, str(bad_zip_path), str(tmpdir))
+    with pytest.raises(Exception):
+        await unzip_file_async(mock_log, Path(bad_zip_path), Path(tmpdir))
 
-@pytest.mark.asyncio
-async def test_unzip_file_file_not_found(tmpdir, mock_log):
-    """Test unzipping an non existent file"""
-    # Simulate a FileNotFoundError by providing a non-existent file path
-    non_existent_zip_path = tmpdir.join("non_existent.zip")
+    # Assertions subfunctions
+    mock_unzip_file.assert_has_calls([
+        call(mock_log, Path(bad_zip_path), Path(tmpdir))
+    ])
 
-    # Call the unzip function and expect it to raise an exception
-    with pytest.raises(FileNotFoundError):
-        await unzip_file_async(mock_log, str(non_existent_zip_path), str(tmpdir))
+    # Assertions logs
+    mock_log.info.assert_not_called()
+    mock_log.error.assert_not_called()
+    mock_log.warning.assert_not_called()
+
+    # Assertions bot
+    mock_bot.assert_not_called()
+    mock_bot.update_lock.__aenter__.assert_not_called()
+    mock_bot.update_lock.__aexit__.assert_not_called()
