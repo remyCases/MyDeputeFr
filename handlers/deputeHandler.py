@@ -8,6 +8,15 @@ from typing import Optional
 import discord
 
 from common.config import SCRUTINS_FOLDER, ACTEUR_FOLDER, DISCORD_EMBED_COLOR_MSG
+from common.strings import DEPUTE_EMBED_DESCRIPTION, DEPUTE_EMBED_TITLE, SCRUTIN_EMBED_TITLE, SCRUTIN_EMBED_DESCRIPTION, \
+    VOTE_EMOJI_POUR, VOTE_EMOJI_CONTRE, VOTE_EMOJI_ABSTENTION, VOTE_EMOJI_NON_VOTANT, \
+    DEPUTE_NOT_FOUND_TITLE, DEPARTEMENT_DEPUTE_DESCRIPTION, DEPARTEMENT_TITLE, CIRCO_DEPUTE_NOT_FOUND_DESCRIPTION, \
+    DEPARTEMENT_DEPUTE_NOT_FOUND_DESCRIPTION, SCRUTIN_NOT_FOUND_TITLE, DEPUTE_NOT_FOUND_DESCRIPTION, \
+    SCRUTIN_NOT_FOUND_DESCRIPTION, SCRUTIN_DEPUTE_NOT_FOUND_DESCRIPTION, SCRUTIN_DEPUTE_NOT_FOUND_TITLE, \
+    SCRUTIN_PARTICIPATION_NAME, SCRUTIN_RESULTS_NAME, SCRUTIN_RESULTS_VALUE, SCRUTIN_PARTICIPATION_VALUE, \
+    STATISTICS_FIELD_NAME, VOTE_TITLE, VOTE_DESCRIPTION, VOTE_EMOJI_ABSENT, VOTE_VALUE_POUR, VOTE_VALUE_CONTRE, \
+    VOTE_VALUE_ABSTENTION, VOTE_VALUE_NON_VOTANT, VOTE_VALUE_ABSENT, SCRUTIN_EMOJI_ADOPTE, SCRUTIN_EMOJI_REJETE, \
+    SCRUTIN_VALUE_ADOPTE
 from handlers.commonHandler import error_handler
 from utils.deputeManager import Depute
 from utils.scrutinManager import Scrutin, ResultBallot
@@ -25,24 +34,31 @@ def __depute_to_embed(depute: Depute) -> discord.Embed:
         discord.Embed: A Discord Embed formatted with the deputy's details.
     """
     return discord.Embed(
-        title=f":bust_in_silhouette: {depute.first_name} {depute.last_name}",
-        description=(
-            f":round_pushpin: **Circoncription** : {depute.dep}-{depute.circo} ({depute.dep_name})\n"
-            f":classical_building: **Groupe** : {depute.gp}"
+        title=DEPUTE_EMBED_TITLE.format(
+            first_name=depute.first_name,
+            last_name=depute.last_name
+        ),
+        description=DEPUTE_EMBED_DESCRIPTION.format(
+            dep=depute.dep,
+            circo=depute.circo,
+            dep_name=depute.dep_name,
+            gp=depute.gp
         ),
         color=DISCORD_EMBED_COLOR_MSG,
         url=depute.url
     ).set_thumbnail(url=depute.image)
 
 
-def __scrutin_to_embed(scrutin):
-    title = f":ballot_box: Scrutin nº{scrutin.ref}"
-    motion = f":calendar: **Date**: {scrutin.dateScrutin}\n" \
-             f":page_with_curl: **Texte**: {scrutin.titre.capitalize()}\n" \
-             f":bar_chart: **Résultat**: {scrutin.sort.capitalize()} {':green_circle:' if scrutin.sort == 'adopté' else ':red_circle:'}\n "
+def __scrutin_to_embed(scrutin: Scrutin):
     embed = discord.Embed(
-        title=title,
-        description=motion,
+        title=SCRUTIN_EMBED_TITLE.format(ref=scrutin.ref),
+        description=SCRUTIN_EMBED_DESCRIPTION.format(
+            date_scrutin=scrutin.dateScrutin,
+            text=scrutin.titre,
+            result=f"{SCRUTIN_EMOJI_ADOPTE} {SCRUTIN_EMOJI_ADOPTE}"
+            if scrutin.sort == 'adopté'
+            else f"{SCRUTIN_VALUE_ADOPTE} {SCRUTIN_EMOJI_REJETE}"
+        ),
         color=DISCORD_EMBED_COLOR_MSG,
     )
     return embed
@@ -53,7 +69,7 @@ def __vote_emoticon(k: str) -> str:
     Returns an emoji corresponding to a given key.
 
     Parameters:
-        k (str): The key representing the type of vote or status.
+        k (str): The key representing the type of vote.
             Valid keys include (case insentive):
                 - "pour"
                 - "contre"
@@ -65,12 +81,38 @@ def __vote_emoticon(k: str) -> str:
     """
     k = k.lower()
     return {
-        "pour": ":green_circle:",
-        "contre": ":red_circle:",
-        "abstention": ":white_circle:",
-        "nonvotant": ":exclamation:",
-        "absent": ":orange_circle:",
+        "pour": VOTE_EMOJI_POUR,
+        "contre": VOTE_EMOJI_CONTRE,
+        "abstention": VOTE_EMOJI_ABSTENTION,
+        "nonvotant": VOTE_EMOJI_NON_VOTANT,
+        "absent": VOTE_EMOJI_ABSENT,
     }.get(k, "")
+
+
+def __vote_value(k: str) -> str:
+    """
+    Returns an vote value corresponding to a given key.
+
+    Parameters:
+        k (str): The key representing the type of vote.
+            Valid keys include (case insentive):
+                - "pour"
+                - "contre"
+                - "abstention"
+                - "nonvotant"
+                - "absent"
+    Returns:
+        str: The corresponding value as a string, or an empty string if the key is not recognized.
+    """
+    k = k.lower()
+    return {
+        "pour": VOTE_VALUE_POUR,
+        "contre": VOTE_VALUE_CONTRE,
+        "abstention": VOTE_VALUE_ABSTENTION,
+        "nonvotant": VOTE_VALUE_NON_VOTANT,
+        "absent": VOTE_VALUE_ABSENT,
+    }.get(k, "")
+
 
 def nom_handler(last_name: str, first_name: Optional[str] = None) -> list[discord.Embed] | discord.Embed:
     """
@@ -93,8 +135,8 @@ def nom_handler(last_name: str, first_name: Optional[str] = None) -> list[discor
         ]
     full_name = f"{first_name + ' ' if first_name else ''}{last_name}"
     return error_handler(
-        title="Député non trouvé",
-        description=f"Je n'ai pas trouvé le député {full_name}."
+        title=DEPUTE_NOT_FOUND_TITLE,
+        description=DEPUTE_NOT_FOUND_DESCRIPTION.format(full_name=full_name)
     )
 
 
@@ -114,8 +156,8 @@ def ciro_handler(code_dep: str, code_circo: str) -> discord.Embed:
             return __depute_to_embed(depute)
 
     return error_handler(
-        title="Député non trouvé",
-        description=f"Je n'ai pas trouvé de député dans le {code_dep}-{code_circo}."
+        title=DEPUTE_NOT_FOUND_TITLE,
+        description=CIRCO_DEPUTE_NOT_FOUND_DESCRIPTION.format(code_dep=code_dep, code_circo=code_circo)
     )
 
 
@@ -135,18 +177,27 @@ def dep_handler(code_dep: str) -> discord.Embed:
     if len(deputes) > 0:
         deputes.sort(key=lambda x: int(x.circo))
         description = '\n'.join([
-            f":bust_in_silhouette: [{depute.first_name} {depute.last_name}]({depute.url}) — "
-            f":round_pushpin: **Circoncription** : {depute.dep}-{depute.circo} | "
-            f":classical_building: **Groupe** : {depute.gp}"
+            DEPARTEMENT_DEPUTE_DESCRIPTION.format(
+                first_name=depute.first_name,
+                last_name=depute.last_name,
+                url=depute.url,
+                dep=depute.dep,
+                circo=depute.circo,
+                dep_name=depute.dep_name,
+                gp=depute.gp
+            )
             for depute in deputes
         ])
         return discord.Embed(
-            title=f":pushpin: Département {deputes[0].dep} ({deputes[0].dep_name})",
+            title=DEPARTEMENT_TITLE.format(
+                dep=deputes[0].dep,
+                dep_name=deputes[0].dep_name
+            ),
             description=description,
             color=DISCORD_EMBED_COLOR_MSG,
         )
 
-    return error_handler(title="Député non trouvé", description=f"Je n'ai pas trouvé de députés dans le département {code_dep}.")
+    return error_handler(title=DEPUTE_NOT_FOUND_TITLE, description=DEPARTEMENT_DEPUTE_NOT_FOUND_DESCRIPTION.format(code_dep=code_dep))
 
 
 def vote_handler(code_ref: str, last_name: str, first_name: Optional[str] = None) -> list[discord.Embed] | discord.Embed:
@@ -175,12 +226,18 @@ def vote_handler(code_ref: str, last_name: str, first_name: Optional[str] = None
             embed = __scrutin_to_embed(scrutin)
             embed.title += f" - {depute.first_name} {depute.last_name}"
             position = scrutin.depute_vote(depute)
-            vote = f":bust_in_silhouette: **Député** : {depute.first_name} {depute.last_name}\n" \
-                   f":round_pushpin: **Circoncription** : {depute.dep}-{depute.circo} ({depute.dep_name})\n"\
-                   f":classical_building: **Groupe** : {depute.gp}\n" \
-                   f":bar_chart: **Position** : {scrutin.depute_vote(depute).name.capitalize()} {__vote_emoticon(position.name)} \n"
+            vote = VOTE_DESCRIPTION.format(
+                depute_first_name = depute.first_name,
+                depute_last_name=depute.last_name,
+                depute_dep=depute.dep,
+                depute_dep_name=depute.dep_name,
+                depute_circo=depute.circo,
+                depute_gp=depute.gp,
+                position_name=__vote_value(scrutin.depute_vote(depute).name),
+                position_name_emoji=__vote_emoticon(position.name),
+            )
             embed.add_field(
-                name="Vote",
+                name=VOTE_TITLE,
                 value=vote,
             )
             embed.set_thumbnail(url=depute.image)
@@ -188,12 +245,21 @@ def vote_handler(code_ref: str, last_name: str, first_name: Optional[str] = None
         return embeds
     elif scrutin:
         full_name = f"{first_name + ' ' if first_name else ''}{last_name}"
-        return error_handler(title="Député non trouvé", description=f"Je n'ai pas trouvé le député {full_name}.")
+        return error_handler(
+            title=DEPUTE_NOT_FOUND_TITLE,
+            description=DEPUTE_NOT_FOUND_DESCRIPTION.format(full_name=full_name)
+        )
     elif len(deputes) > 0:
-        return error_handler(title="Scrutin non trouvé", description=f"Je n'ai pas trouvé le scrutin {code_ref}.")
+        return error_handler(
+            title=SCRUTIN_NOT_FOUND_TITLE,
+            description=SCRUTIN_NOT_FOUND_DESCRIPTION.format(code_ref=code_ref)
+        )
     else:
         full_name = f"{first_name + ' ' if first_name else ''}{last_name}"
-        return error_handler(title="Député et scrutin non trouvé", description=f"Je n'ai trouvé ni le député {full_name}, ni le scrutin {code_ref}.")
+        return error_handler(
+            title=SCRUTIN_DEPUTE_NOT_FOUND_TITLE,
+            description=SCRUTIN_DEPUTE_NOT_FOUND_DESCRIPTION.format(code_ref=code_ref, full_name=full_name)
+        )
 
 
 
@@ -244,9 +310,9 @@ def stat_handler(last_name: str, first_name: Optional[str] = None) -> list[disco
         embeds = []
         for depute in deputes:
             embed = __depute_to_embed(depute)
-            stat_lines = "\n".join(f"{__vote_emoticon(key) + ' ' if __vote_emoticon(key) else ''}{key.capitalize()} : {value}" for key, value in stats[depute.ref].items())
+            stat_lines = "\n".join(f"{__vote_emoticon(key)} {__vote_value(key)} : {value}" for key, value in stats[depute.ref].items())
             embed.add_field(
-                name="Statistiques de vote",
+                name=STATISTICS_FIELD_NAME,
                 value=
                 f"{stat_lines}"
             )
@@ -257,8 +323,8 @@ def stat_handler(last_name: str, first_name: Optional[str] = None) -> list[disco
 
     full_name = f"{first_name + ' ' if first_name else ''}{last_name}"
     return error_handler(
-        title="Député non trouvé",
-        description=f"Je n'ai pas trouvé le député {full_name}."
+        title=DEPUTE_NOT_FOUND_TITLE,
+        description=DEPUTE_NOT_FOUND_DESCRIPTION.format(full_name=full_name)
     )
 
 
@@ -276,24 +342,26 @@ def scr_handler(code_ref: str) -> discord.Embed:
         if scrutin := Scrutin.from_json_by_ref(data, code_ref):
             embed = __scrutin_to_embed(scrutin)
             embed.add_field(
-                name="Participations",
-                value=
-                f":ballot_box: Nombre de votants: {scrutin.nombreVotants}\n"
-                f":exclamation: Non votants: {scrutin.nonVotant}\n"
-                f":no_entry_sign: Non votants volontaires: {scrutin.nonVotantsVolontaire}",
+                name=SCRUTIN_PARTICIPATION_NAME,
+                value=SCRUTIN_PARTICIPATION_VALUE.format(
+                    nombreVotants=scrutin.nombreVotants,
+                    nonVotant=scrutin.nonVotant,
+                    nonVotantsVolontaire=scrutin.nonVotantsVolontaire
+                ),
                 inline=True
             )
             embed.add_field(
-                name="Résultats",
-                value=
-                f":green_circle: Pour: {scrutin.pour}\n"
-                f":red_circle: Contre: {scrutin.contre}\n"
-                f":white_circle: Abstentions: {scrutin.abstention}",
+                name=SCRUTIN_RESULTS_NAME,
+                value=SCRUTIN_RESULTS_VALUE.format(
+                    pour=scrutin.pour,
+                    contre=scrutin.contre,
+                    abstention=scrutin.abstention
+                ),
                 inline=True
             )
             return embed
     return error_handler(
-        title="Scrutin non trouvé",
-        description=f"Je n'ai pas trouvé le scrutin {code_ref}."
+        title=SCRUTIN_NOT_FOUND_TITLE,
+        description=SCRUTIN_NOT_FOUND_DESCRIPTION.format(code_ref=code_ref)
     )
 
