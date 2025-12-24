@@ -9,12 +9,12 @@ import pytest
 
 from utils.deputeManager import Depute
 from utils.scrutinManager import Scrutin, ResultBallot
-from utils.types import JSON_SCRUTIN
+from utils.types import JSON
 
 
 def test_from_json(
     mock_log: MagicMock,
-    sample_scrutin_data_json: JSON_SCRUTIN,
+    sample_scrutin_data_json: JSON,
     mock_bot: MagicMock) -> None:
 
     scrutin: Scrutin = Scrutin.from_json(sample_scrutin_data_json)
@@ -40,7 +40,7 @@ def test_from_json(
 
 def test_from_json_by_ref_match(
     mock_log: MagicMock,
-    sample_scrutin_data_json: JSON_SCRUTIN,
+    sample_scrutin_data_json: JSON,
     mock_bot: MagicMock) -> None:
 
     scrutin: Optional[Scrutin] = Scrutin.from_json_by_ref(sample_scrutin_data_json, "1001")
@@ -62,7 +62,7 @@ def test_from_json_by_ref_match(
 
 def test_from_json_by_ref_no_match(
     mock_log: MagicMock,
-    sample_scrutin_data_json: JSON_SCRUTIN,
+    sample_scrutin_data_json: JSON,
     mock_bot: MagicMock) -> None:
 
     scrutin: Optional[Scrutin] = Scrutin.from_json_by_ref(sample_scrutin_data_json, "9999")
@@ -83,7 +83,7 @@ def test_from_json_by_ref_no_match(
 
 def test_result_pour(
     mock_log: MagicMock,
-    sample_scrutin_data_json: JSON_SCRUTIN,
+    sample_scrutin_data_json: JSON,
     sample_valid_depute_dataclass: Depute,
     mock_bot: MagicMock) -> None:
 
@@ -113,7 +113,7 @@ def test_result_pour(
 ])
 def test_result_variants(
     mock_log: MagicMock,
-    sample_scrutin_data_json: JSON_SCRUTIN,
+    sample_scrutin_data_json: JSON,
     ref: str,
     expected_result: ResultBallot,
     mock_bot: MagicMock) -> None:
@@ -147,7 +147,7 @@ def test_result_variants(
 
 def test_to_string(
     mock_log: MagicMock,
-    sample_scrutin_data_json: JSON_SCRUTIN,
+    sample_scrutin_data_json: JSON,
     mock_bot: MagicMock) -> None:
 
     scrutin: Scrutin = Scrutin.from_json(sample_scrutin_data_json)
@@ -171,7 +171,7 @@ def test_to_string(
 
 def test_to_string_depute_pour(
     mock_log: MagicMock,
-    sample_scrutin_data_json: JSON_SCRUTIN,
+    sample_scrutin_data_json: JSON,
     sample_valid_depute_dataclass: Depute,
     mock_bot: MagicMock) -> None:
 
@@ -196,7 +196,7 @@ def test_to_string_depute_pour(
 
 def test_to_string_depute_absent(
     mock_log: MagicMock,
-    sample_scrutin_data_json: JSON_SCRUTIN,
+    sample_scrutin_data_json: JSON,
     mock_bot: MagicMock) -> None:
 
     scrutin: Scrutin = Scrutin.from_json(sample_scrutin_data_json)

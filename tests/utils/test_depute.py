@@ -8,14 +8,14 @@ from unittest.mock import MagicMock, call, mock_open, patch
 
 from tests.utils.conftest import sample_gp_data
 from utils.deputeManager import Depute
-from utils.types import JSON_DEPUTE
+from utils.types import JSON
 
 
 @patch("utils.deputeManager.logger")
 @patch('builtins.open', mock_open(read_data=json.dumps(sample_gp_data)))
 def test_from_json(
     mock_log: MagicMock,
-    sample_valid_depute_json: JSON_DEPUTE,
+    sample_valid_depute_json: JSON,
     mock_bot: MagicMock) -> None:
 
     depute: Depute = Depute.from_json(sample_valid_depute_json)
@@ -46,7 +46,7 @@ def test_from_json(
 @patch('builtins.open', mock_open(read_data=json.dumps(sample_gp_data)))
 def test_missing_organe_from_json(
     mock_log: MagicMock,
-    sample_missing_organe_depute_json: JSON_DEPUTE,
+    sample_missing_organe_depute_json: JSON,
     mock_bot: MagicMock) -> None:
 
     depute: Depute = Depute.from_json(sample_missing_organe_depute_json)
@@ -80,7 +80,7 @@ def test_missing_organe_from_json(
 def test_invalid_organe_from_json(
     mock_builtins_open: MagicMock,
     mock_log: MagicMock,
-    sample_invalid_depute_json: JSON_DEPUTE,
+    sample_invalid_depute_json: JSON,
     mock_bot: MagicMock) -> None:
 
     mock_builtins_open.side_effect = OSError
@@ -114,7 +114,7 @@ def test_invalid_organe_from_json(
 @patch('builtins.open', mock_open(read_data=json.dumps(sample_gp_data)))
 def test_from_json_by_name_match(
     mock_log: MagicMock,
-    sample_valid_depute_json: JSON_DEPUTE,
+    sample_valid_depute_json: JSON,
     mock_bot: MagicMock) -> None:
 
     depute: Optional[Depute] = Depute.from_json_by_name(sample_valid_depute_json, "Dupont")
@@ -137,7 +137,7 @@ def test_from_json_by_name_match(
 @patch("utils.deputeManager.logger")
 def test_from_json_by_name_no_match(
     mock_log: MagicMock,
-    sample_valid_depute_json: JSON_DEPUTE,
+    sample_valid_depute_json: JSON,
     mock_bot: MagicMock) -> None:
 
     depute: Optional[Depute] = Depute.from_json_by_name(sample_valid_depute_json, "Durand")
@@ -160,7 +160,7 @@ def test_from_json_by_name_no_match(
 @patch('builtins.open', mock_open(read_data=json.dumps(sample_gp_data)))
 def test_from_json_by_dep_match(
     mock_log: MagicMock,
-    sample_valid_depute_json: JSON_DEPUTE,
+    sample_valid_depute_json: JSON,
     mock_bot: MagicMock) -> None:
 
     depute: Optional[Depute] = Depute.from_json_by_dep(sample_valid_depute_json, "75")
@@ -183,7 +183,7 @@ def test_from_json_by_dep_match(
 @patch("utils.deputeManager.logger")
 def test_from_json_by_dep_no_match(
     mock_log: MagicMock,
-    sample_valid_depute_json: JSON_DEPUTE,
+    sample_valid_depute_json: JSON,
     mock_bot: MagicMock) -> None:
 
     depute: Optional[Depute] = Depute.from_json_by_dep(sample_valid_depute_json, "13")
@@ -206,7 +206,7 @@ def test_from_json_by_dep_no_match(
 @patch('builtins.open', mock_open(read_data=json.dumps(sample_gp_data)))
 def test_from_json_by_circo_match(
     mock_log: MagicMock,
-    sample_valid_depute_json: JSON_DEPUTE,
+    sample_valid_depute_json: JSON,
     mock_bot: MagicMock) -> None:
 
     depute: Optional[Depute] = Depute.from_json_by_circo(sample_valid_depute_json, "75", "1")
@@ -230,7 +230,7 @@ def test_from_json_by_circo_match(
 @patch("utils.deputeManager.logger")
 def test_from_json_by_circo_no_match(
     mock_log: MagicMock,
-    sample_valid_depute_json: JSON_DEPUTE,
+    sample_valid_depute_json: JSON,
     mock_bot: MagicMock) -> None:
 
     depute: Optional[Depute] = Depute.from_json_by_circo(sample_valid_depute_json, "75", "3")
@@ -253,7 +253,7 @@ def test_from_json_by_circo_no_match(
 @patch('builtins.open', mock_open(read_data=json.dumps(sample_gp_data)))
 def test_to_string(
     mock_log: MagicMock,
-    sample_valid_depute_json: JSON_DEPUTE,
+    sample_valid_depute_json: JSON,
     mock_bot: MagicMock) -> None:
 
     depute: Depute = Depute.from_json(sample_valid_depute_json)

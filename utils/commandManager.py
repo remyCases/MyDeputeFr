@@ -34,6 +34,7 @@ class ProtectedCommand(HybridCommand[CogT, P, T]):
                          description=description,
                          **kwargs)
 
+
 def protected_command(
     name: Union[str, app_commands.locale_str] = MISSING,
     *,

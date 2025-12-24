@@ -9,7 +9,7 @@ import json
 import pytest
 
 from utils.deputeManager import Depute
-from utils.types import JSON_DEPUTE, JSON_SCRUTIN
+from utils.types import JSON
 
 
 sample_gp_data = {
@@ -34,7 +34,7 @@ def mocked_organe_folder(tmp_path: Path) -> Path:
 
 
 @pytest.fixture
-def sample_scrutin_data_json() -> JSON_SCRUTIN:
+def sample_scrutin_data_json() -> JSON:
     return {
         "scrutin": {
             "numero": "1001",
@@ -89,7 +89,7 @@ def sample_valid_depute_dataclass() -> Depute:
     )
 
 @pytest.fixture
-def sample_valid_depute_json() -> JSON_DEPUTE:
+def sample_valid_depute_json() -> JSON:
     """Sample JSON data mimicking structure from your Depute.from_json"""
     return {
         "acteur": {
@@ -124,7 +124,7 @@ def sample_valid_depute_json() -> JSON_DEPUTE:
     }
 
 @pytest.fixture
-def sample_missing_organe_depute_json() -> JSON_DEPUTE:
+def sample_missing_organe_depute_json() -> JSON:
     """Sample JSON data mimicking structure from your Depute.from_json
     with a missing organe field"""
     return {
@@ -160,7 +160,7 @@ def sample_missing_organe_depute_json() -> JSON_DEPUTE:
     }
 
 @pytest.fixture
-def sample_invalid_depute_json() -> JSON_DEPUTE:
+def sample_invalid_depute_json() -> JSON:
     """Sample JSON data mimicking structure from your Depute.from_json
     with a missing organe field"""
     return {

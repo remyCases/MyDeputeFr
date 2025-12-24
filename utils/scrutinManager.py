@@ -10,6 +10,7 @@ from typing import Optional
 from attrs import define
 
 from utils.deputeManager import Depute
+from utils.types import JSON
 
 
 # class syntax
@@ -36,7 +37,7 @@ class Scrutin:
     groupes: dict
 
     @classmethod
-    def from_json(cls, data: dict) -> Scrutin:
+    def from_json(cls, data: JSON) -> Scrutin:
         ref: str = data["scrutin"]["numero"]
         titre: str = data["scrutin"]["titre"]
         dateScrutin: date = datetime.strptime(data["scrutin"]["dateScrutin"], "%Y-%m-%d").date()
@@ -115,7 +116,7 @@ class Scrutin:
         )
     
     @classmethod
-    def from_json_by_ref(cls, data: dict, code_ref: str) -> Optional[Scrutin]:
+    def from_json_by_ref(cls, data: JSON, code_ref: str) -> Optional[Scrutin]:
         ref: str = data["scrutin"]["numero"]
         if ref != code_ref:
             return None

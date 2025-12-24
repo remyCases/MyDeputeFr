@@ -12,6 +12,7 @@ from unidecode import unidecode
 
 from common.config import ORGANE_FOLDER
 from common.logger import logger
+from utils.types import JSON
 
 ELECTION = "\u00e9lections g\u00e9n\u00e9rales"
 
@@ -29,7 +30,7 @@ class Depute:
     gp: str
 
     @classmethod
-    def from_json(cls, data: dict) -> Depute:
+    def from_json(cls, data: JSON) -> Depute:
         """Convert json data into a Depute dataclass"""
 
         ref: str = data["acteur"]["uid"]["#text"]
@@ -85,7 +86,7 @@ class Depute:
 
 
     @classmethod
-    def from_json_by_ref(cls, data: dict, ref: str) -> Optional[Depute]:
+    def from_json_by_ref(cls, data: JSON, ref: str) -> Optional[Depute]:
         data_ref: str = data["acteur"]["uid"]["#text"]
         if data_ref == ref:
             return Depute.from_json(data)
@@ -93,7 +94,7 @@ class Depute:
 
 
     @classmethod
-    def from_json_by_name(cls, data: dict, last_name: str, first_name: Optional[str] = None) -> Optional[Depute]:
+    def from_json_by_name(cls, data: JSON, last_name: str, first_name: Optional[str] = None) -> Optional[Depute]:
         """Return a Depute dataclass if input json matches the given name"""
         def normalize_name(name: str) -> str:
             return re.sub(r'[^a-z]', '', unidecode(name).lower())
@@ -105,7 +106,7 @@ class Depute:
         return None
 
     @classmethod
-    def from_json_by_dep(cls, data: dict, code_dep: str) -> Optional[Depute]:
+    def from_json_by_dep(cls, data: JSON, code_dep: str) -> Optional[Depute]:
         """Return a Depute dataclass if input json matches the given administrative division"""
 
         mandats: dict = data["acteur"]["mandats"]["mandat"]
@@ -124,7 +125,7 @@ class Depute:
         return Depute.from_json(data)
 
     @classmethod
-    def from_json_by_circo(cls, data: dict, code_dep: str, code_circo: str) -> Optional[Depute]:
+    def from_json_by_circo(cls, data: JSON, code_dep: str, code_circo: str) -> Optional[Depute]:
         """Return a Depute dataclass if input json matches the given admin and sub-admin division"""
 
         mandats: dict = data["acteur"]["mandats"]["mandat"]
