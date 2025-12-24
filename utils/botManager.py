@@ -60,10 +60,7 @@ class DiscordBot(commands.Bot):
             async with aiofiles.open(DATABASE_FOLDER / "saved", mode="w", encoding="utf-8") as f:
                 await f.write(contents)
 
-        try:
-            self.last_date = datetime.strptime(contents, "%Y-%m-%d").date()
-        except ValueError as e:
-            raise e
+        self.last_date = datetime.strptime(contents, "%Y-%m-%d").date()
 
 
     async def init_sqlite_db(self) -> None:

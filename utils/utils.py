@@ -34,10 +34,7 @@ def compute_time_for_update(update_hour: str) -> Tuple[datetime, float]:
 
 def compute_time_for_notifications(update_hour: str) -> Tuple[datetime, float]:
     """Return the seconds for the next notifications"""
-    try:
-        update_time: datetime = datetime.strptime(update_hour, "%H:%M:%S")
-    except ValueError as e:
-        raise e
+    update_time: datetime = datetime.strptime(update_hour, "%H:%M:%S")
 
     now: datetime = datetime.now()
     target_time: datetime = now.replace(
