@@ -3,29 +3,14 @@
 # This file is part of MyDeputeFr project from https://github.com/remyCases/MyDeputeFr.
 
 from pathlib import Path
-from typing import Collection, Dict, Iterator, List, Union
+from typing import Iterator
 from unittest.mock import MagicMock, mock_open, patch
 import json
 import pytest
 
 from utils.deputeManager import Depute
+from utils.types import JSON
 
-
-JSON_DEPUTE = Dict[
-    str, Dict[str, Union[
-            Dict[str, str],
-            Dict[str, Dict[str, str]],
-            Dict[str, List[object]]
-            ]]]
-
-JSON_SCRUTIN = Dict[
-    str, Dict[str, Union[
-            str,
-            Dict[str, str],
-            Dict[str, Dict[str, str]],
-            Dict[str, Collection[str]],
-            Dict[str, Dict[str, Dict[str, List[Dict[str, Collection[str]]]]]]
-            ]]]
 
 sample_gp_data = {
     "organe": {
@@ -49,7 +34,7 @@ def mocked_organe_folder(tmp_path: Path) -> Path:
 
 
 @pytest.fixture
-def sample_scrutin_data_json() -> JSON_SCRUTIN:
+def sample_scrutin_data_json() -> JSON:
     return {
         "scrutin": {
             "numero": "1001",
@@ -104,7 +89,7 @@ def sample_valid_depute_dataclass() -> Depute:
     )
 
 @pytest.fixture
-def sample_valid_depute_json() -> JSON_DEPUTE:
+def sample_valid_depute_json() -> JSON:
     """Sample JSON data mimicking structure from your Depute.from_json"""
     return {
         "acteur": {
@@ -139,7 +124,7 @@ def sample_valid_depute_json() -> JSON_DEPUTE:
     }
 
 @pytest.fixture
-def sample_missing_organe_depute_json() -> JSON_DEPUTE:
+def sample_missing_organe_depute_json() -> JSON:
     """Sample JSON data mimicking structure from your Depute.from_json
     with a missing organe field"""
     return {
@@ -175,7 +160,7 @@ def sample_missing_organe_depute_json() -> JSON_DEPUTE:
     }
 
 @pytest.fixture
-def sample_invalid_depute_json() -> JSON_DEPUTE:
+def sample_invalid_depute_json() -> JSON:
     """Sample JSON data mimicking structure from your Depute.from_json
     with a missing organe field"""
     return {

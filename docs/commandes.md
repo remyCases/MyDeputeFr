@@ -45,6 +45,26 @@
 !debugs 3
 ```
 
+### `debugn`
+
+**Description :** Commande de débogage pour afficher les députés suivis par un utilisateur.
+
+**Utilisation :**
+
+```discord
+!debugs <user_name>
+```
+
+**Paramètres :**
+
+- `user_name` (discord.User) : Nom d'un utilisateur discord.
+
+**Exemple :**
+
+```discord
+!debugn @zizabot
+```
+
 ### `nom`
 
 **Description :** Affiche les informations d'un député en fonction de son nom.
@@ -175,6 +195,83 @@
 !scr 95
 ```
 
+### `last`
+
+**Description :** Affiche la date du dernier scrutin en date.
+
+**Utilisation :**
+
+```discord
+!last
+```
+
+**Exemple :**
+
+```discord
+!last
+```
+
+### `sub`
+
+**Description :** S'inscrit pour suivre les prochains votes d'un député.
+
+**Utilisation :**
+
+```discord
+!sub <last_name>
+!sub <last_name> <first_name>
+```
+
+**Paramètres :**
+
+- `last_name` (str) : Nom de famille du député.
+- `first_name` (str) : Prénom de famille du député.
+
+**Exemple :**
+
+```discord
+!sub panot
+```
+
+### `unsub`
+
+**Description :** Se désinscrit concernant les prochains votes d'un député.
+
+**Utilisation :**
+
+```discord
+!unsub                          # pour se désincrire de tous les députés
+!unsub <last_name>              # pour se désincrire d'un député en particulier
+!unsub <last_name> <first_name> # pour se désincrire d'un député en particulier
+```
+
+**Paramètres :**
+
+- `last_name` (str) : Nom de famille du député.
+- `first_name` (str) : Prénom de famille du député.
+
+**Exemple :**
+
+```discord
+!unsub panot
+```
+
+### `rcv`
+
+**Description :** Affiche les votes de la dernière journée de scrutin des députés suivis.
+
+**Utilisation :**
+
+```discord
+!rcv
+```
+
+**Exemple :**
+
+```discord
+!rcv
+```
+
 ## Notes
 
-- Les commandes `debugd` et `debugs` sont des commandes de débogage et seront potentiellement supprimées.
+- Les commandes `debugd`, `debugs` et `debugn` sont des commandes de débogage et seront potentiellement supprimées.

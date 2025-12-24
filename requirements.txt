@@ -5,3 +5,6 @@ requests
 schedule
 unidecode
 typing-extensions
+aiosqlite
+aiofiles
+types-aiofiles

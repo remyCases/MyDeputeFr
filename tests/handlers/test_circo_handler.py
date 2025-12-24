@@ -5,7 +5,7 @@ from discord import Embed
 from common.config import DISCORD_EMBED_COLOR_MSG, DISCORD_EMBED_COLOR_ERR
 from handlers.deputeHandler import ciro_handler
 
-def mock_depute():
+def mock_depute() -> MagicMock:
     depute = MagicMock()
     depute.first_name = "Jean"
     depute.last_name = "Dupont"
@@ -24,7 +24,11 @@ def mock_depute():
 @patch('os.listdir', return_value=["depute_data_01_01.json", "depute_data_93_10.json", "depute_data_99_20.json"])
 @patch('utils.deputeManager.Depute.from_json_by_circo', side_effect=lambda data, code_dep, code_circo: mock_depute() if '93' == code_dep and '10' == code_circo else None)
 @patch('builtins.open', mock_open(read_data='{}'))
-def test_ciro_handler_found(_mock_list_dir, _mock_from_json_by_circo, code_dep, code_circo):
+def test_ciro_handler_found(
+    _mock_list_dir: MagicMock, 
+    _mock_from_json_by_circo: MagicMock, 
+    code_dep: str, 
+    code_circo: str) -> None:
     # Call the handler
     embed = ciro_handler(code_dep, code_circo)
 
@@ -32,7 +36,8 @@ def test_ciro_handler_found(_mock_list_dir, _mock_from_json_by_circo, code_dep, 
     assert isinstance(embed, Embed)
     assert embed.title == ":bust_in_silhouette: Jean Dupont"
     assert ":round_pushpin: **Circoncription** : 93-10 (Paris)\n:classical_building: **Groupe** : La République En Marche" == embed.description
-    assert int(embed.color) == DISCORD_EMBED_COLOR_MSG
+    assert embed.colour is not None
+    assert int(embed.colour) == DISCORD_EMBED_COLOR_MSG
 
 
 # Test for when no deputy is found (empty result)
@@ -43,14 +48,20 @@ def test_ciro_handler_found(_mock_list_dir, _mock_from_json_by_circo, code_dep, 
 @patch('os.listdir', return_value=["depute_data_01_01.json", "depute_data_93_10.json", "depute_data_99_20.json"])
 @patch('utils.deputeManager.Depute.from_json_by_circo', return_value=None)
 @patch('builtins.open', mock_open(read_data='{}'))
-def test_ciro_handler_not_found(_mock_list_dir, _mock_from_json_by_circo, code_dep, code_circo):
+def test_ciro_handler_not_found(
+    _mock_list_dir: MagicMock, 
+    _mock_from_json_by_circo: MagicMock, 
+    code_dep: str, 
+    code_circo: str) -> None:
     # Call the handler
     embed = ciro_handler(code_dep, code_circo)
 
     # Assert the error
     assert embed.title == "Député non trouvé"
+    assert embed.description is not None
     assert f"Je n'ai pas trouvé de député dans le {code_dep}-{code_circo}." in embed.description
-    assert int(embed.color) == DISCORD_EMBED_COLOR_ERR
+    assert embed.colour is not None
+    assert int(embed.colour) == DISCORD_EMBED_COLOR_ERR
 
 
 @pytest.mark.parametrize("code_dep, code_circo", [
@@ -58,14 +69,20 @@ def test_ciro_handler_not_found(_mock_list_dir, _mock_from_json_by_circo, code_d
 ])
 @patch('os.listdir', return_value=[])
 @patch('utils.deputeManager.Depute.from_json_by_circo', side_effect=lambda data, code_dep, code_circo: mock_depute() if '93' == code_dep and '10' == code_circo else None)
-def test_ciro_handler_no_files(_mock_list_dir, _mock_from_json_by_circo, code_dep, code_circo):
+def test_ciro_handler_no_files(
+    _mock_list_dir: MagicMock, 
+    _mock_from_json_by_circo: MagicMock, 
+    code_dep: str, 
+    code_circo: str) -> None:
     # Call the handler
     embed = ciro_handler(code_dep, code_circo)
 
     # Assert the error
     assert embed.title == "Député non trouvé"
+    assert embed.description is not None
     assert f"Je n'ai pas trouvé de député dans le {code_dep}-{code_circo}." in embed.description
-    assert int(embed.color) == DISCORD_EMBED_COLOR_ERR
+    assert embed.colour is not None
+    assert int(embed.colour) == DISCORD_EMBED_COLOR_ERR
 
 
 @pytest.mark.parametrize("code_dep, code_circo", [
@@ -73,14 +90,20 @@ def test_ciro_handler_no_files(_mock_list_dir, _mock_from_json_by_circo, code_de
 ])
 @patch('os.listdir', return_value=["depute_data_01_01.json", "depute_data_93_10.json", "depute_data_99_20.json"])
 @patch('utils.deputeManager.Depute.from_json_by_circo', side_effect=lambda data, code_dep, code_circo: mock_depute() if '93' == code_dep and '10' == code_circo else None)
-def test_ciro_handler_read_errors(_mock_list_dir, _mock_from_json_by_circo, code_dep, code_circo):
+def test_ciro_handler_read_errors(
+    _mock_list_dir: MagicMock, 
+    _mock_from_json_by_circo: MagicMock, 
+    code_dep: str, 
+    code_circo: str) -> None:
     # Call the handler
     embed = ciro_handler(code_dep, code_circo)
 
     # Assert the error
     assert embed.title == "Député non trouvé"
+    assert embed.description is not None
     assert f"Je n'ai pas trouvé de député dans le {code_dep}-{code_circo}." in embed.description
-    assert int(embed.color) == DISCORD_EMBED_COLOR_ERR
+    assert embed.colour is not None
+    assert int(embed.colour) == DISCORD_EMBED_COLOR_ERR
 
 @pytest.mark.parametrize("code_dep, code_circo", [
     ("93", "10"),
@@ -88,11 +111,17 @@ def test_ciro_handler_read_errors(_mock_list_dir, _mock_from_json_by_circo, code
 @patch('os.listdir', return_value=["depute_data_01_01.json", "depute_data_93_10.json", "depute_data_99_20.json"])
 @patch('utils.deputeManager.Depute.from_json_by_circo', side_effect=lambda data, code_dep, code_circo: mock_depute() if '93' == code_dep and '10' == code_circo else None)
 @patch('builtins.open', mock_open(read_data='not json'))
-def test_ciro_handler_json_errors(_mock_list_dir, _mock_from_json_by_circo, code_dep, code_circo):
+def test_ciro_handler_json_errors(
+    _mock_list_dir: MagicMock,
+    _mock_from_json_by_circo: MagicMock,
+    code_dep: str,
+    code_circo: str) -> None:
     # Call the handler
     embed = ciro_handler(code_dep, code_circo)
 
     # Assert the error
     assert embed.title == "Député non trouvé"
+    assert embed.description is not None
     assert f"Je n'ai pas trouvé de député dans le {code_dep}-{code_circo}." in embed.description
-    assert int(embed.color) == DISCORD_EMBED_COLOR_ERR
+    assert embed.colour is not None
+    assert int(embed.colour) == DISCORD_EMBED_COLOR_ERR

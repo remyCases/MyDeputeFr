@@ -3,18 +3,19 @@
 # This file is part of MyDeputeFr project from https://github.com/remyCases/MyDeputeFr.
 
 import json
-from typing import Union
+from typing import Optional
 from unittest.mock import MagicMock, call, mock_open, patch
 
-from tests.utils.conftest import JSON_DEPUTE, sample_gp_data
+from tests.utils.conftest import sample_gp_data
 from utils.deputeManager import Depute
+from utils.types import JSON
 
 
 @patch("utils.deputeManager.logger")
 @patch('builtins.open', mock_open(read_data=json.dumps(sample_gp_data)))
 def test_from_json(
     mock_log: MagicMock,
-    sample_valid_depute_json: JSON_DEPUTE,
+    sample_valid_depute_json: JSON,
     mock_bot: MagicMock) -> None:
 
     depute: Depute = Depute.from_json(sample_valid_depute_json)
@@ -45,7 +46,7 @@ def test_from_json(
 @patch('builtins.open', mock_open(read_data=json.dumps(sample_gp_data)))
 def test_missing_organe_from_json(
     mock_log: MagicMock,
-    sample_missing_organe_depute_json: JSON_DEPUTE,
+    sample_missing_organe_depute_json: JSON,
     mock_bot: MagicMock) -> None:
 
     depute: Depute = Depute.from_json(sample_missing_organe_depute_json)
@@ -79,7 +80,7 @@ def test_missing_organe_from_json(
 def test_invalid_organe_from_json(
     mock_builtins_open: MagicMock,
     mock_log: MagicMock,
-    sample_invalid_depute_json: JSON_DEPUTE,
+    sample_invalid_depute_json: JSON,
     mock_bot: MagicMock) -> None:
 
     mock_builtins_open.side_effect = OSError
@@ -113,10 +114,10 @@ def test_invalid_organe_from_json(
 @patch('builtins.open', mock_open(read_data=json.dumps(sample_gp_data)))
 def test_from_json_by_name_match(
     mock_log: MagicMock,
-    sample_valid_depute_json: JSON_DEPUTE,
+    sample_valid_depute_json: JSON,
     mock_bot: MagicMock) -> None:
 
-    depute: Union[Depute, None] = Depute.from_json_by_name(sample_valid_depute_json, "Dupont")
+    depute: Optional[Depute] = Depute.from_json_by_name(sample_valid_depute_json, "Dupont")
 
     # Assertions result
     assert depute is not None
@@ -136,10 +137,10 @@ def test_from_json_by_name_match(
 @patch("utils.deputeManager.logger")
 def test_from_json_by_name_no_match(
     mock_log: MagicMock,
-    sample_valid_depute_json: JSON_DEPUTE,
+    sample_valid_depute_json: JSON,
     mock_bot: MagicMock) -> None:
 
-    depute: Union[Depute, None] = Depute.from_json_by_name(sample_valid_depute_json, "Durand")
+    depute: Optional[Depute] = Depute.from_json_by_name(sample_valid_depute_json, "Durand")
 
     # Assertions result
     assert depute is None
@@ -159,10 +160,10 @@ def test_from_json_by_name_no_match(
 @patch('builtins.open', mock_open(read_data=json.dumps(sample_gp_data)))
 def test_from_json_by_dep_match(
     mock_log: MagicMock,
-    sample_valid_depute_json: JSON_DEPUTE,
+    sample_valid_depute_json: JSON,
     mock_bot: MagicMock) -> None:
 
-    depute: Union[Depute, None] = Depute.from_json_by_dep(sample_valid_depute_json, "75")
+    depute: Optional[Depute] = Depute.from_json_by_dep(sample_valid_depute_json, "75")
 
     # Assertions result
     assert depute is not None
@@ -182,10 +183,10 @@ def test_from_json_by_dep_match(
 @patch("utils.deputeManager.logger")
 def test_from_json_by_dep_no_match(
     mock_log: MagicMock,
-    sample_valid_depute_json: JSON_DEPUTE,
+    sample_valid_depute_json: JSON,
     mock_bot: MagicMock) -> None:
 
-    depute: Union[Depute, None] = Depute.from_json_by_dep(sample_valid_depute_json, "13")
+    depute: Optional[Depute] = Depute.from_json_by_dep(sample_valid_depute_json, "13")
 
     # Assertions result
     assert depute is None
@@ -205,10 +206,10 @@ def test_from_json_by_dep_no_match(
 @patch('builtins.open', mock_open(read_data=json.dumps(sample_gp_data)))
 def test_from_json_by_circo_match(
     mock_log: MagicMock,
-    sample_valid_depute_json: JSON_DEPUTE,
+    sample_valid_depute_json: JSON,
     mock_bot: MagicMock) -> None:
 
-    depute: Union[Depute, None] = Depute.from_json_by_circo(sample_valid_depute_json, "75", "1")
+    depute: Optional[Depute] = Depute.from_json_by_circo(sample_valid_depute_json, "75", "1")
 
     # Assertions result
     assert depute is not None
@@ -229,10 +230,10 @@ def test_from_json_by_circo_match(
 @patch("utils.deputeManager.logger")
 def test_from_json_by_circo_no_match(
     mock_log: MagicMock,
-    sample_valid_depute_json: JSON_DEPUTE,
+    sample_valid_depute_json: JSON,
     mock_bot: MagicMock) -> None:
 
-    depute: Union[Depute, None] = Depute.from_json_by_circo(sample_valid_depute_json, "75", "3")
+    depute: Optional[Depute] = Depute.from_json_by_circo(sample_valid_depute_json, "75", "3")
 
     # Assertions result
     assert depute is None
@@ -252,7 +253,7 @@ def test_from_json_by_circo_no_match(
 @patch('builtins.open', mock_open(read_data=json.dumps(sample_gp_data)))
 def test_to_string(
     mock_log: MagicMock,
-    sample_valid_depute_json: JSON_DEPUTE,
+    sample_valid_depute_json: JSON,
     mock_bot: MagicMock) -> None:
 
     depute: Depute = Depute.from_json(sample_valid_depute_json)

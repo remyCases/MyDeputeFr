@@ -8,7 +8,7 @@ from cogs.deputeCommand import DeputeCommand
 from tests.conftest import mock_bot
 
 @pytest.fixture
-def mock_context():
+def mock_context() -> MagicMock:
     ctx = MagicMock(spec=Context)
     ctx.send = AsyncMock()
     ctx.bot = MagicMock()

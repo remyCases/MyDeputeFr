@@ -2,18 +2,19 @@
 # See LICENSE file for extended copyright information.
 # This file is part of MyDeputeFr project from https://github.com/remyCases/MyDeputeFr.
 
-from typing import Union
+from datetime import datetime
+from typing import Optional
 from unittest.mock import MagicMock
 import pytest
 
-from tests.utils.conftest import JSON_SCRUTIN
 from utils.deputeManager import Depute
 from utils.scrutinManager import Scrutin, ResultBallot
+from utils.types import JSON
 
 
 def test_from_json(
     mock_log: MagicMock,
-    sample_scrutin_data_json: JSON_SCRUTIN,
+    sample_scrutin_data_json: JSON,
     mock_bot: MagicMock) -> None:
 
     scrutin: Scrutin = Scrutin.from_json(sample_scrutin_data_json)
@@ -21,7 +22,7 @@ def test_from_json(
     # Assertions result
     assert scrutin.ref == "1001"
     assert scrutin.titre.startswith("Projet de loi")
-    assert scrutin.dateScrutin == "2025-03-12"
+    assert scrutin.dateScrutin ==  datetime(2025, 3, 12).date()
     assert scrutin.sort == "Adopté"
     assert scrutin.nombreVotants == "577"
     assert scrutin.groupes["GP001"]["pour"] == ["PA456"]
@@ -39,10 +40,10 @@ def test_from_json(
 
 def test_from_json_by_ref_match(
     mock_log: MagicMock,
-    sample_scrutin_data_json: JSON_SCRUTIN,
+    sample_scrutin_data_json: JSON,
     mock_bot: MagicMock) -> None:
 
-    scrutin: Union[Scrutin, None] = Scrutin.from_json_by_ref(sample_scrutin_data_json, "1001")
+    scrutin: Optional[Scrutin] = Scrutin.from_json_by_ref(sample_scrutin_data_json, "1001")
 
     # Assertions result
     assert scrutin is not None
@@ -61,10 +62,10 @@ def test_from_json_by_ref_match(
 
 def test_from_json_by_ref_no_match(
     mock_log: MagicMock,
-    sample_scrutin_data_json: JSON_SCRUTIN,
+    sample_scrutin_data_json: JSON,
     mock_bot: MagicMock) -> None:
 
-    scrutin: Union[Scrutin, None] = Scrutin.from_json_by_ref(sample_scrutin_data_json, "9999")
+    scrutin: Optional[Scrutin] = Scrutin.from_json_by_ref(sample_scrutin_data_json, "9999")
 
     # Assertions result
     assert scrutin is None
@@ -82,12 +83,12 @@ def test_from_json_by_ref_no_match(
 
 def test_result_pour(
     mock_log: MagicMock,
-    sample_scrutin_data_json: JSON_SCRUTIN,
+    sample_scrutin_data_json: JSON,
     sample_valid_depute_dataclass: Depute,
     mock_bot: MagicMock) -> None:
 
     scrutin: Scrutin = Scrutin.from_json(sample_scrutin_data_json)
-    result: Union[ResultBallot, None] = scrutin.result(sample_valid_depute_dataclass)
+    result: Optional[ResultBallot] = scrutin.result(sample_valid_depute_dataclass)
 
     # Assertions result
     assert result == ResultBallot.POUR
@@ -112,7 +113,7 @@ def test_result_pour(
 ])
 def test_result_variants(
     mock_log: MagicMock,
-    sample_scrutin_data_json: JSON_SCRUTIN,
+    sample_scrutin_data_json: JSON,
     ref: str,
     expected_result: ResultBallot,
     mock_bot: MagicMock) -> None:
@@ -128,7 +129,7 @@ def test_result_variants(
         gp="Groupe Test"
     )
     scrutin: Scrutin = Scrutin.from_json(sample_scrutin_data_json)
-    result: Union[ResultBallot, None] = scrutin.result(depute)
+    result: Optional[ResultBallot] = scrutin.result(depute)
 
     # Assertions result
     assert result == expected_result
@@ -146,7 +147,7 @@ def test_result_variants(
 
 def test_to_string(
     mock_log: MagicMock,
-    sample_scrutin_data_json: JSON_SCRUTIN,
+    sample_scrutin_data_json: JSON,
     mock_bot: MagicMock) -> None:
 
     scrutin: Scrutin = Scrutin.from_json(sample_scrutin_data_json)
@@ -170,12 +171,12 @@ def test_to_string(
 
 def test_to_string_depute_pour(
     mock_log: MagicMock,
-    sample_scrutin_data_json: JSON_SCRUTIN,
+    sample_scrutin_data_json: JSON,
     sample_valid_depute_dataclass: Depute,
     mock_bot: MagicMock) -> None:
 
     scrutin: Scrutin = Scrutin.from_json(sample_scrutin_data_json)
-    msg: Union[str, None] = scrutin.to_string_depute(sample_valid_depute_dataclass)
+    msg: Optional[str] = scrutin.to_string_depute(sample_valid_depute_dataclass)
 
     # Assertions result
     assert msg is not None
@@ -195,7 +196,7 @@ def test_to_string_depute_pour(
 
 def test_to_string_depute_absent(
     mock_log: MagicMock,
-    sample_scrutin_data_json: JSON_SCRUTIN,
+    sample_scrutin_data_json: JSON,
     mock_bot: MagicMock) -> None:
 
     scrutin: Scrutin = Scrutin.from_json(sample_scrutin_data_json)
@@ -209,7 +210,7 @@ def test_to_string_depute_absent(
         gp_ref="GP001",
         gp="Groupe Test"
     )
-    msg: Union[str, None] = scrutin.to_string_depute(depute)
+    msg: Optional[str] = scrutin.to_string_depute(depute)
 
     # Assertions result
     assert msg is not None

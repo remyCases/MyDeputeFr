@@ -5,18 +5,21 @@ from __future__ import annotations
 
 from typing import Optional
 
+import discord
 from discord.ext import commands
-from discord.ext.commands import Context
-from typing_extensions import Self
+from discord.ext.commands._types import Check
 
 from common.config import MODE
-from handlers.debugHandler import debugd_handler, debugs_handler
+from handlers.debugHandler import debugd_handler, debugn_handler, debugs_handler
+from utils.botManager import DiscordBot
 from utils.cogManager import ProtectedCog
 from utils.commandManager import protected_command
+from utils.notificationManager import send_notifications
+from utils.types import ContextT
 from utils.utils import send_embeds
 
 
-def debug_command():
+def debug_command() -> Check[ContextT]:
     """
     Decorator to allow command only in DEBUG mode.
 
@@ -24,7 +27,7 @@ def debug_command():
         Callable: The command decorator to apply.
     """
 
-    async def predicate(ctx: Context):
+    async def predicate(ctx: ContextT) -> bool:
         if ctx.bot.mode != MODE.DEBUG:
             await ctx.send("Commande non disponible en mode release.")
             return False
@@ -43,13 +46,13 @@ class DebugCommand(ProtectedCog, name="debug"):
         description="Debug command.",
     )
     @debug_command()
-    async def debugd(self: Self, context: Context, last_name: str, first_name: Optional[str] = None) -> None:
+    async def debugd(self, context: ContextT, last_name: str, first_name: Optional[str] = None) -> None:
         """
         Show debug info for a député by name.
 
         Parameters:
             last_name (str): The last name of the député.
-            first_name (str | None): The optional first name of the député.
+            first_name (Optional[str]): The optional first name of the député.
         """
         await send_embeds(context, lambda: debugd_handler(last_name, first_name))
 
@@ -58,17 +61,45 @@ class DebugCommand(ProtectedCog, name="debug"):
         description="Debug command.",
     )
     @debug_command()
-    async def debugs(self : Self, context: Context, code_ref: str) -> None:
+    async def debugs(self, context: ContextT, code_ref: str) -> None:
         """
         Show debug info for a scrutin by code reference.
 
         Parameters:
-            context (Context): The context of the command.
+            context (ContextT): The context of the command.
             code_ref (str): The reference code of the scrutin.
         """
         await send_embeds(context, lambda: debugs_handler(code_ref))
+    @protected_command(
+        name="debugn",
+        description="Debug command.",
+    )
+    @debug_command()
+    async def debugn(self, context: ContextT, user: discord.User) -> None:
+        """
+        TODO
+        """
+        ref_notifs = await self.bot.database.get_notifications(user.id)
+        if len(ref_notifs) == 0:
+            embed = discord.Embed(
+                description=f"No entry for {user.name} in {context.guild.name}.",
+                color=0xBEBEFE,
+            )
+            await context.send(embed=embed)
+        else:
+            await send_embeds(context, lambda: debugn_handler(ref_notifs))
+    @protected_command(
+        name="simn",
+        description="Debug command.",
+    )
+    @debug_command()
+    async def simn(self, __context: ContextT) -> None:
+        """
+        TODO
+        """
+        await send_notifications(self.bot.database, self.bot.get_user)
 
-async def setup(bot) -> None:
+async def setup(bot: DiscordBot) -> None:
     """
     Setup function to add DebugCommand cog to bot.
 

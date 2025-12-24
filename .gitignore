@@ -178,3 +178,8 @@ cython_debug/
 
 # Custom data folder
 data/*
+
+# Custom sqlite database
+database/*.db
+database/*.sqlite
+database/saved
